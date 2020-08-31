@@ -1,0 +1,17 @@
+{
+  "name": "OpenJio-server",
+  "version": "1.0.0",
+  "description": "IS4103 common backend",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest",
+    "start": "nodemon server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "jest": "^26.4.2",
+    "nodemon": "^2.0.4"
+  }
+}
