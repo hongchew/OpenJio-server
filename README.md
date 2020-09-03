@@ -10,3 +10,5 @@ Built on express.js
 `npm run start` or `yarn start` to run the server.
 
 The server will be listening on `http://localhost:3000` by default.
+
+Test the server on postman with [GET] `http://localhost:3000/test`
