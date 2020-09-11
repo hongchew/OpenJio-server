@@ -2,6 +2,10 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+/* Database */
+const getDb = require('./database')
+getDb();
+
 /* Routes */
 const usersRouter = require('./routes/usersRoutes')
 const announcementsRouter = require('./routes/announcementsRoutes')
