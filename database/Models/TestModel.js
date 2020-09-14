@@ -1,4 +1,4 @@
-const {Sequelize, Model, DataTypes } = require("sequelize");
+const { Sequelize, Model, DataTypes } = require("sequelize");
 
 class TestModel extends Model {}
 
@@ -8,7 +8,7 @@ const initTestModel = async (sequelize) => {
       id: {
         type: DataTypes.UUID,
         defaultValue: Sequelize.UUIDV4,
-        primaryKey: true
+        primaryKey: true,
       },
       testId: {
         type: DataTypes.STRING,
@@ -20,6 +20,7 @@ const initTestModel = async (sequelize) => {
     }
   );
   await TestModel.sync();
+  console.log(`****[database] TestModel initialized`);
 };
 
 module.exports = { TestModel, initTestModel };

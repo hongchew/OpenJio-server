@@ -1,10 +1,8 @@
 const { Sequelize } = require("sequelize");
 const { database_variables } = require("../PRIVATE_VARIABLES");
-const {
-  createTestModel,
-  retrieveTestModel,
-} = require("./Operations/TestModel");
-const {initTestModel} = require('./Models/TestModel')
+const { createSuperAdmin, retrieveAdminById } = require('./Operations/Admin')
+const { initTestModel, TestModel } = require("./Models/TestModel");
+const { initAdmin, Admin } = require("./Models/Admin");
 
 let db;
 
@@ -24,7 +22,7 @@ const getDb = async () => {
     }
   );
 
-  // Authenticate
+  //#region Authenticate
   try {
     await db.authenticate();
     console.log(
@@ -33,29 +31,38 @@ const getDb = async () => {
   } catch (error) {
     console.error("***[Database] Unable to connect to the database:", error);
   }
+  //#endregion
 
-  // Init Models
+  //#region  Init Models
   try {
-    await initTestModel(db);
+    await Promise.all([initTestModel(db), initAdmin(db)]);
   } catch (error) {
     console.error("***[Database] Unable to initialize database:", error);
   }
+  //#endregion
 
-  // Insert TestModel
+  //#region Set Up Relationship
+  //#region
+
+  //#region Insert TestModel
   // Change to Admin user when schema is out please
   try {
-    let admin = await retrieveTestModel('1')
-    if(admin){
-        //admin found
-        console.log(`***[Database] Admin with id ${admin.getDataValue('testId')} found`)
-    }else {
-        admin = await createTestModel('1');
-        console.log(`***[Database] Admin with id ${admin.getDataValue('testId')} created`)
+    let admin = await retrieveAdminById("1");
+    if (admin) {
+      //admin found
+      console.log(
+        `***[Database] Default Admin with type = ${admin.getDataValue("adminType")} and id = ${admin.getDataValue("id")} found`
+      );
+    } else {
+      admin = await createSuperAdmin("1", "superadmin", "superadmin@openjio.com", "password");
+      console.log(
+        `***[Database] Admin with id ${admin.getDataValue("id")} created`
+      );
     }
-    
   } catch (error) {
-    console.error("***[Database] Unable to insert TestModel:", error);
+    console.error("***[Database] Unable to insert default Super Admin:", error);
   }
+  //#endregion
 
   return db;
 };
