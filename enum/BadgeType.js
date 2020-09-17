@@ -1,5 +1,6 @@
 module.exports = {
-  BADGE_1: "BADGE_1",
-  BADGE_2: "BADGE_2",
-  BADGE_3: "BADGE_3",
+  BADGE_1: "SUPER NEIGHBOUR",
+  BADGE_2: "RELIABLE",
+  BADGE_3: "FAST",
+  BADGE_4: "EXCELLENT COMMUNICATOR",
 };
