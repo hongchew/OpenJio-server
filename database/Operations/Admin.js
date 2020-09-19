@@ -15,7 +15,7 @@ const createAdmin = async (name, email, password) => {
 const createSuperAdmin = async (id, name, email, password) => {
   // need to hash password before storing once we figure out how to do the security
   const newSuperAdmin = await Admin.create({
-    id: id,
+    adminId: id,
     name: name,
     email: email,
     password: password,
@@ -24,10 +24,10 @@ const createSuperAdmin = async (id, name, email, password) => {
   return newSuperAdmin;
 };
 
-const retrieveAdminById = async (id) => {
+const retrieveAdminById = async (adminId) => {
   const admin = await Admin.findOne({
     where: {
-      id: id,
+      adminId: adminId,
     },
   });
   return admin;
