@@ -1,39 +1,40 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
 
-class Admin extends Model {}
+class Address extends Model {}
 
-const initAdmin = async (sequelize) => {
-  Admin.init(
+const initAddress = async (sequelize) => {
+  Address.init(
     {
-      adminId: {
+      addressId: {
         type: DataTypes.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      name: {
+      line1: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      email: {
+      line2: {
         type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
       },
-      password: {
+      postalCode: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      adminType: {
+      country: {
         type: DataTypes.STRING,
         allowNull: false
       },
+      description: {
+        type: DataTypes.STRING
+      }
     },
     {
       sequelize,
-      modelName: "Admin",
+      modelName: "Address",
     }
   );
-  console.log(`****[database] Admin initialized`);
+  console.log(`****[database] Address initialized`);
 };
 
-module.exports = { Admin, initAdmin };
+module.exports = { Address, initAddress };

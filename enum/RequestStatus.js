@@ -1,0 +1,7 @@
+module.exports = {
+    PENDING: "PENDING",
+    SCHEDULED: "SCHEDULED",
+    DOING: "DOING",
+    COMPLETED: "COMPLETED",
+    VERIFED: "VERIFIED"
+}
