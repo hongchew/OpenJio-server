@@ -29,7 +29,6 @@ const initRecurrentTopUp = async (sequelize) => {
       modelName: "RecurrentTopUp",
     }
   );
-  await RecurrentTopUp.sync();
   console.log(`****[database] RecurrentTopUp initialized`);
 };
 

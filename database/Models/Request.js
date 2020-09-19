@@ -36,7 +36,6 @@ const initRequest = async (sequelize) => {
       modelName: "Request",
     }
   );
-  await Request.sync();
   console.log(`****[database] Request initialized`);
 };
 

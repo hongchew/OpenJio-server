@@ -33,7 +33,6 @@ const initAdmin = async (sequelize) => {
       modelName: "Admin",
     }
   );
-  await Admin.sync();
   console.log(`****[database] Admin initialized`);
 };
 

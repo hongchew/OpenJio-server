@@ -29,7 +29,6 @@ const initComplaint = async (sequelize) => {
       modelName: "Complaint",
     }
   );
-  await Complaint.sync();
   console.log(`****[database] Complaint initialized`);
 };
 

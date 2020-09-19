@@ -28,7 +28,6 @@ const initNotification = async (sequelize) => {
       modelName: "Notification",
     }
   );
-  await Notification.sync();
   console.log(`****[database] Notification initialized`);
 };
 

@@ -53,7 +53,6 @@ const initUser = async (sequelize) => {
       modelName: "User",
     }
   );
-  await User.sync();
   console.log(`****[database] User initialized`);
 };
 

@@ -32,7 +32,6 @@ const initSupportTicket = async (sequelize) => {
       modelName: "SupportTicket",
     }
   );
-  await SupportTicket.sync();
   console.log(`****[database] SupportTicket initialized`);
 };
 

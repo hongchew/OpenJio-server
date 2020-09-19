@@ -37,7 +37,6 @@ const initBadge = async (sequelize) => {
       modelName: "Badge",
     }
   );
-  await Badge.sync();
   console.log(`****[database] Badge initialized`);
 };
 

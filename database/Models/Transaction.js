@@ -28,7 +28,6 @@ const initTransaction = async (sequelize) => {
       modelName: "Transaction",
     }
   );
-  await Transaction.sync();
   console.log(`****[database] Transaction initialized`);
 };
 

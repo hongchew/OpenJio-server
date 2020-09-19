@@ -24,7 +24,6 @@ const initTemperatureLog = async (sequelize) => {
       modelName: "TemperatureLog",
     }
   );
-  await TemperatureLog.sync();
   console.log(`****[database] TemperatureLog initialized`);
 };
 

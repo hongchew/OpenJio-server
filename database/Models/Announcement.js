@@ -37,7 +37,6 @@ const initAnnouncement = async (sequelize) => {
       modelName: "Announcement",
     }
   );
-  await Announcement.sync();
   console.log(`****[database] Announcement initialized`);
 };
 

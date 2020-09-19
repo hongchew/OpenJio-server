@@ -28,7 +28,6 @@ const initWallet = async (sequelize) => {
       modelName: "Wallet",
     }
   );
-  await Wallet.sync();
   console.log(`****[database] Wallet initialized`);
 };
 

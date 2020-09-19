@@ -24,7 +24,6 @@ const initOutbreakZone = async (sequelize) => {
       modelName: "OutbreakZone",
     }
   );
-  await OutbreakZone.sync();
   console.log(`****[database] OutbreakZone initialized`);
 };
 

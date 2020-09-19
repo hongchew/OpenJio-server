@@ -34,7 +34,6 @@ const initAddress = async (sequelize) => {
       modelName: "Address",
     }
   );
-  await Address.sync();
   console.log(`****[database] Address initialized`);
 };
 

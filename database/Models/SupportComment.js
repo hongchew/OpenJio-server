@@ -14,13 +14,16 @@ const initSupportComment = async (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      isPostedByAdmin: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      }
     },
     {
       sequelize,
       modelName: "SupportComment",
     }
   );
-  await SupportComment.sync();
   console.log(`****[database] SupportComment initialized`);
 };
 
