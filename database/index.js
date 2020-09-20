@@ -15,7 +15,7 @@ const { initSupportComment, SupportComment } = require('./Models/SupportComment'
 const { initSupportTicket, SupportTicket } = require('./Models/SupportTicket');
 const { initTemperatureLog, TemperatureLog } = require('./Models/TemperatureLog');
 const { initTransaction, Transaction } = require('./Models/Transaction');
-const { initUser, User } = require('./Models/Users');
+const { initUser, User } = require('./Models/User');
 const { initWallet, Wallet } = require('./Models/Wallet');
 const SupportComplaintStatus = require('../enum/SupportComplaintStatus');
 
