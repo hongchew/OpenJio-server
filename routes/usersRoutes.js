@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const {createUser, verifyLogin} = require('../database/Operations/User');
+const {
+  createUser,
+  verifyLogin,
+  changePassword,
+} = require('../database/Operations/User');
 
 /* http://localhost:3000/users/ . */
 router.get('/', (req, res) => {
@@ -65,6 +69,31 @@ router.post('/login', async (req, res) => {
       res.status(401).json({message: 'Incorrect Email or Password'});
     } else {
       res.json(user);
+    }
+  } catch (e) {
+    // generic server error
+
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: POST /users/change-password
+  Content type: JSON { email: 'string', currPassword: 'string', newPassword: 'string'}
+  Return: JSON message
+*/
+router.post('/change-password', async (req, res) => {
+  try {
+    const user = await changePassword(
+      req.body.email,
+      req.body.currPassword,
+      req.body.newPassword
+    );
+    //password change is not successful
+    if (!user) {
+      throw 'Current password is wrong';
+    } else {
+      res.status(200).json('Password changed successfully');
     }
   } catch (e) {
     // generic server error

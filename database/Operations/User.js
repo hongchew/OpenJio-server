@@ -75,7 +75,32 @@ const verifyLogin = async (email, password) => {
       return null;
     } else {
       // email exist and provided password is right
-      return await retrieveUserByUserId(user.userId);
+      return retrieveUserByUserId(user.userId);
+    }
+  } catch (e) {
+    throw e;
+  }
+};
+
+/*
+  Update Password
+  Parameters: (email: string, currPassword: string, newPassword: string)
+  Return: User object if password updated successfully, 
+*/
+const changePassword = async (email, currPassword, newPassword) => {
+  try {
+    const user = await retrieveUserByEmail(email);
+
+    //if email is wrong
+    if (!user) {
+      throw 'Server Error';
+    }
+    //check current password against password in the database
+    else if (user.isCorrectPassword(currPassword)) {
+      user.password = User.encryptPassword(newPassword, user.salt);
+      return user.save();
+    } else {
+      return null;
     }
   } catch (e) {
     throw e;
@@ -84,5 +109,6 @@ const verifyLogin = async (email, password) => {
 
 module.exports = {
   createUser,
-  verifyLogin
+  verifyLogin,
+  changePassword,
 };
