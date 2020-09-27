@@ -63,11 +63,11 @@ const retrieveUserByEmail = async (email) => {
 };
 
 /*
-  Verify login credentials
+  Verify user login credentials
   Parameters: (email: string, password: string)
   Return: User object if successful login, 
 */
-const verifyLogin = async (email, password) => {
+const verifyUserLogin = async (email, password) => {
   try {
     const user = await retrieveUserByEmail(email);
     if (!user || !user.isCorrectPassword(password)) {
@@ -83,11 +83,11 @@ const verifyLogin = async (email, password) => {
 };
 
 /*
-  Update Password
+  Update user's password
   Parameters: (email: string, currPassword: string, newPassword: string)
   Return: User object if password updated successfully, 
 */
-const changePassword = async (email, currPassword, newPassword) => {
+const changeUserPassword = async (email, currPassword, newPassword) => {
   try {
     const user = await retrieveUserByEmail(email);
 
@@ -109,6 +109,6 @@ const changePassword = async (email, currPassword, newPassword) => {
 
 module.exports = {
   createUser,
-  verifyLogin,
-  changePassword,
+  verifyUserLogin,
+  changeUserPassword,
 };
