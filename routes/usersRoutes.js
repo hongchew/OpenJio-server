@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const {User} = require('../database/Models/User');
 const {
   createUser,
   verifyUserLogin,
   changeUserPassword,
+  sendEmail,
+  resetUserPassword,
 } = require('../database/Operations/User');
 
 /* http://localhost:3000/users/ . */
@@ -97,6 +100,29 @@ router.post('/change-password', async (req, res) => {
     } else {
       res.status(200).send();
     }
+  } catch (e) {
+    // generic server error
+
+    // res.status(500).json(e);
+    res.json(e);
+  }
+});
+
+/*
+  Endpoint: POST /users/reset-user-password
+  Content type: JSON { email: 'string'}
+  Return: HTTP status code
+*/
+router.post('/reset-user-password', async (req, res) => {
+  try {
+    const newPassword = User.generatePassword();
+    const content = {
+      subject: 'Reset Password',
+      text: `your new password is: ${newPassword}`,
+    };
+    await resetUserPassword(req.body.email, newPassword);
+    await sendEmail(req.body.email, content);
+    res.status(200).send();
   } catch (e) {
     // generic server error
 

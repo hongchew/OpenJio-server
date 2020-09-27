@@ -1,4 +1,5 @@
 const {User} = require('../Models/User');
+const nodemailer = require('nodemailer');
 
 /*
   Create an insert user into database
@@ -107,8 +108,55 @@ const changeUserPassword = async (email, currPassword, newPassword) => {
   }
 };
 
+/*
+  Send email to user
+  Parameters: (email: string)
+  Return: Promise 
+*/
+const sendEmail = async (email, content) => {
+  var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'openjio4103@gmail.com',
+      pass: '4103openjio',
+    },
+  });
+
+  var mailOptions = {
+    from: 'openjio4103@gmail.com',
+    to: email,
+    subject: content.subject,
+    text: content.text,
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+
+/*
+  Reset user's password
+  Parameters: (email: string, newPassword: string)
+  Return: Promise
+*/
+const resetUserPassword = async (email, newPassword) => {
+  try {
+    const user = await retrieveUserByEmail(email);
+
+    //if email is wrong
+    if (!user) {
+      throw 'Server Error';
+    } else {
+      user.password = User.encryptPassword(newPassword, user.salt);
+      return user.save();
+    }
+  } catch (e) {
+    throw e;
+  }
+};
+
 module.exports = {
   createUser,
   verifyUserLogin,
   changeUserPassword,
+  sendEmail,
+  resetUserPassword,
 };
