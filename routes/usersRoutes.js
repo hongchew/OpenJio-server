@@ -80,9 +80,9 @@ router.post('/login', async (req, res) => {
 /*
   Endpoint: POST /users/change-user-password
   Content type: JSON { email: 'string', currPassword: 'string', newPassword: 'string'}
-  Return: JSON message
+  Return: HTTP status code
 */
-router.post('/change-password', async (req, res) => {
+router.post('/change-user-password', async (req, res) => {
   try {
     const user = await changeUserPassword(
       req.body.email,
