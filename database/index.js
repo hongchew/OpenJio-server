@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 const { database_variables } = require('../PRIVATE_VARIABLES');
-const { createSuperAdmin, retrieveAdminById } = require('./Operations/Admin');
+const { createSuperAdmin, retrieveAdminByAdminId } = require('./Operations/Admin');
 const { initTestModel, TestModel } = require('./Models/TestModel');
 const { initAddress, Address } = require('./Models/Address');
 const { initAdmin, Admin } = require('./Models/Admin');
@@ -165,7 +165,7 @@ const getDb = async () => {
   //#region Insert TestModel
   // Change to Admin user when schema is out please
   try {
-    let admin = await retrieveAdminById('1');
+    let admin = await retrieveAdminByAdminId('1');
     if (admin) {
       //admin found
       console.log(
