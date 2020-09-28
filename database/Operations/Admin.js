@@ -55,7 +55,7 @@ const adminLogin = async (email, password) => {
       return null;
     } else {
       // email exist and password is correct
-      return await retrieveAdminByAdminId(Admin.adminId);
+      return await retrieveAdminByAdminId(admin.adminId);
     }
   } catch (e) {
     throw console.error(e);
@@ -104,7 +104,7 @@ const adminChangePassword = async (email, oldPassword, newPassword) => {
       throw 'Password is the same';
     } else {
       admin.password = Admin.encryptPassword(newPassword, admin.salt);
-      await Admin.save();
+      await admin.save();
       return await retrieveAdminByAdminId(admin.adminId);
     }
   } catch (e) {

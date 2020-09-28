@@ -16,7 +16,7 @@ router.post('/adminLogin', async (req, res) => {
       // login failed, either email or password wrong
       res.status(401).json({message: 'Incorrect Email or Password'});
     } else {
-      res.json(admin.name, admin.adminId);
+      res.json(admin);
     }
   } catch (e) {
     res.status(500).json(e);

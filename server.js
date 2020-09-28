@@ -16,10 +16,12 @@ app.use(express.json());
 
 //#region Routes
 const usersRouter = require('./routes/usersRoutes');
+const adminsRouter = require('./routes/adminRoutes');
 const announcementsRouter = require('./routes/announcementsRoutes');
 const requestsRouter = require('./routes/requestsRoutes');
 
 app.use('/users', usersRouter);
+app.use('/admins', adminsRouter);
 app.use('/announcements', announcementsRouter);
 app.use('/requests', requestsRouter);
 app.use('/files', express.static('files'));
