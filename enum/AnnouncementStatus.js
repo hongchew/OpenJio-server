@@ -1,4 +1,4 @@
 module.exports = {
-  ONGOING: "ACTIVE",
+  ACTIVE: "ACTIVE",
   PAST: "PAST",
 };
