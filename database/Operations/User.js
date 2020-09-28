@@ -110,7 +110,7 @@ const changeUserPassword = async (email, currPassword, newPassword) => {
 
 /*
   Send email to user
-  Parameters: (email: string)
+  Parameters: (email: string, content: JSON)
   Return: Promise 
 */
 const sendEmail = async (email, content) => {
@@ -134,10 +134,10 @@ const sendEmail = async (email, content) => {
 
 /*
   Reset user's password
-  Parameters: (email: string, newPassword: string)
+  Parameters: (email: string)
   Return: Promise
 */
-const resetUserPassword = async (email, newPassword) => {
+const resetUserPassword = async (email) => {
   try {
     const user = await retrieveUserByEmail(email);
 
@@ -145,8 +145,15 @@ const resetUserPassword = async (email, newPassword) => {
     if (!user) {
       throw 'Server Error';
     } else {
+      const newPassword = User.generatePassword();
+      const content = {
+        subject: 'Reset Password',
+        text: `Your new password is: ${newPassword}`,
+      };
+
       user.password = User.encryptPassword(newPassword, user.salt);
-      return user.save();
+      user.save();
+      return sendEmail(email, content);
     }
   } catch (e) {
     throw e;

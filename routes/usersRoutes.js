@@ -115,13 +115,7 @@ router.post('/change-password', async (req, res) => {
 */
 router.post('/reset-user-password', async (req, res) => {
   try {
-    const newPassword = User.generatePassword();
-    const content = {
-      subject: 'Reset Password',
-      text: `your new password is: ${newPassword}`,
-    };
-    await resetUserPassword(req.body.email, newPassword);
-    await sendEmail(req.body.email, content);
+    await resetUserPassword(req.body.email);
     res.status(200).send();
   } catch (e) {
     // generic server error
