@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const {createUser, verifyLogin} = require('../database/Operations/User');
+const {
+  createUser,
+  verifyUserLogin,
+  changeUserPassword,
+} = require('../database/Operations/User');
 
 /* http://localhost:3000/users/ . */
 router.get('/', (req, res) => {
@@ -58,13 +62,40 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const credentials = req.body;
-    const user = await verifyLogin(credentials.email, credentials.password);
+    const user = await verifyUserLogin(credentials.email, credentials.password);
 
     if (!user) {
       // login failed, either email or password wrong
       res.status(401).json({message: 'Incorrect Email or Password'});
     } else {
       res.json(user);
+    }
+  } catch (e) {
+    // generic server error
+
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: POST /users/change-user-password
+  Content type: JSON { email: 'string', currPassword: 'string', newPassword: 'string'}
+  Return: HTTP status code
+*/
+router.post('/change-user-password', async (req, res) => {
+  try {
+    const user = await changeUserPassword(
+      req.body.email,
+      req.body.currPassword,
+      req.body.newPassword
+    );
+
+    if (!user) {
+      //current password is wrong
+
+      res.status(401).send();
+    } else {
+      res.status(200).send();
     }
   } catch (e) {
     // generic server error
