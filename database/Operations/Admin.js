@@ -67,12 +67,11 @@ const adminLogin = async (email, password) => {
   Parameters: (email: string, password: string, name: string)
   Return: User object of new user (null if not found)
 */
-const createAdmin = async (username, name, email, password, adminType) => {
+const createAdmin = async (name, email, password, adminType) => {
   try {
     const newAdmin = Admin.build({
       name: name,
-      email: email,
-      username: username,
+      email: email
     });
 
     newAdmin.salt = Admin.generateSalt();
@@ -117,10 +116,14 @@ const adminChangePassword = async (email, oldPassword, newPassword) => {
   Return: An admin object of super admin with id = 1
 */
 const createSuperAdmin = async (id, name, email, password) => {
-  return createAdminGeneric(name, email, password, ADMIN_TYPE.SUPER_ADMIN, id);
+  return createAdminGeneric(
+    name, 
+    email, 
+    password, 
+    ADMIN_TYPE.SUPER_ADMIN, id
+    );
 };
 
-/*
 const createAdminGeneric = async (name, email, password, type, adminId) => {
   const newAdmin = Admin.build({
     adminId: adminId ? adminId : Sequelize.UUIDV4,
@@ -138,14 +141,14 @@ const createAdminGeneric = async (name, email, password, type, adminId) => {
 
   return newAdmin;
 };
-*/
+
 
 /* ----------------------------------------
   Retrieve all admin accounts from database
   Parameters: (null)
   Return: Array of Admin objects
 ---------------------------------------- */
-const retrieveAdminAccounts = async () => {
+const retrieveAllAdminAccounts = async () => {
   try {
     const adminAccounts = await Admin.findAll({});
     return adminAccounts;
@@ -204,7 +207,7 @@ module.exports = {
   retrieveAdminByEmail,
   adminLogin,
   adminChangePassword,
-  retrieveAdminAccounts,
+  retrieveAllAdminAccounts,
   updateAdminAccount,
   deleteAdminAccount,
 };

@@ -4,7 +4,7 @@ const app = express();
 // Port moved downwards for better management
 //const port = 3000;
 
-//Added by YZ for testing
+// For testing (YZ)
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
@@ -26,10 +26,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const getDb = require('./database');
 getDb();
 
-// Can consider to implement drop existing tables and re-sync database:
-// getDb.sequelize.sync({ force: true }).then(() => {
-//   console.log("Drop and re-sync db.");
-// });
+// Implement drop existing tables and re-sync database (YZ):
+getDb.sequelize.sync({ force: true }).then(() => {
+   console.log("Drop and re-sync db.");
+});
 
 //#endregion
 
@@ -71,7 +71,7 @@ app.post('/testJson', (req, res) => {
   res.json(req.body);
 })
 
-// set port, listen for requests (YZ)
+// Set port to listen for requests from web frontend (YZ)
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
