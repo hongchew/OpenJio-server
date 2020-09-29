@@ -1,7 +1,7 @@
-const { Admin } = require('../Models/Admin');
+const {Admin} = require('../Models/Admin');
 const ADMIN_TYPE = require('../../enum/AdminType');
-const { Sequelize } = require('sequelize');
-const { nodemailer } = require('nodemailer');
+const {Sequelize} = require('sequelize');
+const {nodemailer} = require('nodemailer');
 
 /*
   Find and retrieve user from database with adminId
@@ -140,11 +140,71 @@ const createAdminGeneric = async (name, email, password, type, adminId) => {
 };
 */
 
+/* ----------------------------------------
+  Retrieve all admin accounts from database
+  Parameters: (null)
+  Return: Array of Admin objects
+---------------------------------------- */
+const retrieveAdminAccounts = async () => {
+  try {
+    const adminAccounts = await Admin.findAll({});
+    return adminAccounts;
+  } catch (e) {
+    throw console.error(e);
+  }
+};
+
+/* ----------------------------------------
+  Edit Admin Account 
+  Parameters: (adminId: UUID, name: String, email: String, adminType: )
+  Return: Updated Admin object
+----------------------------------------*/
+const updateAdminAccount = async (adminId, name, email, adminType) => {
+  try {
+    let admin = await retrieveAdminByAdminId(adminId);
+
+    admin = Admin.update({
+      name: name,
+      email: email,
+      adminType: adminType
+    });
+    console.log('Admin account updated!');
+    return admin;
+  } catch (e) {
+    throw console.error(e);
+  }
+};
+
+
+/* ----------------------------------------
+  Delete Admin Account 
+  Parameters: (adminId: UUID)
+  Return: null
+----------------------------------------*/
+const deleteAdminAccount = async (adminId) => {
+  try {
+    let admin = await retrieveAdminByAdminId(adminId);
+
+    const adminDeleted = await admin.destroy();
+
+    if (adminDeleted) {
+      console.log('Admin account deleted!');
+      return;
+    }
+    throw new Error("Admin account not found!");
+  } catch (e) {
+    throw console.error(e);
+  }
+};
+
 module.exports = {
   createAdmin,
   createSuperAdmin,
   retrieveAdminByAdminId,
   retrieveAdminByEmail,
   adminLogin,
-  adminChangePassword
+  adminChangePassword,
+  retrieveAdminAccounts,
+  updateAdminAccount,
+  deleteAdminAccount,
 };

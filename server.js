@@ -26,6 +26,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const getDb = require('./database');
 getDb();
 
+// Can consider to implement drop existing tables and re-sync database:
+// getDb.sequelize.sync({ force: true }).then(() => {
+//   console.log("Drop and re-sync db.");
+// });
+
 //#endregion
 
 //#region Express Config

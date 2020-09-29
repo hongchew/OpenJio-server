@@ -31,7 +31,13 @@ const initAdmin = async (sequelize) => {
       email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+        validate: {
+          isEmail: true
+        },
+        unique: {
+          args: true,
+          msg: 'Email address already taken, please choose another email address or click forgot password'
+        }
       },
       password: {
         type: DataTypes.STRING,
