@@ -29,13 +29,24 @@ router.post('/register', async (req, res) => {
     console.error(e);
     //delete sensitive information
     e.errors.forEach((err) => delete err.instance);
-    res.status(400).json(e);
+    if (e.name === 'SequelizeValidationError') {
+      res.status(400).json(e);
+    } else if (e.name === 'SequelizeUniqueConstraintError') {
+      // email is taken
+  
+      // delete sensitive information
+      delete e.sql;
+      delete e.parent;
+      delete e.original;
+  
+      res.status(400).json(e);
     } else {
       // generic server error
       res.status(500).json(e);
     }
   }
 });
+
 
 /*
   Endpoint: PUT /admin/change-password
