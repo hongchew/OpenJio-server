@@ -5,15 +5,18 @@ const app = express();
 //const port = 3000;
 
 // For testing (YZ)
-//const bodyParser = require("body-parser");
+
+// cors provides Express middleware to enable CORS with various options
 const cors = require("cors");
 
+// Listen to port 8080 for incoming requests(Front-end port set to 8080)
 var corsOptions = {
   origin: "http://localhost:8080"
 };
 
 app.use(cors(corsOptions));
 
+//const bodyParser = require("body-parser");
 // Parse requests of content-type - application/json
 //app.use(bodyParser.json());
 
@@ -72,7 +75,6 @@ app.post('/testJson', (req, res) => {
   res.json(req.body);
 });
 
-// Set port to listen for requests from web frontend (YZ)
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
