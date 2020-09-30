@@ -8,6 +8,7 @@ const {
   sendEmail,
   resetUserPassword,
   verifyUserSingPass,
+  updateUserDetails,
 } = require('../database/Operations/User');
 
 /* http://localhost:3000/users/ . */
@@ -126,11 +127,11 @@ router.post('/reset-user-password', async (req, res) => {
 });
 
 /*
-  Endpoint: POST /users/verify-user-singpass
+  Endpoint: PUT /users/verify-user-singpass
   Content type: JSON { userId:'string', nric: 'string', singpassPassword: 'string'}
   Return: Model.User object with updated isSingPassVerified status
 */
-router.post('/verify-user-singpass', async (req, res) => {
+router.put('/verify-user-singpass', async (req, res) => {
   try {
     const {userId, nric, singpassPassword} = req.body;
     /*
@@ -151,6 +152,31 @@ router.post('/verify-user-singpass', async (req, res) => {
   } catch (e) {
     // generic server error
 
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: PUT /users/update-user-details
+  Content type: JSON Model.User {
+    userId: string,
+    name: string,
+    mobileNumber: string,
+    email: string,
+    isBlackListed: boolean,
+    hasCovid: boolean,
+    isSingPassVerified": boolean,
+    strikeCount: number,
+    defaultAddressId: string
+  } * only userId is compulsory, every other field can be on a need-to-update basis.
+  Return: Model.User object with updated properties
+*/
+router.put('/update-user-details', async (req, res) => {
+  try {
+    const updatedUser = await updateUserDetails(req.body);
+    res.status(200).json(updatedUser);
+  } catch (e) {
+    //generic server error
     res.status(500).json(e);
   }
 });
