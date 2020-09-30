@@ -5,12 +5,14 @@ const router = express.Router();
 const {
   retrieveAdminByAdminId,
   retrieveAdminByEmail,
+  verifyAdminLogin,
+  sendEmail,
   createAdmin,
   changeAdminPassword,
   resetAdminPassword,
   createSuperAdmin,
   retrieveAllAdminAccounts,
-  updateAdminAccount,
+  updateAdmin,
   deleteAdminAccount,
 } = require('../database/Operations/Admin');
 
@@ -45,12 +47,12 @@ router.post('/register', async (req, res) => {
       res.status(400).json(e);
     } else if (e.name === 'SequelizeUniqueConstraintError') {
       // email is taken
-  
+
       // delete sensitive information
       delete e.sql;
       delete e.parent;
       delete e.original;
-  
+
       res.status(400).json(e);
     } else {
       // generic server error
@@ -58,7 +60,6 @@ router.post('/register', async (req, res) => {
     }
   }
 });
-
 
 /*
   Endpoint: PUT /admin/change-password
@@ -102,7 +103,6 @@ router.put('/reset-password', async (req, res) => {
   }
 });
 
-
 /* --------------------------------
   Endpoint: GET /admins
   Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
@@ -116,6 +116,9 @@ router.get('', async (req, res) => {
     res.status(500).json({
       message: 'Error retrieving Admin Accounts!',
       error: e.message,
+    });
+  }
+});
 
 /*
   Endpoint: PUT /admin/update-admin
@@ -135,7 +138,7 @@ router.put('/update-admin', async (req, res) => {
   } catch (e) {
     //generic server error
     res.status(500).json({
-      message: 'Error updating Admin by ID: ' + adminId;
+      message: 'Error updating Admin by ID: ' + adminId,
     });
   }
 });
