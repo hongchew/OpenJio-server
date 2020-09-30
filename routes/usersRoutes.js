@@ -60,11 +60,11 @@ router.post('/signup', async (req, res) => {
 });
 
 /*
-  Endpoint: POST /users/login
+  Endpoint: GET /users/login
   Content type: JSON { email: 'string', password: 'string'}
   Return: Model.User object 
 */
-router.post('/login', async (req, res) => {
+router.get('/login', async (req, res) => {
   try {
     const credentials = req.body;
     const user = await verifyUserLogin(credentials.email, credentials.password);
@@ -83,11 +83,11 @@ router.post('/login', async (req, res) => {
 });
 
 /*
-  Endpoint: POST /users/change-user-password
+  Endpoint: PUT /users/change-user-password
   Content type: JSON { email: 'string', currPassword: 'string', newPassword: 'string'}
   Return: HTTP status code
 */
-router.post('/change-user-password', async (req, res) => {
+router.put('/change-user-password', async (req, res) => {
   try {
     const user = await changeUserPassword(
       req.body.email,
@@ -111,11 +111,11 @@ router.post('/change-user-password', async (req, res) => {
 });
 
 /*
-  Endpoint: POST /users/reset-user-password
+  Endpoint: PUT /users/reset-user-password
   Content type: JSON { email: 'string'}
   Return: HTTP status code
 */
-router.post('/reset-user-password', async (req, res) => {
+router.put('/reset-user-password', async (req, res) => {
   try {
     await resetUserPassword(req.body.email);
     res.status(200).send();
