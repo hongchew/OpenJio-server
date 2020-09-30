@@ -270,6 +270,7 @@ const deleteAdminAccount = async (adminId) => {
 
 module.exports = {
   createAdmin,
+  createSuperAdmin,
   retrieveAdminByAdminId,
   retrieveAdminByEmail,
   retrieveAllAdminAccounts,
