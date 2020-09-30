@@ -2,14 +2,6 @@ const express = require('express');
 const {Sequelize} = require('sequelize');
 const router = express.Router();
 
-// Suggestion & testing (YZ)
-const currentAdmin = require('../database/Models/Admin.js');
-
-// Create Op (YZ)
-// const databaseModels = require('../database/Models'); // Having error
-// const Op = databaseModels.Sequelize.Op;
-// End of testing (YZ)
-
 const {
   retrieveAdminByAdminId,
   retrieveAdminByEmail,
@@ -110,16 +102,15 @@ router.post('/createAdmin', async (req, res) => {
 -------------------------------- */
 router.put('/:adminId', async (req, res) => {
   try {
-    const updatedAdmin = req.body;
+    let updatedAdmin = req.body;
     const adminId = updatedAdmin.adminId;
 
-    currentAdmin = await updateAdminAccount(
-      adminId,
+    updatedAdmin  = await updateAdminAccount(
+      
       updatedAdmin.name,
       updatedAdmin.email,
       updatedAdmin.adminType
-    )
-      .then((updatedAdminAcc) => {
+    ).then((updatedAdminAcc) => {
         res.json(updatedAdminAcc);
       })
       .catch((err) => {
