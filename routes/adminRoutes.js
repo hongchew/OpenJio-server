@@ -138,7 +138,6 @@ router.delete('/:adminId', async (req, res) => {
 
     res.status(200).json({
       message: 'Successfully deleted admin with id = ' + adminId,
-      admin: adminToDelete,
     });
   } catch (e) {
     res.status(500).json({
