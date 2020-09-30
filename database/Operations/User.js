@@ -1,4 +1,5 @@
 const {User} = require('../Models/User');
+const {Address} = require('../Models/Address')
 const nodemailer = require('nodemailer');
 
 /*
@@ -20,6 +21,7 @@ const createUser = async (email, password, name) => {
 
     return await retrieveUserByUserId(newUser.userId);
   } catch (e) {
+    console.log(e);
     throw e;
   }
 };
@@ -38,9 +40,11 @@ const retrieveUserByUserId = async (userId) => {
       attributes: {
         exclude: ['salt', 'password'],
       },
+      include: Address
     });
     return user;
   } catch (e) {
+    console.log(e);
     throw e;
   }
 };
@@ -59,6 +63,7 @@ const retrieveUserByEmail = async (email) => {
     });
     return user;
   } catch (e) {
+    console.log(e);
     throw e;
   }
 };
@@ -79,6 +84,7 @@ const verifyUserLogin = async (email, password) => {
       return retrieveUserByUserId(user.userId);
     }
   } catch (e) {
+    console.log(e);
     throw e;
   }
 };
@@ -104,6 +110,7 @@ const changeUserPassword = async (email, currPassword, newPassword) => {
       return null;
     }
   } catch (e) {
+    console.log(e);
     throw e;
   }
 };
@@ -156,6 +163,7 @@ const resetUserPassword = async (email) => {
       return sendEmail(email, content);
     }
   } catch (e) {
+    console.log(e);
     throw e;
   }
 };
@@ -176,6 +184,7 @@ const verifyUserSingPass = async (userId) => {
     await user.save();
     return await retrieveUserByUserId(userId);
   } catch (e) {
+    console.log(e);
     throw e;
   }
 };
@@ -203,6 +212,7 @@ const updateUserDetails = async (user) => {
     const updatedUser = await userToUpdate.update(user);
     return await retrieveUserByUserId(updatedUser.userId);
   } catch (e) {
+    console.log(e);
     throw e;
   }
 };
