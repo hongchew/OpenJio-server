@@ -1,6 +1,18 @@
 const express = require('express');
-const {createAdmin, changeAdminPassword, resetAdminPassword} = require('../database/Operations/Admin');
+const {Sequelize} = require('sequelize');
 const router = express.Router();
+
+const {
+  retrieveAdminByAdminId,
+  retrieveAdminByEmail,
+  createAdmin,
+  changeAdminPassword,
+  resetAdminPassword,
+  createSuperAdmin,
+  retrieveAllAdminAccounts,
+  updateAdminAccount,
+  deleteAdminAccount,
+} = require('../database/Operations/Admin');
 
 /* http://localhost:3000/admin/ . */
 router.get('/', (req, res) => {
@@ -90,6 +102,21 @@ router.put('/reset-password', async (req, res) => {
   }
 });
 
+
+/* --------------------------------
+  Endpoint: GET /admins
+  Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
+  Return: Models.Admin objects 
+-------------------------------- */
+router.get('', async (req, res) => {
+  try {
+    const admins = await retrieveAllAdminAccounts();
+    res.json(admins);
+  } catch (e) {
+    res.status(500).json({
+      message: 'Error retrieving Admin Accounts!',
+      error: e.message,
+
 /*
   Endpoint: PUT /admin/update-admin
   Content type: JSON Model.Admin {
@@ -113,6 +140,26 @@ router.put('/update-admin', async (req, res) => {
   }
 });
 
+/* --------------------------------
+  Endpoint: DELETE /admins/:adminId
+  Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
+  Return: Models.Admin object 
+-------------------------------- */
+router.delete('/:adminId', async (req, res) => {
+  try {
+    const adminId = req.params.adminId;
 
+    const adminToDelete = await deleteAdminAccount(adminId);
+
+    res.status(200).json({
+      message: 'Successfully deleted admin with id = ' + adminId,
+    });
+  } catch (e) {
+    res.status(500).json({
+      message: 'Error deleting Admin by Id: ' + adminId,
+      error: e.message,
+    });
+  }
+});
 
 module.exports = router;
