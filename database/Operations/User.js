@@ -160,10 +160,33 @@ const resetUserPassword = async (email) => {
   }
 };
 
+/*
+  Reset user's password
+  Parameters: (email: string)
+  Return: Promise
+*/
+const verifyUserSingPass = async (userId) => {
+  try {
+
+    const user = await retrieveUserByUserId(userId);
+    if(!user){
+      // user not found
+      throw 'User not found'
+    }
+    user.isSingPassVerified = true;
+    await user.save();
+    return await retrieveUserByUserId(userId);
+
+  } catch (e){
+    throw e
+  }
+};
+
 module.exports = {
   createUser,
   verifyUserLogin,
   changeUserPassword,
   sendEmail,
   resetUserPassword,
+  verifyUserSingPass
 };
