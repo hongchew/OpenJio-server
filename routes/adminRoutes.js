@@ -22,11 +22,6 @@ const {
   deleteAdminAccount,
 } = require('../database/Operations/Admin');
 
-// // API endpoint
-// router.get('/', (req, res) => {
-//   res.send('Admin API endpoint');
-// });
-
 /*
   Endpoint: POST /admin/login
   Content type: JSON { email: 'string', password: 'string'}
@@ -49,59 +44,11 @@ router.post('/adminLogin', async (req, res) => {
 });
 
 /* --------------------------------
-  Endpoint: GET /admins/:adminId
-  Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
-  Return: Models.Admin object 
--------------------------------- */
-router.get('/:adminId', async (req, res) => {
-  try {
-    // Can consider use req.body.id
-    const adminId = req.params.adminId;
-
-    /** If got errors, can try remove "currentAdmin =" to "currentAdmin.retrieveAdminByAdminId" */
-    currentAdmin = await retrieveAdminByAdminId(adminId)
-      .then((admin) => {
-        res.json(admin);
-      })
-      .catch((err) => {
-        res.status(500).json({
-          message: 'Error retrieving Admin by Id: ' + adminId,
-        });
-      });
-  } catch (e) {
-    res.status(500).json(e);
-  }
-});
-
-/* --------------------------------
-  Endpoint: GET /admins/:email
-  Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
-  Return: Models.Admin object 
--------------------------------- */
-router.get('/:email', async (req, res) => {
-  try {
-    const adminEmail = req.body.email;
-
-    currentAdmin = await retrieveAdminByEmail(adminEmail)
-      .then((admin) => {
-        res.json(admin);
-      })
-      .catch((err) => {
-        res.status(500).json({
-          message: 'Error retrieving Admin by Email: ' + adminEmail,
-        });
-      });
-  } catch (e) {
-    res.status(500).json(e);
-  }
-});
-
-/* --------------------------------
   Endpoint: GET /admins
   Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
   Return: Models.Admin objects 
 -------------------------------- */
-router.get('/getAdmins', async (req, res) => {
+router.get('', async (req, res) => {
   try {
     currentAdmin = await retrieveAllAdminAccounts()
       .then((adminAccounts) => {
