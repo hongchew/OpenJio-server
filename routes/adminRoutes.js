@@ -132,7 +132,7 @@ router.put('/:adminId', async (req, res) => {
 -------------------------------- */
 router.delete('/:adminId', async (req, res) => {
   try {
-    const adminId = req.body.adminId;
+    const adminId = req.params.adminId;
 
     const adminToDelete = await deleteAdminAccount(adminId);
 
