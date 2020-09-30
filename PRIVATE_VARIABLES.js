@@ -1,7 +1,7 @@
 const database_variables = {
     database : 'openjio',
-    username : 'openjio',
-    password : 'password',
+    username : 'root',
+    password : 'password123',
 }
 
 module.exports = {
