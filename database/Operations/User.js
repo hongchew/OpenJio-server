@@ -1,5 +1,5 @@
 const {User} = require('../Models/User');
-const {Address} = require('../Models/Address')
+const {Address} = require('../Models/Address');
 const nodemailer = require('nodemailer');
 
 /*
@@ -40,7 +40,7 @@ const retrieveUserByUserId = async (userId) => {
       attributes: {
         exclude: ['salt', 'password'],
       },
-      include: Address
+      include: Address,
     });
     return user;
   } catch (e) {
