@@ -1,4 +1,4 @@
-const { Sequelize, Model, DataTypes } = require('sequelize');
+const {Sequelize, Model, DataTypes} = require('sequelize');
 const crypto = require('crypto');
 
 class Admin extends Model {
@@ -7,12 +7,21 @@ class Admin extends Model {
   }
 
   static encryptPassword(plainText, salt) {
-    return crypto.createHash('RSA-SHA256').update(plainText).update(salt).digest('hex');
+    return crypto
+      .createHash('RSA-SHA256')
+      .update(plainText)
+      .update(salt)
+      .digest('hex');
   }
 
   //return true if password entered is correct
   isCorrectPassword(enteredPassword) {
     return Admin.encryptPassword(enteredPassword, this.salt) === this.password;
+  }
+
+  static generatePassword() {
+    const buf = Buffer.alloc(10);
+    return crypto.randomFillSync(buf).toString('hex');
   }
 }
 
@@ -65,4 +74,4 @@ const initAdmin = async (sequelize) => {
   console.log(`****[database] Admin initialized`);
 };
 
-module.exports = { Admin, initAdmin };
+module.exports = {Admin, initAdmin};

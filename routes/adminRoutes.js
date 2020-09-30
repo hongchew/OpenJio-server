@@ -5,35 +5,103 @@ const router = express.Router();
 const {
   retrieveAdminByAdminId,
   retrieveAdminByEmail,
-  adminLogin,
-  adminChangePassword,
   createAdmin,
+  changeAdminPassword,
+  resetAdminPassword,
   createSuperAdmin,
   retrieveAllAdminAccounts,
   updateAdminAccount,
   deleteAdminAccount,
 } = require('../database/Operations/Admin');
 
+/* http://localhost:3000/admin/ . */
+router.get('/', (req, res) => {
+  res.send('Admin API endpoint ');
+});
+
 /*
-  Endpoint: POST /admin/login
-  Content type: JSON { email: 'string', password: 'string'}
-  Return: Models.Admin object 
+  Endpoint: POST /admin/register
+  Content type: JSON { name: 'string', email: 'string', password: 'string', adminType: 'string'}
+  Return: Model.Admin object 
 */
-router.post('/adminLogin', async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
-    const credentials = req.body;
-    const admin = await adminLogin(credentials.email, credentials.password);
+    const newCredentials = req.body;
+    const newAdmin = await createAdmin(
+      newCredentials.name,
+      newCredentials.email,
+      newCredentials.password,
+      newCredentials.adminType
+    );
+    if (!newAdmin) {
+      throw 'Admin creation failed!';
+    }
+    res.json(newAdmin);
+  } catch (e) {
+    console.error(e);
+    //delete sensitive information
+    e.errors.forEach((err) => delete err.instance);
+    if (e.name === 'SequelizeValidationError') {
+      res.status(400).json(e);
+    } else if (e.name === 'SequelizeUniqueConstraintError') {
+      // email is taken
+  
+      // delete sensitive information
+      delete e.sql;
+      delete e.parent;
+      delete e.original;
+  
+      res.status(400).json(e);
+    } else {
+      // generic server error
+      res.status(500).json(e);
+    }
+  }
+});
+
+
+/*
+  Endpoint: PUT /admin/change-password
+  Content type: JSON { email: 'string', currPassword: 'string', newPassword: 'string'}
+  Return: HTTP status code
+*/
+router.put('/change-password', async (req, res) => {
+  try {
+    const admin = await changeAdminPassword(
+      req.body.email,
+      req.body.currPassword,
+      req.body.newPassword
+    );
 
     if (!admin) {
-      // login failed, either email or password wrong
-      res.status(401).json({message: 'Incorrect Email or Password'});
+      //current password is wrong
+
+      res.status(401).send();
     } else {
-      res.json(admin);
+      res.status(200).send();
     }
   } catch (e) {
+    // generic server error
+    // res.status(500).json(e);
+    res.json(e);
+  }
+});
+
+/*
+  Endpoint: PUT /admin/reset-password
+  Content type: JSON { email: 'string'}
+  Return: HTTP status code
+*/
+router.put('/reset-password', async (req, res) => {
+  try {
+    await resetAdminPassword(req.body.email);
+    res.status(200).send();
+  } catch (e) {
+    // generic server error
     res.status(500).json(e);
   }
 });
+
 
 /* --------------------------------
   Endpoint: GET /admins
@@ -48,80 +116,27 @@ router.get('', async (req, res) => {
     res.status(500).json({
       message: 'Error retrieving Admin Accounts!',
       error: e.message,
+
+/*
+  Endpoint: PUT /admin/update-admin
+  Content type: JSON Model.Admin {
+    adminId: string,
+    name: string,
+    email: string,
+    adminType: string
+  } * only adminId is compulsory, every other field can be on a need-to-update basis.
+  Return: Model.Admin object with updated properties
+*/
+router.put('/update-admin', async (req, res) => {
+  try {
+    const adminId = req.body.adminId;
+    const updatedAdmin = await updateAdmin(req.body);
+    res.status(200).json(updatedAdmin);
+  } catch (e) {
+    //generic server error
+    res.status(500).json({
+      message: 'Error updating Admin by ID: ' + adminId;
     });
-  }
-});
-
-/* --------------------------------
-  Endpoint: POST /admins/createAdmin
-  Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
-  Return: Models.Admin object 
--------------------------------- */
-router.post('/createAdmin', async (req, res) => {
-  try {
-    const newAdminCredentials = req.body;
-    const newAdmin = await createAdmin(
-      newAdminCredentials.name,
-      newAdminCredentials.email,
-      newAdminCredentials.password,
-      newAdminCredentials.adminType
-    );
-
-    if (!newAdmin) {
-      throw 'Admin is null, Admin creation failed';
-    }
-    res.json(newAdmin);
-  } catch (e) {
-    console.error(e);
-    //delete sensitive information
-    e.errors.forEach((err) => delete err.instance);
-
-    if (e.name === 'SequelizeValidationError') {
-      // Probably break null validation
-
-      res.status(400).json(e);
-    } else if (e.name === 'SequelizeUniqueConstraintError') {
-      // email is taken
-
-      // delete sensitive information
-      delete e.sql;
-      delete e.parent;
-      delete e.original;
-
-      res.status(400).json(e);
-    } else {
-      // generic server error
-      res.status(500).json(e);
-    }
-  }
-});
-
-/* --------------------------------
-  Endpoint: PUT /admins/:adminId
-  Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
-  Return: Models.Admin object 
--------------------------------- */
-router.put('/:adminId', async (req, res) => {
-  try {
-    let updatedAdmin = req.body;
-    const adminId = updatedAdmin.adminId;
-
-    updatedAdmin  = await updateAdminAccount(
-      
-      updatedAdmin.name,
-      updatedAdmin.email,
-      updatedAdmin.adminType
-    ).then((updatedAdminAcc) => {
-        res.json(updatedAdminAcc);
-      })
-      .catch((err) => {
-        res.status(500).json({
-          message: 'Error updating Admin by Id: ' + adminId,
-          error: e.message,
-        });
-      });
-  } catch (e) {
-    res.status(500).json(e);
   }
 });
 

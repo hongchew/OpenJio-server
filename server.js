@@ -43,11 +43,13 @@ const usersRouter = require('./routes/usersRoutes');
 const adminsRouter = require('./routes/adminRoutes');
 const announcementsRouter = require('./routes/announcementsRoutes');
 const requestsRouter = require('./routes/requestsRoutes');
+const addressesRouter = require('./routes/addressesRoutes');
 
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
 app.use('/announcements', announcementsRouter);
 app.use('/requests', requestsRouter);
+app.use('/addresses', addressesRouter);
 app.use('/files', express.static('files'));
 
 //#endregion
@@ -68,7 +70,7 @@ app.post('/testJson', (req, res) => {
   console.log(req.body);
   req.body.acknowledgement = true;
   res.json(req.body);
-})
+});
 
 // Set port to listen for requests from web frontend (YZ)
 const port = process.env.PORT || 3000;

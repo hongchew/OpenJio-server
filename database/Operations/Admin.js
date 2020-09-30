@@ -4,9 +4,37 @@ const {Sequelize} = require('sequelize');
 const {nodemailer} = require('nodemailer');
 
 /*
-  Find and retrieve user from database with adminId
-  Parameters: (adminId: UUID)
-  Return: User object less password and salt (null if not found)
+  Create new admin inside database
+  Parameters: (name: string,
+    email: string,
+    password: string,
+    adminType: string)
+  Return: Admin object if create is successful
+*/
+const createAdmin = async (name, email, password, adminType) => {
+  try {
+    const newAdmin = Admin.build({
+      name: name,
+      email: email,
+      adminType: adminType,
+    });
+
+    newAdmin.salt = Admin.generateSalt();
+    newAdmin.password = Admin.encryptPassword(password, newAdmin.salt);
+
+    await newAdmin.save();
+
+    return await retrieveAdminByAdminId(newAdmin.adminId);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Find and retrieve admin from database with adminId
+  Parameters: (adminId: string)
+  Return: Admin object less password and salt (null if not found)
 */
 const retrieveAdminByAdminId = async (adminId) => {
   try {
@@ -43,77 +71,115 @@ const retrieveAdminByEmail = async (email) => {
 };
 
 /*
-  Verify login credentials
+  Verify admin login credentials
   Parameters: (email: string, password: string)
   Return: Admin object if successful login, 
 */
-const adminLogin = async (email, password) => {
+const verifyAdminLogin = async (email, password) => {
   try {
     const admin = await retrieveAdminByEmail(email);
     if (!admin || !admin.isCorrectPassword(password)) {
       // no such email or wrong password
       return null;
     } else {
-      // email exist and password is correct
-      return await retrieveAdminByAdminId(admin.adminId);
+      // email exist and provided password is right
+      return admin;
     }
   } catch (e) {
-    throw console.error(e);
+    console.log(e);
+    throw e;
   }
 };
 
 /*
-  Create and insert admin into database
-  Parameters: (email: string, password: string, name: string)
-  Return: User object of new user (null if not found)
+  Update admin's password
+  Parameters: (email: string, currPassword: string, newPassword: string)
+  Return: Admin object if password updated successfully, 
 */
-const createAdmin = async (name, email, password, adminType) => {
-  try {
-    const newAdmin = Admin.build({
-      name: name,
-      email: email
-    });
-
-    newAdmin.salt = Admin.generateSalt();
-    newAdmin.password = Admin.encryptPassword(password, newAdmin.salt);
-    if (adminType === ADMIN_TYPE.SUPER_ADMIN) {
-      newAdmin.adminType = ADMIN_TYPE.SUPER_ADMIN;
-    } else {
-      newAdmin.adminType = ADMIN_TYPE.ADMIN;
-    }
-
-    await newAdmin.save();
-
-    return await retrieveAdminByAdminId(newAdmin.adminId);
-  } catch (e) {
-    throw console.error(e);
-  }
-};
-
-/*
-  Change password
-  Parameters: (Admin: object, newPassword: string)
-  Return: Admin object of existing user with new password (null if not found)
-*/
-const adminChangePassword = async (email, oldPassword, newPassword) => {
+const changeAdminPassword = async (email, currPassword, newPassword) => {
   try {
     const admin = await retrieveAdminByEmail(email);
-    //check if old and new password is the same
-    if (admin.isCorrectPassword(newPassword)) {
-      throw 'Password is the same';
-    } else {
+
+    if (currPassword != newPassword) {
+      throw 'Passwords do not match';
+    }
+    //if email is wrong
+    else if (!admin) {
+      throw 'Admin with ' + email + ' not found';
+    }
+    //check current password against password in the database
+    else if (admin.isCorrectPassword(currPassword)) {
       admin.password = Admin.encryptPassword(newPassword, admin.salt);
-      await admin.save();
-      return await retrieveAdminByAdminId(admin.adminId);
+      return admin.save();
+    } else {
+      return null;
     }
   } catch (e) {
-    throw console.error(e);
+    console.log(e);
+    throw e;
   }
 };
 
 /*
-  Function to initialise a super admin on running the server
-  Return: An admin object of super admin with id = 1
+  Send email to admin
+  Parameters: (email: string, content: JSON)
+  Return: Promise 
+*/
+const sendEmail = async (email, content) => {
+  var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'openjio4103@gmail.com',
+      pass: '4103openjio',
+    },
+  });
+
+  var mailOptions = {
+    from: 'openjio4103@gmail.com',
+    to: email,
+    subject: content.subject,
+    text: content.text,
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+
+/*
+  Reset admin's password
+  Parameters: (email: string)
+  Return: Promise
+*/
+const resetAdminPassword = async (email) => {
+  try {
+    const admin = await retrieveAdminByEmail(email);
+
+    //if email is wrong
+    if (!admin) {
+      throw 'Admin ' + email + ' does not exist';
+    } else {
+      const newPassword = Admin.generatePassword();
+      const content = {
+        subject: 'Reset Password',
+        text: `Your new password is: ${newPassword}`,
+      };
+
+      admin.password = Admin.encryptPassword(newPassword, admin.salt);
+      admin.save();
+      return sendEmail(email, content);
+    }
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Create Super Admin
+  Parameters: (name: string,
+    email: string,
+    password: string,
+    adminType: string)
+  Return: Admin object if create is successful
 */
 const createSuperAdmin = async (id, name, email, password) => {
   return createAdminGeneric(
@@ -158,28 +224,6 @@ const retrieveAllAdminAccounts = async () => {
 };
 
 /* ----------------------------------------
-  Edit Admin Account 
-  Parameters: (adminId: UUID, name: String, email: String, adminType: )
-  Return: Updated Admin object
-----------------------------------------*/
-const updateAdminAccount = async (adminId, name, email, adminType) => {
-  try {
-    let admin = await retrieveAdminByAdminId(adminId);
-
-    admin = Admin.update({
-      name: name,
-      email: email,
-      adminType: adminType
-    });
-    console.log('Admin account updated!');
-    return admin;
-  } catch (e) {
-    throw console.error(e);
-  }
-};
-
-
-/* ----------------------------------------
   Delete Admin Account 
   Parameters: (adminId: UUID)
   Return: null
@@ -200,14 +244,39 @@ const deleteAdminAccount = async (adminId) => {
   }
 };
 
+/*
+  Update Admin Details
+  Parameters: (admin: object {
+    adminId: string,
+    name: string,
+    email: string,
+    adminType: string
+  })
+  Return: Model.Admin object
+*/
+  const updateAdmin = async (admin) => {
+  try {
+    const adminToUpdate = await retrieveAdminByAdminId(admin.adminId);
+    if (!adminToUpdate) {
+      throw 'Admin ' + admin.adminId + ' not found';
+    }
+    const updatedAdmin = await adminToUpdate.update(admin);
+    return await retrieveAdminByAdminId(updatedAdmin.adminId);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createAdmin,
-  createSuperAdmin,
   retrieveAdminByAdminId,
   retrieveAdminByEmail,
-  adminLogin,
-  adminChangePassword,
   retrieveAllAdminAccounts,
-  updateAdminAccount,
   deleteAdminAccount,
+  verifyAdminLogin,
+  changeAdminPassword,
+  sendEmail,
+  resetAdminPassword,
+  updateAdmin,
 };
