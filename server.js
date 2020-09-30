@@ -5,7 +5,7 @@ const app = express();
 //const port = 3000;
 
 // For testing (YZ)
-const bodyParser = require("body-parser");
+//const bodyParser = require("body-parser");
 const cors = require("cors");
 
 var corsOptions = {
@@ -15,11 +15,10 @@ var corsOptions = {
 app.use(cors(corsOptions));
 
 // Parse requests of content-type - application/json
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
-
+//app.use(bodyParser.urlencoded({ extended: true }))
 // End of YZ's testing
 
 //#region Database
