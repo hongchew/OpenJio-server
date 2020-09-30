@@ -60,11 +60,11 @@ router.post('/signup', async (req, res) => {
 });
 
 /*
-  Endpoint: GET /users/login
+  Endpoint: POST /users/login
   Content type: JSON { email: 'string', password: 'string'}
   Return: Model.User object 
 */
-router.get('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const credentials = req.body;
     const user = await verifyUserLogin(credentials.email, credentials.password);
