@@ -47,6 +47,7 @@ router.get('', async (req, res) => {
   } catch (e) {
     res.status(500).json({
       message: 'Error retrieving Admin Accounts!',
+      error: e.message,
     });
   }
 });
@@ -116,6 +117,7 @@ router.put('/:adminId', async (req, res) => {
       .catch((err) => {
         res.status(500).json({
           message: 'Error updating Admin by Id: ' + adminId,
+          error: e.message,
         });
       });
   } catch (e) {
@@ -132,19 +134,17 @@ router.delete('/:adminId', async (req, res) => {
   try {
     const adminId = req.body.adminId;
 
-    currentAdmin = await deleteAdminAccount(adminId)
-      .then(() => {
-        res.status(200).json({
-          message: 'Successfully deleted admin with id = ' + adminId,
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({
-          message: 'Error deleting Admin by Id: ' + adminId,
-        });
-      });
+    const adminToDelete = await deleteAdminAccount(adminId);
+
+    res.status(200).json({
+      message: 'Successfully deleted admin with id = ' + adminId,
+      admin: adminToDelete,
+    });
   } catch (e) {
-    res.status(500).json(e);
+    res.status(500).json({
+      message: 'Error deleting Admin by Id: ' + adminId,
+      error: e.message,
+    });
   }
 });
 
