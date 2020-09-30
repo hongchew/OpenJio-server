@@ -26,10 +26,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const getDb = require('./database');
 getDb();
 
-// Implement drop existing tables and re-sync database (YZ):
-getDb.sequelize.sync({ force: true }).then(() => {
-   console.log("Drop and re-sync db.");
-});
+// // Implement drop existing tables and re-sync database (YZ):
+// getDb.sequelize.sync({ force: true }).then(() => {
+//    console.log("Drop and re-sync db.");
+// });
 
 //#endregion
 

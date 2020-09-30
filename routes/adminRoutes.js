@@ -1,14 +1,13 @@
 const express = require('express');
-//const Sequelize = require('sequelize');
-const {Sequelize, where} = require('sequelize/types');
+const {Sequelize} = require('sequelize');
 const router = express.Router();
 
 // Suggestion & testing (YZ)
 const currentAdmin = require('../database/Models/Admin.js');
 
 // Create Op (YZ)
-const databaseModels = require('../database/Models');
-const Op = databaseModels.Sequelize.Op;
+// const databaseModels = require('../database/Models'); // Having error
+// const Op = databaseModels.Sequelize.Op;
 // End of testing (YZ)
 
 const {
@@ -23,10 +22,10 @@ const {
   deleteAdminAccount,
 } = require('../database/Operations/Admin');
 
-// API endpoint
-router.get('/', (req, res) => {
-  res.send('Admin API endpoint');
-});
+// // API endpoint
+// router.get('/', (req, res) => {
+//   res.send('Admin API endpoint');
+// });
 
 /*
   Endpoint: POST /admin/login
