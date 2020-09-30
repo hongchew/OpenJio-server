@@ -24,7 +24,7 @@ const createAdmin = async (name, email, password, adminType) => {
 
     await newAdmin.save();
 
-    return await retrieveAdminByAdminId(newAdmin.userId);
+    return await retrieveAdminByAdminId(newAdmin.adminId);
   } catch (e) {
     console.log(e);
     throw e;
@@ -174,13 +174,14 @@ const resetAdminPassword = async (email) => {
 };
 
 /*
-  Update User Details
-  Parameters: (user: object {
-    userId: string,
+  Update Admin Details
+  Parameters: (admin: object {
+    adminId: string,
     name: string,
     email: string,
-    adminType, string
+    adminType: string
   })
+  Return: Model.Admin object
 */
 const updateAdmin = async (admin) => {
   try {
@@ -189,7 +190,7 @@ const updateAdmin = async (admin) => {
       throw 'Admin ' + admin.adminId + ' not found';
     }
     const updatedAdmin = await adminToUpdate.update(admin);
-    return await retrieveUserByUserId(updatedAdmin.adminId);
+    return await retrieveAdminByAdminId(updatedAdmin.adminId);
   } catch (e) {
     console.log(e);
     throw e;

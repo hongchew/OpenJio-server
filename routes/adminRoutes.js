@@ -38,7 +38,7 @@ router.post('/register', async (req, res) => {
 });
 
 /*
-  Endpoint: PUT /admin/change-user-password
+  Endpoint: PUT /admin/change-password
   Content type: JSON { email: 'string', currPassword: 'string', newPassword: 'string'}
   Return: HTTP status code
 */
@@ -81,14 +81,13 @@ router.put('/reset-password', async (req, res) => {
 
 /*
   Endpoint: PUT /admin/update-admin
-  Content type: JSON Model.User {
+  Content type: JSON Model.Admin {
     adminId: string,
-    userId: string,
     name: string,
     email: string,
     adminType: string
   } * only adminId is compulsory, every other field can be on a need-to-update basis.
-  Return: Model.User object with updated properties
+  Return: Model.Admin object with updated properties
 */
 router.put('/update-admin', async (req, res) => {
   try {
