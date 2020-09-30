@@ -167,18 +167,43 @@ const resetUserPassword = async (email) => {
 */
 const verifyUserSingPass = async (userId) => {
   try {
-
     const user = await retrieveUserByUserId(userId);
-    if(!user){
+    if (!user) {
       // user not found
-      throw 'User not found'
+      throw 'User not found';
     }
     user.isSingPassVerified = true;
     await user.save();
     return await retrieveUserByUserId(userId);
+  } catch (e) {
+    throw e;
+  }
+};
 
-  } catch (e){
-    throw e
+/*
+  Update User Details
+  Parameters: (user: object {
+    userId: string,
+    name: string,
+    mobileNumber: string,
+    email: string,
+    isBlackListed: boolean,
+    hasCovid: boolean,
+    isSingPassVerified": boolean,
+    strikeCount: number,
+    defaultAddressId: string
+  })
+*/
+const updateUserDetails = async (user) => {
+  try {
+    const userToUpdate = await retrieveUserByUserId(user.userId);
+    if (!userToUpdate) {
+      throw 'User not found';
+    }
+    const updatedUser = await userToUpdate.update(user);
+    return await retrieveUserByUserId(updatedUser.userId);
+  } catch (e) {
+    throw e;
   }
 };
 
@@ -188,5 +213,6 @@ module.exports = {
   changeUserPassword,
   sendEmail,
   resetUserPassword,
-  verifyUserSingPass
+  verifyUserSingPass,
+  updateUserDetails,
 };
