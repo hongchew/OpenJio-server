@@ -4,11 +4,13 @@ const {Sequelize} = require('sequelize');
 const {nodemailer} = require('nodemailer');
 
 /*
-  Find and retrieve user from database with adminId
-  Parameters: (adminId: UUID)
-  Return: User object less password and salt (null if not found)
+  Create new admin inside database
+  Parameters: (name: string,
+    email: string,
+    password: string,
+    adminType: string)
+  Return: Admin object if create is successful
 */
-
 const createAdmin = async (name, email, password, adminType) => {
   try {
     const newAdmin = Admin.build({
