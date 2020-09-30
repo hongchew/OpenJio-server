@@ -50,17 +50,12 @@ router.post('/adminLogin', async (req, res) => {
 -------------------------------- */
 router.get('', async (req, res) => {
   try {
-    currentAdmin = await retrieveAllAdminAccounts()
-      .then((adminAccounts) => {
-        res.json(adminAccounts);
-      })
-      .catch((err) => {
-        res.status(500).json({
-          message: 'Error retrieving Admin Accounts!',
-        });
-      });
+    const admins = await retrieveAllAdminAccounts();
+    res.json(admins);
   } catch (e) {
-    res.status(500).json(e);
+    res.status(500).json({
+      message: 'Error retrieving Admin Accounts!',
+    });
   }
 });
 
