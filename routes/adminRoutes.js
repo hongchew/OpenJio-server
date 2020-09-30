@@ -79,7 +79,9 @@ router.put('/change-password', async (req, res) => {
 
       res.status(401).send();
     } else {
-      res.status(200).send();
+      res.status(200).json({
+        message: 'Password successfully changed!',
+      });
     }
   } catch (e) {
     // generic server error
@@ -108,7 +110,7 @@ router.put('/reset-password', async (req, res) => {
   Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
   Return: Models.Admin objects 
 -------------------------------- */
-router.get('', async (req, res) => {
+router.get('/retrieve-all', async (req, res) => {
   try {
     const admins = await retrieveAllAdminAccounts();
     res.json(admins);
