@@ -53,7 +53,7 @@ router.post('/adminLogin', async (req, res) => {
   Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
   Return: Models.Admin object 
 -------------------------------- */
-router.get('/admins/:adminId', async (req, res) => {
+router.get('/:adminId', async (req, res) => {
   try {
     // Can consider use req.body.id
     const adminId = req.params.adminId;
@@ -78,7 +78,7 @@ router.get('/admins/:adminId', async (req, res) => {
   Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
   Return: Models.Admin object 
 -------------------------------- */
-router.get('/admins/:email', async (req, res) => {
+router.get('/:email', async (req, res) => {
   try {
     const adminEmail = req.body.email;
 
@@ -101,7 +101,7 @@ router.get('/admins/:email', async (req, res) => {
   Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
   Return: Models.Admin objects 
 -------------------------------- */
-router.get('/admins', async (req, res) => {
+router.get('/getAdmins', async (req, res) => {
   try {
     currentAdmin = await retrieveAllAdminAccounts()
       .then((adminAccounts) => {
@@ -122,7 +122,7 @@ router.get('/admins', async (req, res) => {
   Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
   Return: Models.Admin object 
 -------------------------------- */
-router.post('/admins/createAdmin', async (req, res) => {
+router.post('/createAdmin', async (req, res) => {
   try {
     const newAdminCredentials = req.body;
     const newAdmin = await createAdmin(
@@ -166,7 +166,7 @@ router.post('/admins/createAdmin', async (req, res) => {
   Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
   Return: Models.Admin object 
 -------------------------------- */
-router.put('/admins/:adminId', async (req, res) => {
+router.put('/:adminId', async (req, res) => {
   try {
     const updatedAdmin = req.body;
     const adminId = updatedAdmin.adminId;
@@ -195,7 +195,7 @@ router.put('/admins/:adminId', async (req, res) => {
   Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
   Return: Models.Admin object 
 -------------------------------- */
-router.delete('/admins/:adminId', async (req, res) => {
+router.delete('/:adminId', async (req, res) => {
   try {
     const adminId = req.body.adminId;
 
