@@ -22,7 +22,7 @@ router.post('/register', async (req, res) => {
       newCredentials.adminType
     );
     if (!newAdmin) {
-      throw 'signup failed';
+      throw 'Admin creation failed!';
     }
     res.json(newAdmin);
   } catch (e) {
