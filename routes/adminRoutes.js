@@ -66,14 +66,6 @@ router.post('/register', async (req, res) => {
   Content type: JSON { email: 'string', currPassword: 'string', newPassword: 'string'}
   Return: HTTP status code
 */
-<<<<<<< HEAD
-router.post('/adminLogin', async (req, res) => {
-  console.log(`HERERE HERER HERERE ${JSON.stringify(req.body)}`)
-  try {
-    console.log('requesting for admin')
-    const credentials = req.body;
-    const admin = await adminLogin(credentials.email, credentials.password);
-=======
 router.put('/change-password', async (req, res) => {
   try {
     const admin = await changeAdminPassword(
@@ -81,21 +73,15 @@ router.put('/change-password', async (req, res) => {
       req.body.currPassword,
       req.body.newPassword
     );
->>>>>>> e12556fbfc44143b6c3c3e1ae59e08c92a2c1973
 
     if (!admin) {
       //current password is wrong
 
       res.status(401).send();
     } else {
-<<<<<<< HEAD
-      console.log('i got an admin object')
-      res.json(admin);
-=======
       res.status(200).json({
         message: 'Password successfully changed!',
       });
->>>>>>> e12556fbfc44143b6c3c3e1ae59e08c92a2c1973
     }
   } catch (e) {
     // generic server error
