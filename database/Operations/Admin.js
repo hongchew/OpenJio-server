@@ -100,7 +100,7 @@ const changeAdminPassword = async (email, currPassword, newPassword) => {
   try {
     const admin = await retrieveAdminByEmail(email);
 
-    if (currPassword != newPassword) {
+    if (!admin.isCorrectPassword(currPassword)) {
       throw 'Passwords do not match';
     }
     //if email is wrong
@@ -174,6 +174,82 @@ const resetAdminPassword = async (email) => {
 };
 
 /*
+  Create Super Admin
+  Parameters: (name: string,
+    email: string,
+    password: string,
+    adminType: string)
+  Return: Admin object if create is successful
+*/
+const createSuperAdmin = async (id, name, email, password) => {
+  return createAdminGeneric(
+    name, 
+    email, 
+    password, 
+    ADMIN_TYPE.SUPER_ADMIN, id
+    );
+};
+
+const createAdminGeneric = async (name, email, password, type, adminId) => {
+  const newAdmin = Admin.build({
+    adminId: adminId ? adminId : Sequelize.UUIDV4,
+    name: name,
+    email: email,
+    password: password,
+    adminType: type,
+  });
+  newAdmin.salt = Admin.generateSalt();
+  newAdmin.password = Admin.encryptPassword(password, newAdmin.salt);
+
+  console.log(newAdmin);
+
+  await newAdmin.save();
+
+  return newAdmin;
+};
+
+
+/* ----------------------------------------
+  Retrieve all admin accounts from database
+  Parameters: (null)
+  Return: Array of Admin objects
+---------------------------------------- */
+const retrieveAllAdminAccounts = async () => {
+  try {
+    const adminAccounts = await Admin.findAll({});
+    return adminAccounts;
+  } catch (e) {
+    throw console.error(e);
+  }
+};
+
+/* ----------------------------------------
+  Delete Admin Account 
+  Parameters: (adminId: UUID)
+  Return: null
+----------------------------------------*/
+const deleteAdminAccount = async (adminId) => {
+  try {
+    
+    const admin = await retrieveAdminByAdminId(adminId);
+
+    if(!admin){
+      throw 'Admin with ' + adminId + ' does not exist';
+    }
+    
+    const adminDeleted = await admin.destroy();
+
+    if (adminDeleted) {
+      console.log('Admin account deleted!');
+      return null;
+    }
+
+  } catch (e) {
+    throw console.error(e);
+  }
+};
+
+/*
   Update Admin Details
   Parameters: (admin: object {
     adminId: string,
@@ -183,7 +259,7 @@ const resetAdminPassword = async (email) => {
   })
   Return: Model.Admin object
 */
-const updateAdmin = async (admin) => {
+  const updateAdmin = async (admin) => {
   try {
     const adminToUpdate = await retrieveAdminByAdminId(admin.adminId);
     if (!adminToUpdate) {
@@ -199,8 +275,11 @@ const updateAdmin = async (admin) => {
 
 module.exports = {
   createAdmin,
+  createSuperAdmin,
   retrieveAdminByAdminId,
   retrieveAdminByEmail,
+  retrieveAllAdminAccounts,
+  deleteAdminAccount,
   verifyAdminLogin,
   changeAdminPassword,
   sendEmail,
