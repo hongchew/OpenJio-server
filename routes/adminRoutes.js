@@ -83,7 +83,6 @@ router.put('/change-password', async (req, res) => {
 
     if (!admin) {
       //current password is wrong
-
       res.status(401).send();
     } else {
       res.status(200).json({
@@ -190,7 +189,7 @@ router.delete('/:adminId', async (req, res) => {
 });
 
 /*--------------------------------
-  Endpoint: POST /adminLogin
+  Endpoint: POST /admins/login
   Content type: JSON { email: 'string', password: 'string'}
   Return: Admin object
 -------------------------------- */

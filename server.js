@@ -1,9 +1,6 @@
 const express = require('express');
 const app = express();
 
-// Port moved downwards for better management
-//const port = 3000;
-
 // For testing (YZ)
 
 // cors provides Express middleware to enable CORS with various options
@@ -11,7 +8,8 @@ const cors = require("cors");
 
 // Listen to port 8080 for incoming requests(Front-end port set to 8080)
 var corsOptions = {
-  origin: "http://localhost:8080"
+  origin: "http://localhost:8080",
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
