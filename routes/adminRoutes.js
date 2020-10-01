@@ -3,17 +3,13 @@ const {Sequelize} = require('sequelize');
 const router = express.Router();
 
 const {
-  retrieveAdminByAdminId,
-  retrieveAdminByEmail,
-  verifyAdminLogin,
-  sendEmail,
   createAdmin,
   changeAdminPassword,
   resetAdminPassword,
-  createSuperAdmin,
   retrieveAllAdminAccounts,
   updateAdmin,
   deleteAdminAccount,
+  retrieveAdminByAdminId,
 } = require('../database/Operations/Admin');
 
 /* http://localhost:3000/admin/ . */
@@ -116,8 +112,8 @@ router.put('/reset-password', async (req, res) => {
 });
 
 /* --------------------------------
-  Endpoint: GET /admins
-  Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
+  Endpoint: GET /admins/retrieve-all
+  Content type:
   Return: Models.Admin objects 
 -------------------------------- */
 router.get('/retrieve-all', async (req, res) => {
@@ -127,6 +123,22 @@ router.get('/retrieve-all', async (req, res) => {
   } catch (e) {
     res.status(500).json({
       message: 'Error retrieving Admin Accounts!',
+    });
+  }
+});
+
+/* --------------------------------
+  Endpoint: GET /admins/retrieve
+  Content type: JSON { adminId: 'UUID'}
+  Return: Models.Admin objects 
+-------------------------------- */
+router.get('/retrieve', async (req, res) => {
+  try {
+    const admin = await retrieveAdminByAdminId(req.body.adminId);
+    res.json(admin);
+  } catch (e) {
+    res.status(500).json({
+      message: 'Error retrieving admin ' + req.body.adminId,
     });
   }
 });
