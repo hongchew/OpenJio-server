@@ -12,6 +12,22 @@ getDb();
 app.use('/files', express.static('files'));
 app.use(express.json());
 
+// enable files upload
+const fileUpload = require('express-fileupload');
+app.use(
+  fileUpload({
+    createParentPath: true,
+  })
+);
+//#endregion
+
+//#region middleware
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
+app.use(cors());
+app.use(bodyParser.urlencoded({extended: true}));
+
 //#endregion
 
 //#region Routes
