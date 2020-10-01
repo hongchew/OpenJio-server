@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {User} = require('../database/Models/User');
+
 const {
   createUser,
   verifyUserLogin,
@@ -165,8 +166,9 @@ router.put('/verify-user-singpass', async (req, res) => {
     email: string,
     isBlackListed: boolean,
     hasCovid: boolean,
-    isSingPassVerified": boolean,
+    isSingPassVerified: boolean,
     strikeCount: number,
+    avatarPath: string,
     defaultAddressId: string
   } * only userId is compulsory, every other field can be on a need-to-update basis.
   Return: Model.User object with updated properties
@@ -178,6 +180,44 @@ router.put('/update-user-details', async (req, res) => {
   } catch (e) {
     //generic server error
     res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: POST /users/upload-avatar/:userId
+  Content type: form-data (file) { avatar }
+  Return: JSON { status : boolean , message: string, avatarPath : string }
+*/
+router.post('/upload-avatar/:userId', async (req, res) => {
+  try {
+    if (!req.files) {
+      res.status(400).json({
+        status: false,
+        message: 'No file uploaded',
+      });
+    } else {
+      //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
+      let avatar = req.files.avatar;
+      console.log(req.files);
+      //Use the mv() method to place the file in files directory
+      const avatarPath =
+        './files/' + req.params.userId + '.' + avatar.name.split('.').pop();
+      avatar.mv(avatarPath);
+
+      const user = await updateUserDetails({
+        userId: req.params.userId,
+        avatarPath: avatarPath,
+      });
+
+      //send response
+      res.status(200).send({
+        status: true,
+        message: 'File is uploaded',
+        avatarPath: user.avatarPath
+      });
+    }
+  } catch (err) {
+    res.status(500).send(err);
   }
 });
 
