@@ -100,7 +100,7 @@ const changeAdminPassword = async (email, currPassword, newPassword) => {
   try {
     const admin = await retrieveAdminByEmail(email);
 
-    if (admin.isCorrectPassword(currPassword)) {
+    if (!admin.isCorrectPassword(currPassword)) {
       throw 'Passwords do not match';
     }
     //if email is wrong
@@ -230,19 +230,20 @@ const retrieveAllAdminAccounts = async () => {
 ----------------------------------------*/
 const deleteAdminAccount = async (adminId) => {
   try {
-    let admin = await retrieveAdminByAdminId(adminId);
+    
+    const admin = await retrieveAdminByAdminId(adminId);
 
     if(!admin){
       throw 'Admin with ' + adminId + ' does not exist';
     }
-
+    
     const adminDeleted = await admin.destroy();
 
     if (adminDeleted) {
       console.log('Admin account deleted!');
-      return;
+      return null;
     }
-    throw new Error("Admin account not found!");
+
   } catch (e) {
     throw console.error(e);
   }

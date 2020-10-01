@@ -117,7 +117,6 @@ router.get('/retrieve-all', async (req, res) => {
   } catch (e) {
     res.status(500).json({
       message: 'Error retrieving Admin Accounts!',
-      error: e.message,
     });
   }
 });
@@ -133,8 +132,10 @@ router.get('/retrieve-all', async (req, res) => {
   Return: Model.Admin object with updated properties
 */
 router.put('/update-admin', async (req, res) => {
+  
+  const adminId = req.body.adminId;
+  
   try {
-    const adminId = req.body.adminId;
     const updatedAdmin = await updateAdmin(req.body);
     res.status(200).json(updatedAdmin);
   } catch (e) {
@@ -151,9 +152,10 @@ router.put('/update-admin', async (req, res) => {
   Return: Models.Admin object 
 -------------------------------- */
 router.delete('/:adminId', async (req, res) => {
-  try {
-    const adminId = req.params.adminId;
+  
+  const adminId = req.params.adminId;
 
+  try {
     const adminToDelete = await deleteAdminAccount(adminId);
 
     res.status(200).json({
@@ -162,7 +164,6 @@ router.delete('/:adminId', async (req, res) => {
   } catch (e) {
     res.status(500).json({
       message: 'Error deleting Admin by Id: ' + adminId,
-      error: e.message,
     });
   }
 });
