@@ -196,6 +196,7 @@ router.delete('/:adminId', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const credentials = req.body;
+    console.log('Email sent to backend is ' + credentials)
     const admin = await verifyAdminLogin(credentials.email, credentials.password);
 
     if (!admin) {
