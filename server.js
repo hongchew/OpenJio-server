@@ -1,26 +1,9 @@
 const express = require('express');
 const app = express();
 
-// cors provides Express middleware to enable CORS with various options
-const cors = require("cors");
-
-// Listen to port 8080 for incoming requests(Front-end port set to 8080)
-var corsOptions = {
-  origin: "http://localhost:8080",
-  optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions));
-
-
 //#region Database
 const getDb = require('./database');
 getDb();
-
-// // Implement drop existing tables and re-sync database (YZ):
-// getDb.sequelize.sync({ force: true }).then(() => {
-//    console.log("Drop and re-sync db.");
-// });
 
 //#endregion
 
@@ -28,7 +11,21 @@ getDb();
 app.use('/files', express.static('files'));
 app.use(express.json());
 
+// enable files upload
+const fileUpload = require('express-fileupload');
+app.use(
+  fileUpload({
+    createParentPath: true,
+  })
+);
 //#endregion
+
+//#region middleware
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
+app.use(cors());
+app.use(bodyParser.urlencoded({extended: true}));
 
 //#region Routes
 const usersRouter = require('./routes/usersRoutes');
