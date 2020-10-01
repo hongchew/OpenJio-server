@@ -194,7 +194,7 @@ router.delete('/:adminId', async (req, res) => {
   Content type: JSON { email: 'string', password: 'string'}
   Return: Admin object
 -------------------------------- */
-router.post('/adminLogin', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const credentials = req.body;
     console.log('Email sent to backend is ' + credentials)
