@@ -83,7 +83,6 @@ router.put('/change-password', async (req, res) => {
 
     if (!admin) {
       //current password is wrong
-
       res.status(401).send();
     } else {
       res.status(200).json({
@@ -190,11 +189,11 @@ router.delete('/:adminId', async (req, res) => {
 });
 
 /*--------------------------------
-  Endpoint: POST /admin/login
+  Endpoint: POST /admins/login
   Content type: JSON { email: 'string', password: 'string'}
   Return: Admin object
 -------------------------------- */
-router.post('/adminLogin', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const credentials = req.body;
     const admin = await verifyAdminLogin(credentials.email, credentials.password);
