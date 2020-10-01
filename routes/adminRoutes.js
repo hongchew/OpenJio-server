@@ -1,26 +1,41 @@
 const express = require('express');
-const {createAdmin, changeAdminPassword, resetAdminPassword} = require('../database/Operations/Admin');
+const {
+  createAdmin,
+  changeAdminPassword,
+  resetAdminPassword,
+} = require('../database/Operations/Admin');
+const AdminType = require('../enum/AdminType');
 const router = express.Router();
 
-/* http://localhost:3000/admin/ . */
+/* http://localhost:3000/admins/ . */
 router.get('/', (req, res) => {
   res.send('Admin API endpoint ');
 });
 
 /*
-  Endpoint: POST /admin/register
+  Endpoint: POST /admins/register
   Content type: JSON { name: 'string', email: 'string', password: 'string', adminType: 'string'}
   Return: Model.Admin object 
 */
 router.post('/register', async (req, res) => {
   try {
-    const newCredentials = req.body;
-    const newAdmin = await createAdmin(
-      newCredentials.name,
-      newCredentials.email,
-      newCredentials.password,
-      newCredentials.adminType
-    );
+    var newAdmin;
+    if (req.body.adminType === 'superAdmin') {
+      newAdmin = await createAdmin(
+        req.body.name,
+        req.body.email,
+        req.body.password,
+        AdminType.SUPER_ADMIN
+      );
+    } else {
+      newAdmin = await createAdmin(
+        req.body.name,
+        req.body.email,
+        req.body.password,
+        AdminType.ADMIN
+      );
+    }
+
     if (!newAdmin) {
       throw 'signup failed';
     }
@@ -28,8 +43,13 @@ router.post('/register', async (req, res) => {
   } catch (e) {
     console.error(e);
     //delete sensitive information
-    e.errors.forEach((err) => delete err.instance);
-    res.status(400).json(e);
+    // e.errors.forEach((err) => delete err.instance);
+
+    if (
+      e.name === 'SequelizeValidationError' ||
+      'SequelizeUniqueConstraintError'
+    ) {
+      res.status(400).json(e);
     } else {
       // generic server error
       res.status(500).json(e);
@@ -38,7 +58,7 @@ router.post('/register', async (req, res) => {
 });
 
 /*
-  Endpoint: PUT /admin/change-password
+  Endpoint: PUT /admins/change-password
   Content type: JSON { email: 'string', currPassword: 'string', newPassword: 'string'}
   Return: HTTP status code
 */
@@ -65,7 +85,7 @@ router.put('/change-password', async (req, res) => {
 });
 
 /*
-  Endpoint: PUT /admin/reset-password
+  Endpoint: PUT /admins/reset-password
   Content type: JSON { email: 'string'}
   Return: HTTP status code
 */
@@ -80,7 +100,7 @@ router.put('/reset-password', async (req, res) => {
 });
 
 /*
-  Endpoint: PUT /admin/update-admin
+  Endpoint: PUT /admins/update-admin
   Content type: JSON Model.Admin {
     adminId: string,
     name: string,
@@ -98,7 +118,5 @@ router.put('/update-admin', async (req, res) => {
     res.status(500).json(e);
   }
 });
-
-
 
 module.exports = router;
