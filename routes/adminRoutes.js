@@ -190,7 +190,7 @@ router.delete('/:adminId', async (req, res) => {
 });
 
 /*--------------------------------
-  Endpoint: POST /admin/login
+  Endpoint: POST /adminLogin
   Content type: JSON { email: 'string', password: 'string'}
   Return: Admin object
 -------------------------------- */
