@@ -10,6 +10,7 @@ const {
   updateAdmin,
   deleteAdminAccount,
   retrieveAdminByAdminId,
+  verifyAdminLogin
 } = require('../database/Operations/Admin');
 
 /* http://localhost:3000/admin/ . */
@@ -185,6 +186,28 @@ router.delete('/:adminId', async (req, res) => {
     res.status(500).json({
       message: 'Error deleting Admin by Id: ' + adminId,
     });
+  }
+});
+
+/*--------------------------------
+  Endpoint: POST /admin/login
+  Content type: JSON { email: 'string', password: 'string'}
+  Return: Admin object
+-------------------------------- */
+router.post('/adminLogin', async (req, res) => {
+  try {
+    const credentials = req.body;
+    const admin = await verifyAdminLogin(credentials.email, credentials.password);
+
+    if (!admin) {
+      // login failed, either email or password wrong
+      res.status(401).json({message: 'Incorrect Email or Password'});
+    } else {
+      //return an admin name and adminId
+      res.json(admin);
+    }
+  } catch (e) {
+    res.status(500).json(e);
   }
 });
 
