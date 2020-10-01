@@ -8,7 +8,9 @@ const {adminLogin} = require('../database/Operations/Admin');
   Return: Models.Admin object 
 */
 router.post('/adminLogin', async (req, res) => {
+  console.log(`HERERE HERER HERERE ${JSON.stringify(req.body)}`)
   try {
+    console.log('requesting for admin')
     const credentials = req.body;
     const admin = await adminLogin(credentials.email, credentials.password);
 
@@ -16,6 +18,7 @@ router.post('/adminLogin', async (req, res) => {
       // login failed, either email or password wrong
       res.status(401).json({message: 'Incorrect Email or Password'});
     } else {
+      console.log('i got an admin object')
       res.json(admin);
     }
   } catch (e) {
