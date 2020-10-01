@@ -169,7 +169,7 @@ router.put('/update-admin', async (req, res) => {
 
 /* --------------------------------
   Endpoint: DELETE /admins/:adminId
-  Content type: JSON { adminId: 'UUID', name: 'string, email: 'string', password: 'string', adminType: "String"}
+  Content type: 
   Return: Models.Admin object 
 -------------------------------- */
 router.delete('/:adminId', async (req, res) => {
