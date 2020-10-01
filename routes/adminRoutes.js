@@ -13,7 +13,7 @@ const {
   verifyAdminLogin
 } = require('../database/Operations/Admin');
 
-/* http://localhost:3000/admin/ . */
+/* http://localhost:3000/admins/ . */
 router.get('/', (req, res) => {
   res.send('Admin API endpoint ');
 });
