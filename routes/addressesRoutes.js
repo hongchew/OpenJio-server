@@ -32,9 +32,9 @@ router.post('/add', async (req, res) => {
   Content type: JSON { addressId: string }
   Return: Array of all addresses associated with users 
 */
-router.delete('/delete', async (req, res) => {
+router.delete('/:addressId', async (req, res) => {
   try {
-    const newAddressList = await deleteAddressByAddresId(req.body.addressId);
+    const newAddressList = await deleteAddressByAddresId(req.params.addressId);
     res.status(200).json(newAddressList);
   } catch (e) {
     res.status(500).json(e);
