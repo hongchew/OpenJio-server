@@ -1,8 +1,6 @@
 const express = require('express');
 const app = express();
 
-// For testing (YZ)
-
 // cors provides Express middleware to enable CORS with various options
 const cors = require("cors");
 
@@ -14,13 +12,6 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
-//const bodyParser = require("body-parser");
-// Parse requests of content-type - application/json
-//app.use(bodyParser.json());
-
-// parse requests of content-type - application/x-www-form-urlencoded
-//app.use(bodyParser.urlencoded({ extended: true }))
-// End of YZ's testing
 
 //#region Database
 const getDb = require('./database');
