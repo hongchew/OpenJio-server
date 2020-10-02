@@ -91,8 +91,7 @@ router.put('/change-password', async (req, res) => {
     }
   } catch (e) {
     // generic server error
-    // res.status(500).json(e);
-    res.json(e);
+    res.status(500).json(e);
   }
 });
 
@@ -196,7 +195,6 @@ router.delete('/:adminId', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const credentials = req.body;
-    console.log('Email sent to backend is ' + credentials);
     const admin = await verifyAdminLogin(
       credentials.email,
       credentials.password
