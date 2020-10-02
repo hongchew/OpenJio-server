@@ -218,6 +218,24 @@ const updateUserDetails = async (user) => {
   }
 };
 
+/*
+  Retrieve All user
+  Parameters: ()
+  Return: [Model.User]
+*/
+const retrieveAllUsers = async () => {
+  try {
+    return await User.findAll({
+      attributes: {
+        exclude: ['salt', 'password'],
+      },
+      include: Address,
+    });
+  } catch (e) {
+    throw e;
+  }
+};
+
 module.exports = {
   createUser,
   verifyUserLogin,
@@ -226,4 +244,5 @@ module.exports = {
   resetUserPassword,
   verifyUserSingPass,
   updateUserDetails,
+  retrieveAllUsers
 };

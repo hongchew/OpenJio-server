@@ -26,13 +26,6 @@ const bodyParser = require('body-parser');
 app.use(cors());
 app.use(bodyParser.urlencoded({extended: true}));
 
-//#region middleware
-const cors = require('cors');
-const bodyParser = require('body-parser');
-
-app.use(cors());
-app.use(bodyParser.urlencoded({extended: true}));
-
 //#region Routes
 const usersRouter = require('./routes/usersRoutes');
 const adminsRouter = require('./routes/adminRoutes');
