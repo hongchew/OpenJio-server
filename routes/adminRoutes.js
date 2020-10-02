@@ -31,14 +31,14 @@ router.post('/register', async (req, res) => {
         req.body.name,
         req.body.email,
         req.body.password,
-        AdminType.SUPER_ADMIN
+        'SUPER_ADMIN'
       );
     } else {
       newAdmin = await createAdmin(
         req.body.name,
         req.body.email,
         req.body.password,
-        AdminType.ADMIN
+        'ADMIN'
       );
     }
 
