@@ -78,6 +78,9 @@ const initUser = async (sequelize) => {
           return this.getDataValue('salt');
         },
       },
+      avatarPath: {
+        type: Sequelize.STRING,
+      },
     },
     {
       sequelize,

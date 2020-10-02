@@ -142,7 +142,7 @@ const sendEmail = async (email, content) => {
 /*
   Reset user's password
   Parameters: (email: string)
-  Return: Promise
+  Return: Promise ( Model.User)
 */
 const resetUserPassword = async (email) => {
   try {
@@ -202,6 +202,7 @@ const verifyUserSingPass = async (userId) => {
     strikeCount: number,
     defaultAddressId: string
   })
+  Return: User object
 */
 const updateUserDetails = async (user) => {
   try {

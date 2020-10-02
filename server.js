@@ -18,7 +18,13 @@ app.use(
     createParentPath: true,
   })
 );
-//#endregion
+
+//#region middleware
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
+app.use(cors());
+app.use(bodyParser.urlencoded({extended: true}));
 
 //#region middleware
 const cors = require('cors');
