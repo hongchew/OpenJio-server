@@ -14,10 +14,12 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.0",
+    "install": "^0.13.0",
     "jest": "^26.4.2",
     "mysql2": "^2.1.0",
     "nodemailer": "^6.4.11",
     "nodemon": "^2.0.4",
+    "npm": "^6.14.8",
     "sequelize": "^6.3.5"
   }
 }
