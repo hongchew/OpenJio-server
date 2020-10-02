@@ -10,10 +10,10 @@ const {
   updateAdmin,
   deleteAdminAccount,
   retrieveAdminByAdminId,
-  verifyAdminLogin
+  verifyAdminLogin,
 } = require('../database/Operations/Admin');
 
-/* http://localhost:3000/admin/ . */
+/* http://localhost:3000/admins/ . */
 router.get('/', (req, res) => {
   res.send('Admin API endpoint ');
 });
@@ -197,8 +197,11 @@ router.delete('/:adminId', async (req, res) => {
 router.post('/adminLogin', async (req, res) => {
   try {
     const credentials = req.body;
-    console.log('Email sent to backend is ' + credentials)
-    const admin = await verifyAdminLogin(credentials.email, credentials.password);
+    console.log('Email sent to backend is ' + credentials);
+    const admin = await verifyAdminLogin(
+      credentials.email,
+      credentials.password
+    );
 
     if (!admin) {
       // login failed, either email or password wrong
