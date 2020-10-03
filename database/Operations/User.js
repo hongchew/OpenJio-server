@@ -244,5 +244,6 @@ module.exports = {
   resetUserPassword,
   verifyUserSingPass,
   updateUserDetails,
-  retrieveAllUsers
+  retrieveAllUsers,
+  retrieveUserByUserId,
 };
