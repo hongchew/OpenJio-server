@@ -3,12 +3,10 @@ const {database_variables} = require('../PRIVATE_VARIABLES');
 const {
   createSuperAdmin,
   retrieveAdminByAdminId,
-  retrieveAdminByEmail,
 } = require('./Operations/Admin');
 const {createUser, retrieveUserByEmail} = require('./Operations/User');
 const {addAddress} = require('./Operations/Address');
 
-const {initTestModel, TestModel} = require('./Models/TestModel');
 const {initAddress, Address} = require('./Models/Address');
 const {initAdmin, Admin} = require('./Models/Admin');
 const {initAnnouncement, Announcement} = require('./Models/Announcement');
@@ -25,7 +23,6 @@ const {initTransaction, Transaction} = require('./Models/Transaction');
 const {initUser, User} = require('./Models/User');
 const {initWallet, Wallet} = require('./Models/Wallet');
 const SupportComplaintStatus = require('../enum/SupportComplaintStatus');
-const {createUser, retrieveUserByUserId} = require('./Operations/User');
 
 let db;
 
