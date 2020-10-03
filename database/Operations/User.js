@@ -236,6 +236,27 @@ const retrieveAllUsers = async () => {
   }
 };
 
+/*
+  Retrieve all users with COVID-19
+  Parameters: ()
+  Return: [Model.User]
+*/
+const retrieveAllUsersWithCovid = async () => {
+  try {
+    return await User.findAll({
+      where: {
+        hasCovid: true,
+      },
+      attributes: {
+        exclude: ['salt', 'password'],
+      },
+      include: Address,
+    });
+  } catch (e) {
+    throw e;
+  }
+};
+
 module.exports = {
   createUser,
   verifyUserLogin,
@@ -244,5 +265,8 @@ module.exports = {
   resetUserPassword,
   verifyUserSingPass,
   updateUserDetails,
-  retrieveAllUsers
+  retrieveAllUsers,
+  retrieveAllUsersWithCovid,
+  retrieveUserByUserId,
+  retrieveUserByEmail
 };

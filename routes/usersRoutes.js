@@ -10,19 +10,52 @@ const {
   resetUserPassword,
   verifyUserSingPass,
   updateUserDetails,
-  retrieveAllUsers
+  retrieveAllUsers,
+  retrieveAllUsersWithCovid,
+  retrieveUserByUserId
 } = require('../database/Operations/User');
 
 /*
-  Endpoint: POST /users/
+  Endpoint: GET /users/
   Content type: -
   Return: Array of all user objects
 */
 router.get('/', async (req, res) => {
   try {
     const allUsers = await retrieveAllUsers();
-    res.status(200).json(allUsers)
+    res.status(200).json(allUsers);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
 
+/*
+  Endpoint: GET /users/:userId
+  Content type: -
+  Return: Array of all user objects
+*/
+router.get('/:userId', async (req, res) => {
+  try {
+    const user = await retrieveUserByUserId(req.params.userId);
+    res.status(200).json(user)
+
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+
+/*
+  Endpoint: GET /users/covid
+  Content type: JSON { email: 'string', password: 'string' , name: 'string }
+  Return: Array of all user objects with hasCovid: true
+*/
+router.get('/covid', async (req, res) => {
+  try {
+    const allUsersWCovid = await retrieveAllUsersWithCovid();
+    res.status(200).json(allUsersWCovid);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
@@ -118,8 +151,7 @@ router.put('/change-user-password', async (req, res) => {
   } catch (e) {
     // generic server error
 
-    // res.status(500).json(e);
-    res.json(e);
+    res.status(500).json(e);
   }
 });
 
@@ -225,13 +257,12 @@ router.post('/upload-avatar/:userId', async (req, res) => {
       res.status(200).send({
         status: true,
         message: 'File is uploaded',
-        avatarPath: user.avatarPath
+        avatarPath: user.avatarPath,
       });
     }
   } catch (err) {
     res.status(500).send(err);
   }
 });
-
 
 module.exports = router;
