@@ -4,7 +4,9 @@ const {
   createSuperAdmin,
   retrieveAdminByAdminId,
 } = require('./Operations/Admin');
-const {initTestModel, TestModel} = require('./Models/TestModel');
+const {createUser, retrieveUserByEmail} = require('./Operations/User');
+const {addAddress} = require('./Operations/Address');
+
 const {initAddress, Address} = require('./Models/Address');
 const {initAdmin, Admin} = require('./Models/Admin');
 const {initAnnouncement, Announcement} = require('./Models/Announcement');
@@ -21,7 +23,6 @@ const {initTransaction, Transaction} = require('./Models/Transaction');
 const {initUser, User} = require('./Models/User');
 const {initWallet, Wallet} = require('./Models/Wallet');
 const SupportComplaintStatus = require('../enum/SupportComplaintStatus');
-const {createUser, retrieveUserByUserId} = require('./Operations/User');
 
 let db;
 
@@ -207,14 +208,92 @@ const getDb = async () => {
         `***[Database] Admin with id ${admin.getDataValue('adminId')} created`
       );
     }
-    let user = await retrieveUserByUserId('1');
-    if (!user) {
-      newUser = await createUser('user1@gmail.com', 'password', 'user1');
-      console.log(`***[Database] User with id ${newUser.userId} created`);
-    }
   } catch (error) {
     console.error('***[Database] Unable to insert default user:', error);
   }
+
+  // Populating user
+  try {
+    // First user (John) with COVID-19 & not blacklisted
+    let user1Populated = await retrieveUserByEmail('john123@gmail.com');
+
+    if (user1Populated) {
+      console.log('User1 already created');
+    } else {
+      user1 = await createUser('john123@gmail.com', 'password', 'john');
+      if (user1) {
+        user1.hasCovid = true;
+        user1.isBlackListed = false;
+        user1.strikeCount = 1;
+
+        // Add to user address
+        const address1 = {
+          line1: '181 Stirling Road',
+          line2: '#12-34',
+          postalCode: '140181',
+          country: 'Singapore',
+          description: 'My home',
+        };
+
+        let assignAddressToUser = await addAddress(user1.userId, address1);
+        if (assignAddressToUser) {
+          console.log('Address successfully assigned to user: ' + user1.userId);
+        }
+
+        user1.save();
+        console.log('User created with the name: ' + user1.name);
+      }
+    }
+
+    // Second user (paul) without COVID-19 & not blacklisted
+    let user2Populated = await retrieveUserByEmail('paul@gmail.com');
+
+    if (user2Populated) {
+      console.log('User2 already created');
+    } else {
+      user2 = await createUser('paul@gmail.com', 'password', 'paul');
+      if (user2) {
+        user2.hasCovid = false;
+        user2.isBlackListed = false;
+        user2.strikeCount = 2;
+        user2.save();
+        console.log('User created with the name: ' + user2.name);
+      }
+    }
+
+    // Third user (tom) with COVID-19
+    let user3Populated = await retrieveUserByEmail('tom@gmail.com');
+
+    if (user3Populated) {
+      console.log('User3 already created');
+    } else {
+      user3 = await createUser('tom@gmail.com', 'password', 'tom');
+      if (user3) {
+        user3.hasCovid = true;
+        user3.isBlackListed = true;
+        user3.strikeCount = 3;
+        // Add to user address
+        const address3 = {
+          line1: '21 Heng Mui Keng Terrace',
+          line2: 'Icube Building',
+          postalCode: '119613',
+          country: 'Singapore',
+          description: 'Best place in NUS',
+        };
+
+        let assignAddressToUser = await addAddress(user3.userId, address3);
+        if (assignAddressToUser) {
+          console.log('Address successfully assigned to user: ' + user3.userId);
+        }
+
+        user3.save();
+        console.log('User created with the name: ' + user3.name);
+      }
+    }
+  } catch (error) {
+    console.error('***[Database] Unable to insert user:', error);
+  }
+
   //#endregion
 
   return db;

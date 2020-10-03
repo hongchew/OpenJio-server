@@ -11,6 +11,7 @@ const {
   verifyUserSingPass,
   updateUserDetails,
   retrieveAllUsers,
+  retrieveAllUsersWithCovid,
 } = require('../database/Operations/User');
 
 /*
@@ -22,6 +23,21 @@ router.get('/', async (req, res) => {
   try {
     const allUsers = await retrieveAllUsers();
     res.status(200).json(allUsers);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: GET /users/covid
+  Content type: JSON { email: 'string', password: 'string' , name: 'string }
+  Return: Array of all user objects with hasCovid: true
+*/
+router.get('/covid', async (req, res) => {
+  try {
+    const allUsersWCovid = await retrieveAllUsersWithCovid();
+    res.status(200).json(allUsersWCovid);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
@@ -117,8 +133,7 @@ router.put('/change-user-password', async (req, res) => {
   } catch (e) {
     // generic server error
 
-    // res.status(500).json(e);
-    res.json(e);
+    res.status(500).json(e);
   }
 });
 
