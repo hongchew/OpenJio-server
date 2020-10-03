@@ -10,11 +10,12 @@ const {
   resetUserPassword,
   verifyUserSingPass,
   updateUserDetails,
-  retrieveAllUsers
+  retrieveAllUsers,
+  retrieveAllUsersWithCovid
 } = require('../database/Operations/User');
 
 /*
-  Endpoint: POST /users/
+  Endpoint: GET /users/
   Content type: -
   Return: Array of all user objects
 */
@@ -23,6 +24,21 @@ router.get('/', async (req, res) => {
     const allUsers = await retrieveAllUsers();
     res.status(200).json(allUsers)
 
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: GET /users/covid
+  Content type: JSON { email: 'string', password: 'string' , name: 'string }
+  Return: Array of all user objects with hasCovid: true
+*/
+router.get('/covid', async (req, res) => {
+  try {
+    const allUsersWCovid = await retrieveAllUsersWithCovid();
+    res.status(200).json(allUsersWCovid);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
