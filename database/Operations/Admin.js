@@ -1,7 +1,7 @@
 const {Admin} = require('../Models/Admin');
 const ADMIN_TYPE = require('../../enum/AdminType');
 const {Sequelize} = require('sequelize');
-const {nodemailer} = require('nodemailer');
+const nodemailer = require('nodemailer');
 
 /*
   Create new admin inside database
@@ -152,7 +152,6 @@ const sendEmail = async (email, content) => {
 const resetAdminPassword = async (email) => {
   try {
     const admin = await retrieveAdminByEmail(email);
-
     //if email is wrong
     if (!admin) {
       throw 'Admin ' + email + ' does not exist';
