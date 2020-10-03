@@ -26,7 +26,7 @@ router.get('/', (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     var newAdmin;
-    if (req.body.adminType === 'superAdmin') {
+    if (req.body.adminType === 'SUPER_ADMIN') {
       newAdmin = await createAdmin(
         req.body.name,
         req.body.email,
