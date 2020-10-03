@@ -25,6 +25,7 @@ const {initTransaction, Transaction} = require('./Models/Transaction');
 const {initUser, User} = require('./Models/User');
 const {initWallet, Wallet} = require('./Models/Wallet');
 const SupportComplaintStatus = require('../enum/SupportComplaintStatus');
+const {createUser, retrieveUserByUserId} = require('./Operations/User');
 
 let db;
 
@@ -211,7 +212,7 @@ const getDb = async () => {
       );
     }
   } catch (error) {
-    console.error('***[Database] Unable to insert default Super Admin:', error);
+    console.error('***[Database] Unable to insert default user:', error);
   }
 
   // Populating user

@@ -267,5 +267,6 @@ module.exports = {
   updateUserDetails,
   retrieveAllUsers,
   retrieveAllUsersWithCovid,
+  retrieveUserByUserId,
   retrieveUserByEmail
 };
