@@ -10,19 +10,18 @@ const {
   resetUserPassword,
   verifyUserSingPass,
   updateUserDetails,
-  retrieveAllUsers
+  retrieveAllUsers,
 } = require('../database/Operations/User');
 
 /*
-  Endpoint: POST /users/
+  Endpoint: GET /users/
   Content type: -
   Return: Array of all user objects
 */
 router.get('/', async (req, res) => {
   try {
     const allUsers = await retrieveAllUsers();
-    res.status(200).json(allUsers)
-
+    res.status(200).json(allUsers);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
@@ -225,13 +224,12 @@ router.post('/upload-avatar/:userId', async (req, res) => {
       res.status(200).send({
         status: true,
         message: 'File is uploaded',
-        avatarPath: user.avatarPath
+        avatarPath: user.avatarPath,
       });
     }
   } catch (err) {
     res.status(500).send(err);
   }
 });
-
 
 module.exports = router;
