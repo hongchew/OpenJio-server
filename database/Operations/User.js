@@ -130,7 +130,7 @@ const sendEmail = async (email, content) => {
   });
 
   var mailOptions = {
-    from: 'openjio4103@gmail.com',
+    from: 'password-rest@openjio.com',
     to: email,
     subject: content.subject,
     text: content.text,

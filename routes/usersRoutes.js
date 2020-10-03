@@ -30,6 +30,22 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+/*
+  Endpoint: GET /users/covid
+  Content type: JSON { email: 'string', password: 'string' , name: 'string }
+  Return: Array of all user objects with hasCovid: true
+*/
+router.get('/covid', async (req, res) => {
+  try {
+    const allUsersWCovid = await retrieveAllUsersWithCovid();
+    res.status(200).json(allUsersWCovid);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
 /*
   Endpoint: GET /users/:userId
   Content type: -
@@ -47,20 +63,7 @@ router.get('/:userId', async (req, res) => {
 });
 
 
-/*
-  Endpoint: GET /users/covid
-  Content type: JSON { email: 'string', password: 'string' , name: 'string }
-  Return: Array of all user objects with hasCovid: true
-*/
-router.get('/covid', async (req, res) => {
-  try {
-    const allUsersWCovid = await retrieveAllUsersWithCovid();
-    res.status(200).json(allUsersWCovid);
-  } catch (e) {
-    console.log(e);
-    res.status(500).json(e);
-  }
-});
+
 
 /*
   Endpoint: POST /users/signup
