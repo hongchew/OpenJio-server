@@ -11,7 +11,8 @@ const {
   verifyUserSingPass,
   updateUserDetails,
   retrieveAllUsers,
-  retrieveAllUsersWithCovid
+  retrieveAllUsersWithCovid,
+  retrieveUserByUserId
 } = require('../database/Operations/User');
 
 /*
@@ -29,6 +30,23 @@ router.get('/', async (req, res) => {
     res.status(500).json(e);
   }
 });
+
+/*
+  Endpoint: GET /users/:userId
+  Content type: -
+  Return: Array of all user objects
+*/
+router.get('/:userId', async (req, res) => {
+  try {
+    const user = await retrieveUserByUserId(req.params.userId);
+    res.status(200).json(user)
+
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
 
 /*
   Endpoint: GET /users/covid

@@ -1,7 +1,7 @@
 const {Admin} = require('../Models/Admin');
 const ADMIN_TYPE = require('../../enum/AdminType');
 const {Sequelize} = require('sequelize');
-const {nodemailer} = require('nodemailer');
+const nodemailer = require('nodemailer');
 
 /*
   Create new admin inside database
