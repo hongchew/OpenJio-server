@@ -134,8 +134,7 @@ router.put('/change-user-password', async (req, res) => {
   } catch (e) {
     // generic server error
 
-    // res.status(500).json(e);
-    res.json(e);
+    res.status(500).json(e);
   }
 });
 
