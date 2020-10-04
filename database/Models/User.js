@@ -1,4 +1,4 @@
-const { Sequelize, Model, DataTypes } = require('sequelize');
+const {Sequelize, Model, DataTypes} = require('sequelize');
 const crypto = require('crypto');
 
 class User extends Model {
@@ -7,12 +7,21 @@ class User extends Model {
   }
 
   static encryptPassword(plainText, salt) {
-    return crypto.createHash('RSA-SHA256').update(plainText).update(salt).digest('hex');
+    return crypto
+      .createHash('RSA-SHA256')
+      .update(plainText)
+      .update(salt)
+      .digest('hex');
   }
 
   //return true if password entered is correct
   isCorrectPassword(enteredPassword) {
     return User.encryptPassword(enteredPassword, this.salt) === this.password;
+  }
+
+  static generatePassword() {
+    const buf = Buffer.alloc(10);
+    return crypto.randomFillSync(buf).toString('hex');
   }
 }
 
@@ -69,6 +78,9 @@ const initUser = async (sequelize) => {
           return this.getDataValue('salt');
         },
       },
+      avatarPath: {
+        type: Sequelize.STRING,
+      },
     },
     {
       sequelize,
@@ -78,4 +90,4 @@ const initUser = async (sequelize) => {
   console.log(`****[database] User initialized`);
 };
 
-module.exports = { User, initUser };
+module.exports = {User, initUser};
