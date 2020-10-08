@@ -1,6 +1,6 @@
 const {User} = require('../Models/User');
 const {Address} = require('../Models/Address');
-const nodemailer = require('nodemailer');
+const {sendEmail} = require('../../utils/mailer');
 
 /*
   Create an insert user into database
@@ -18,6 +18,15 @@ const createUser = async (email, password, name) => {
     newUser.password = User.encryptPassword(password, newUser.salt);
 
     await newUser.save();
+
+    sendEmail(email, {
+      subject: 'New Account Creation at OpenJio',
+      text:`
+<p>A new account had been created at OpenJio with this email address. </P>
+<p>If you had created an OpenJio account, please click <a href= "http://localhost:3000/users/verify-account-creation/${newUser.userId}">here</a> to verify the account.
+<p>If you had not, please ignore this email. </p>
+      `,
+    })
 
     return await retrieveUserByUserId(newUser.userId);
   } catch (e) {
@@ -105,6 +114,7 @@ const changeUserPassword = async (email, currPassword, newPassword) => {
     //check current password against password in the database
     else if (user.isCorrectPassword(currPassword)) {
       user.password = User.encryptPassword(newPassword, user.salt);
+      user.isPasswordReset = false; // set flag to false after every password change
       return user.save();
     } else {
       return null;
@@ -113,30 +123,6 @@ const changeUserPassword = async (email, currPassword, newPassword) => {
     console.log(e);
     throw e;
   }
-};
-
-/*
-  Send email to user
-  Parameters: (email: string, content: JSON)
-  Return: Promise 
-*/
-const sendEmail = async (email, content) => {
-  var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'openjio4103@gmail.com',
-      pass: '4103openjio',
-    },
-  });
-
-  var mailOptions = {
-    from: 'password-rest@openjio.com',
-    to: email,
-    subject: content.subject,
-    text: content.text,
-  };
-
-  return transporter.sendMail(mailOptions);
 };
 
 /*
@@ -159,6 +145,7 @@ const resetUserPassword = async (email) => {
       };
 
       user.password = User.encryptPassword(newPassword, user.salt);
+      user.isPasswordReset = true; //set flag to true for prompt to change password on login
       user.save();
       return sendEmail(email, content);
     }
@@ -257,6 +244,27 @@ const retrieveAllUsersWithCovid = async () => {
   }
 };
 
+/*
+  Verify User Account Creation
+  Parameters: (userId : string)
+  Return: boolean
+*/
+const verifyUserAccountCreation = async (userId) => {
+  try {
+    const user = await retrieveUserByUserId(userId);
+    if(!user){
+      return false;
+    }
+
+    user.isValidated = true;
+    await user.save();
+    return true;
+
+  } catch (e) {
+    throw e;
+  }
+};
+
 module.exports = {
   createUser,
   verifyUserLogin,
@@ -268,5 +276,6 @@ module.exports = {
   retrieveAllUsers,
   retrieveAllUsersWithCovid,
   retrieveUserByUserId,
-  retrieveUserByEmail
+  retrieveUserByEmail,
+  verifyUserAccountCreation
 };

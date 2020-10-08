@@ -6,13 +6,13 @@ const {
   createUser,
   verifyUserLogin,
   changeUserPassword,
-  sendEmail,
   resetUserPassword,
   verifyUserSingPass,
   updateUserDetails,
   retrieveAllUsers,
   retrieveAllUsersWithCovid,
-  retrieveUserByUserId
+  retrieveUserByUserId,
+  verifyUserAccountCreation
 } = require('../database/Operations/User');
 
 /*
@@ -265,6 +265,36 @@ router.post('/upload-avatar/:userId', async (req, res) => {
     }
   } catch (err) {
     res.status(500).send(err);
+  }
+});
+
+
+/*
+  Endpoint: GET /users/verify-account-creation/:userId
+  Content type: 
+  Return: HTML
+*/
+router.get('/verify-account-creation/:userId', async (req, res) => {
+  try{
+    if(verifyUserAccountCreation(req.params.userId)) {
+      res.status(200).send(`
+      <h1>Account Validated</h1>
+      <p> Please log in to the OpenJio App to enjoy the application! </p>
+      <p> Remember to social distance and stay healthy! </p>
+      `);
+    }else{
+      //verify account false
+      res.status(401).send(`
+      <h1>Account Validation Fail</h1>
+      <p> Please check that the link is correct </p>
+      `);
+    }
+
+  }catch (err) {
+    res.status(500).send(`
+      <h1>Unknown Error: 500</h1>
+      <p> Please try again later</p>
+    `);
   }
 });
 

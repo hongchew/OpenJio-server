@@ -20,7 +20,7 @@ class User extends Model {
   }
 
   static generatePassword() {
-    const buf = Buffer.alloc(10);
+    const buf = Buffer.alloc(5);
     return crypto.randomFillSync(buf).toString('hex');
   }
 }
@@ -81,6 +81,14 @@ const initUser = async (sequelize) => {
       avatarPath: {
         type: Sequelize.STRING,
       },
+      isValidated: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      isPasswordReset: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      }
     },
     {
       sequelize,
