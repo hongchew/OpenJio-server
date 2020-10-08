@@ -20,7 +20,7 @@ class User extends Model {
   }
 
   static generatePassword() {
-    const buf = Buffer.alloc(10);
+    const buf = Buffer.alloc(5);
     return crypto.randomFillSync(buf).toString('hex');
   }
 }

@@ -225,6 +225,7 @@ const getDb = async () => {
         user1.hasCovid = true;
         user1.isBlackListed = false;
         user1.strikeCount = 1;
+        user1.isValidated = true;
 
         // Add to user address
         const address1 = {
@@ -256,6 +257,7 @@ const getDb = async () => {
         user2.hasCovid = false;
         user2.isBlackListed = false;
         user2.strikeCount = 2;
+        user2.isValidated = true;
         user2.save();
         console.log('User created with the name: ' + user2.name);
       }
@@ -272,6 +274,7 @@ const getDb = async () => {
         user3.hasCovid = true;
         user3.isBlackListed = true;
         user3.strikeCount = 3;
+        user3.isValidated = true;
         // Add to user address
         const address3 = {
           line1: '21 Heng Mui Keng Terrace',
