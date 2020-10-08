@@ -81,6 +81,14 @@ const initUser = async (sequelize) => {
       avatarPath: {
         type: Sequelize.STRING,
       },
+      isValidated: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      isPasswordReset: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      }
     },
     {
       sequelize,
