@@ -11,17 +11,33 @@ const {sendEmail} = require('../../utils/mailer');
     adminType: string)
   Return: Admin object if create is successful
 */
-const createAdmin = async (name, email, password, adminType) => {
+const createAdmin = async (name, email, adminType) => {
   try {
+    const adminCheck = await retrieveAdminByEmail(email)
+    //error with this line
+    if (adminCheck !== null) {
+      throw 'Email is already used!'
+    } 
+
     const newAdmin = Admin.build({
       name: name,
       email: email,
       adminType: adminType,
     });
 
+    //generate a random password
+    const password = Admin.generatePassword();
+    const content = {
+      subject: 'Thank you for creating an account with OpenJio!',
+      text: `The password for your new account is: ${password}`,
+    };
+    console.log('password sent to new account email')
+
     newAdmin.salt = Admin.generateSalt();
     newAdmin.password = Admin.encryptPassword(password, newAdmin.salt);
-
+    console.log('sending email')
+    sendEmail(newAdmin.email,content)
+    console.log('email sent')
     await newAdmin.save();
 
     return await retrieveAdminByAdminId(newAdmin.adminId);
@@ -64,6 +80,7 @@ const retrieveAdminByEmail = async (email) => {
         email: email,
       },
     });
+    console.log(`I found an admin entry with the field ${admin}`)
     return admin;
   } catch (e) {
     throw console.error(e);
