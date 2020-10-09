@@ -261,6 +261,7 @@ router.post('/upload-avatar/:userId', async (req, res) => {
         status: true,
         message: 'File is uploaded',
         avatarPath: user.avatarPath,
+        user: user
       });
     }
   } catch (err) {
