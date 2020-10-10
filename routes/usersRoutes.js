@@ -12,7 +12,8 @@ const {
   retrieveAllUsers,
   retrieveAllUsersWithCovid,
   retrieveUserByUserId,
-  verifyUserAccountCreation
+  verifyUserAccountCreation,
+  giveBadge,
 } = require('../database/Operations/User');
 
 /*
@@ -29,7 +30,6 @@ router.get('/', async (req, res) => {
     res.status(500).json(e);
   }
 });
-
 
 /*
   Endpoint: GET /users/covid
@@ -54,16 +54,12 @@ router.get('/covid', async (req, res) => {
 router.get('/:userId', async (req, res) => {
   try {
     const user = await retrieveUserByUserId(req.params.userId);
-    res.status(200).json(user)
-
+    res.status(200).json(user);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
   }
 });
-
-
-
 
 /*
   Endpoint: POST /users/signup
@@ -261,7 +257,7 @@ router.post('/upload-avatar/:userId', async (req, res) => {
         status: true,
         message: 'File is uploaded',
         avatarPath: user.avatarPath,
-        user: user
+        user: user,
       });
     }
   } catch (err) {
@@ -269,33 +265,52 @@ router.post('/upload-avatar/:userId', async (req, res) => {
   }
 });
 
-
 /*
+  Accessed from email client/browser
   Endpoint: GET /users/verify-account-creation/:userId
-  Content type: 
+  Content type: -
   Return: HTML
 */
 router.get('/verify-account-creation/:userId', async (req, res) => {
-  try{
-    if(verifyUserAccountCreation(req.params.userId)) {
+  try {
+    if (verifyUserAccountCreation(req.params.userId)) {
       res.status(200).send(`
       <h1>Account Validated</h1>
       <p> Please log in to the OpenJio App to enjoy the application! </p>
       <p> Remember to social distance and stay healthy! </p>
       `);
-    }else{
+    } else {
       //verify account false
       res.status(401).send(`
       <h1>Account Validation Fail</h1>
       <p> Please check that the link is correct </p>
       `);
     }
-
-  }catch (err) {
+  } catch (err) {
     res.status(500).send(`
       <h1>Unknown Error: 500</h1>
       <p> Please try again later</p>
     `);
+  }
+});
+
+/*
+  Endpoint: PUT /users/give-badge
+  Content type: JSON { userId:'string', badgeType: 'string'}
+  Return: true
+*/
+router.put('/give-badge/', async (req, res) => {
+  try {
+    const {userId, badgeType} = req.body;
+    giveBadge(userId, badgeType)
+      .then((resp) => {
+        res.status(200).json(resp);
+      })
+      .catch((e) => {
+        throw e;
+      });
+  } catch (err) {
+    res.status(500).json(err);
   }
 });
 

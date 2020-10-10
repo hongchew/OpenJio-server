@@ -4,8 +4,12 @@ const {Wallet} = require('../Models/Wallet');
 const {Badge} = require('../Models/Badge');
 
 const {sendEmail} = require('../../utils/mailer');
+const badgeControl = require('../../enum/BadgeControl');
 const {createWallet} = require('./Wallet');
-const {populateBadgesOnUserCreation} = require('./Badge');
+const {
+  populateBadgesOnUserCreation,
+  retrieveBadgeByUserIdAndBadgeType,
+} = require('./Badge');
 
 /*
   Create and insert user into database
@@ -277,6 +281,33 @@ const verifyUserAccountCreation = async (userId) => {
   }
 };
 
+/*
+  Update counter on user and user-badge 
+  Parameters: (userId: string, badgeType: string)
+  Return: true
+*/
+const giveBadge = async (userId, badgeType) => {
+  try {
+    if (!badgeControl.types[badgeType]) {
+      throw 'This badge does not exist';
+    }
+    console.log(retrieveUserByUserId);
+    const user = await retrieveUserByUserId(userId);
+    if (!user) {
+      throw 'user does not exist';
+    }
+    const badge = await retrieveBadgeByUserIdAndBadgeType(userId, badgeType);
+
+    user.incrementBadgeCount();
+    badge.incrementBadgeCount();
+
+    return await Promise.all([user.save(), badge.save()]).then(() => true);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createUser,
   verifyUserLogin,
@@ -290,4 +321,5 @@ module.exports = {
   retrieveUserByUserId,
   retrieveUserByEmail,
   verifyUserAccountCreation,
+  giveBadge,
 };
