@@ -1,9 +1,11 @@
 const {User} = require('../Models/User');
 const {Address} = require('../Models/Address');
 const {Wallet} = require('../Models/Wallet');
+const {Badge} = require('../Models/Badge');
 
 const {sendEmail} = require('../../utils/mailer');
 const {createWallet} = require('./Wallet');
+const {populateBadgesOnUserCreation} = require('./Badge');
 
 /*
   Create and insert user into database
@@ -21,18 +23,25 @@ const createUser = async (email, password, name) => {
     newUser.password = User.encryptPassword(password, newUser.salt);
     await newUser.save();
 
-    createWallet(newUser.userId);
+    return await Promise.all([
+      createWallet(newUser.userId),
+      populateBadgesOnUserCreation(newUser.userId),
+    ])
+      .then(async (res) => {
+        sendEmail(email, {
+          subject: 'New Account Creation at OpenJio',
+          text: `
+  <p>A new account had been created at OpenJio with this email address. </P>
+  <p>If you had created an OpenJio account, please click <a href= "http://localhost:3000/users/verify-account-creation/${newUser.userId}">here</a> to verify the account.
+  <p>If you had not, please ignore this email. </p>
+        `,
+        });
 
-    sendEmail(email, {
-      subject: 'New Account Creation at OpenJio',
-      text: `
-<p>A new account had been created at OpenJio with this email address. </P>
-<p>If you had created an OpenJio account, please click <a href= "http://localhost:3000/users/verify-account-creation/${newUser.userId}">here</a> to verify the account.
-<p>If you had not, please ignore this email. </p>
-      `,
-    });
-
-    return await retrieveUserByUserId(newUser.userId);
+        return await retrieveUserByUserId(newUser.userId);
+      })
+      .catch((e) => {
+        throw e;
+      });
   } catch (e) {
     console.log(e);
     throw e;
@@ -53,7 +62,7 @@ const retrieveUserByUserId = async (userId) => {
       attributes: {
         exclude: ['salt', 'password'],
       },
-      include: [Address, Wallet],
+      include: [Address, Wallet, Badge],
     });
     return user;
   } catch (e) {
