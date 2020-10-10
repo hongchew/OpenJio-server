@@ -1,3 +1,4 @@
+const {Op} = require('sequelize');
 const {User} = require('../Models/User');
 const {Address} = require('../Models/Address');
 const {Wallet} = require('../Models/Wallet');
@@ -308,6 +309,51 @@ const giveBadge = async (userId, badgeType) => {
   }
 };
 
+/*
+  Get leaderboard 
+  Parameters: (type = "TOTAL" || "MONTHLY")
+  Return: array of top 10 users with more than 0 badges sorted in first to last in terms of monthly/total badge count
+*/
+const retrieveLeaderboard = async (type) => {
+  try {
+    const leaderboard = await User.findAll({
+      where:
+        type === 'MONTHLY'
+          ? {
+              badgeCountMonthly: {
+                [Op.gt]: 0,
+              },
+            }
+          : {
+              badgeCountTotal: {
+                [Op.gt]: 0,
+              },
+            },
+      order: [
+        [type === 'MONTHLY' ? 'badgeCountMonthly' : 'badgeCountTotal', 'DESC'],
+      ],
+      limit: 10,
+      attributes: {
+        exclude: [
+          'salt',
+          'password',
+          'isBlackListed',
+          'hasCovid',
+          'strikeCount',
+          'defaultAddressId',
+        ],
+      },
+      include: Badge,
+    });
+
+    console.log(leaderboard);
+    return leaderboard;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createUser,
   verifyUserLogin,
@@ -322,4 +368,5 @@ module.exports = {
   retrieveUserByEmail,
   verifyUserAccountCreation,
   giveBadge,
+  retrieveLeaderboard,
 };

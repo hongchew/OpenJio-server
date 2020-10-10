@@ -14,6 +14,7 @@ const {
   retrieveUserByUserId,
   verifyUserAccountCreation,
   giveBadge,
+  retrieveLeaderboard,
 } = require('../database/Operations/User');
 
 /*
@@ -40,21 +41,6 @@ router.get('/covid', async (req, res) => {
   try {
     const allUsersWCovid = await retrieveAllUsersWithCovid();
     res.status(200).json(allUsersWCovid);
-  } catch (e) {
-    console.log(e);
-    res.status(500).json(e);
-  }
-});
-
-/*
-  Endpoint: GET /users/:userId
-  Content type: -
-  Return: Array of all user objects
-*/
-router.get('/:userId', async (req, res) => {
-  try {
-    const user = await retrieveUserByUserId(req.params.userId);
-    res.status(200).json(user);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
@@ -311,6 +297,52 @@ router.put('/give-badge/', async (req, res) => {
       });
   } catch (err) {
     res.status(500).json(err);
+  }
+});
+
+/*
+  Endpoint: GET /users/monthly-leaderboard
+  Content type: -
+  Return: Array of users with top 10 monthly badge count, including badges
+*/
+
+router.get('/monthly-leaderboard', async (req, res) => {
+  try {
+    const leaderboard = await retrieveLeaderboard('MONTHLY');
+    res.json(leaderboard);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: GET /users/overall-leaderboard
+  Content type: -
+  Return: Array of users with top 10 overall badge count, including badges
+*/
+
+router.get('/overall-leaderboard', async (req, res) => {
+  try {
+    const leaderboard = await retrieveLeaderboard('TOTAL');
+    res.json(leaderboard);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
+/*
+  KEEP THIS AT LAST PLACE TO PREVENT IT FROM PICKING UP OTHER HTTP GET CALLS
+  Endpoint: GET /users/:userId
+  Content type: -
+  Return: Array of all user objects
+*/
+router.get('/:userId', async (req, res) => {
+  try {
+    const user = await retrieveUserByUserId(req.params.userId);
+    res.status(200).json(user);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
   }
 });
 
