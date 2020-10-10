@@ -1,4 +1,6 @@
 const {Badge} = require('../Models/Badge');
+const {User} = require('../Models/User');
+
 const badgeControl = require('../../enum/BadgeControl');
 const {retrieveUserByUserId} = require('./User');
 /*
@@ -79,7 +81,15 @@ const retrieveBadgeByUserIdAndBadgeType = async (userId, badgeType) => {
   }
 };
 
+const resetMonthlyBadgeCounts = async () => {
+  await Promise.all([
+    User.update({badgeCountMonthly: 0}, {where: {}}),
+    Badge.update({monthlyCounter: 0}, {where: {}}),
+  ]) 
+}
+
 module.exports = {
   populateBadgesOnUserCreation,
   retrieveBadgeByUserIdAndBadgeType,
+  resetMonthlyBadgeCounts
 };

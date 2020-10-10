@@ -42,22 +42,25 @@ app.use('/files', express.static('files'));
 
 //#endregion
 
+//#region Scheduled Tasks
+const cron = require('node-cron');
+const {resetMonthlyBadgeCounts} = require('./database/Operations/Badge');
+cron.schedule('* * 1 * *', async () => {
+  console.log('*** MONTHLY RESET OF LEADERBOARD ***');
+  console.log(`Current timestamp: ${new Date().getTime()}`);
+  resetMonthlyBadgeCounts().then(() => {
+    console.log('*** Reset Completed ***');
+  });
+});
+
+//#endregion
+
 //#region Testing endpoints
 app.get('/', (req, res) => {
   res.send(`
     <h1>IS4103 Information Systems Capstone Project AY2021 Semester 1</h1>
     <h2>TT01 - OpenJio Server on express.js</h2>
   `);
-});
-
-app.get('/test', (req, res) => {
-  res.json({status: 'success - the server is running'});
-});
-
-app.post('/testJson', (req, res) => {
-  console.log(req.body);
-  req.body.acknowledgement = true;
-  res.json(req.body);
 });
 
 const port = process.env.PORT || 3000;
