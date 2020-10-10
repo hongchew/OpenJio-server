@@ -345,8 +345,6 @@ const retrieveLeaderboard = async (type) => {
       },
       include: Badge,
     });
-
-    console.log(leaderboard);
     return leaderboard;
   } catch (e) {
     console.log(e);
