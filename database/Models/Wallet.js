@@ -1,6 +1,16 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
+const {Sequelize, Model, DataTypes} = require('sequelize');
 
-class Wallet extends Model {}
+class Wallet extends Model {
+  topUpWallet(amount) {
+    this.balance = this.balance + amount;
+    return this.balance;
+  }
+
+  deductFromWallet(amount) {
+    this.balance = this.balance - amount;
+    return this.balance;
+  }
+}
 
 const initWallet = async (sequelize) => {
   Wallet.init(
@@ -24,10 +34,10 @@ const initWallet = async (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Wallet",
+      modelName: 'Wallet',
     }
   );
   console.log(`****[database] Wallet initialized`);
 };
 
-module.exports = { Wallet, initWallet };
+module.exports = {Wallet, initWallet};
