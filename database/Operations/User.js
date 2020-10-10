@@ -1,9 +1,12 @@
 const {User} = require('../Models/User');
 const {Address} = require('../Models/Address');
+const {Wallet} = require('../Models/Wallet');
+
 const {sendEmail} = require('../../utils/mailer');
+const {createWallet} = require('./Wallet');
 
 /*
-  Create an insert user into database
+  Create and insert user into database
   Parameters: (email: string, password: string, name: string)
   Return: User object of new user (null if not found)
 */
@@ -16,17 +19,18 @@ const createUser = async (email, password, name) => {
 
     newUser.salt = User.generateSalt();
     newUser.password = User.encryptPassword(password, newUser.salt);
-
     await newUser.save();
+
+    createWallet(newUser.userId);
 
     sendEmail(email, {
       subject: 'New Account Creation at OpenJio',
-      text:`
+      text: `
 <p>A new account had been created at OpenJio with this email address. </P>
 <p>If you had created an OpenJio account, please click <a href= "http://localhost:3000/users/verify-account-creation/${newUser.userId}">here</a> to verify the account.
 <p>If you had not, please ignore this email. </p>
       `,
-    })
+    });
 
     return await retrieveUserByUserId(newUser.userId);
   } catch (e) {
@@ -49,7 +53,7 @@ const retrieveUserByUserId = async (userId) => {
       attributes: {
         exclude: ['salt', 'password'],
       },
-      include: Address,
+      include: [Address, Wallet],
     });
     return user;
   } catch (e) {
@@ -252,14 +256,13 @@ const retrieveAllUsersWithCovid = async () => {
 const verifyUserAccountCreation = async (userId) => {
   try {
     const user = await retrieveUserByUserId(userId);
-    if(!user){
+    if (!user) {
       return false;
     }
 
     user.isValidated = true;
     await user.save();
     return true;
-
   } catch (e) {
     throw e;
   }
@@ -277,5 +280,5 @@ module.exports = {
   retrieveAllUsersWithCovid,
   retrieveUserByUserId,
   retrieveUserByEmail,
-  verifyUserAccountCreation
+  verifyUserAccountCreation,
 };

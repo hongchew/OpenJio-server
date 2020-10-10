@@ -10,14 +10,13 @@ const initWallet = async (sequelize) => {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      amount: {
+      balance: {
         type: DataTypes.DOUBLE,
         allowNull: false,
         defaultValue: 0.0,
       },
       paypalLink: {
         type: DataTypes.STRING,
-        allowNull: false,
       },
       walletLimit: {
         type: DataTypes.DOUBLE,
