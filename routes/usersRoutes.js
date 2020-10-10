@@ -12,7 +12,9 @@ const {
   retrieveAllUsers,
   retrieveAllUsersWithCovid,
   retrieveUserByUserId,
-  verifyUserAccountCreation
+  verifyUserAccountCreation,
+  giveBadge,
+  retrieveLeaderboard,
 } = require('../database/Operations/User');
 
 /*
@@ -30,7 +32,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-
 /*
   Endpoint: GET /users/covid
   Content type: JSON { email: 'string', password: 'string' , name: 'string }
@@ -45,25 +46,6 @@ router.get('/covid', async (req, res) => {
     res.status(500).json(e);
   }
 });
-
-/*
-  Endpoint: GET /users/:userId
-  Content type: -
-  Return: Array of all user objects
-*/
-router.get('/:userId', async (req, res) => {
-  try {
-    const user = await retrieveUserByUserId(req.params.userId);
-    res.status(200).json(user)
-
-  } catch (e) {
-    console.log(e);
-    res.status(500).json(e);
-  }
-});
-
-
-
 
 /*
   Endpoint: POST /users/signup
@@ -261,7 +243,7 @@ router.post('/upload-avatar/:userId', async (req, res) => {
         status: true,
         message: 'File is uploaded',
         avatarPath: user.avatarPath,
-        user: user
+        user: user,
       });
     }
   } catch (err) {
@@ -269,33 +251,98 @@ router.post('/upload-avatar/:userId', async (req, res) => {
   }
 });
 
-
 /*
+  Accessed from email client/browser
   Endpoint: GET /users/verify-account-creation/:userId
-  Content type: 
+  Content type: -
   Return: HTML
 */
 router.get('/verify-account-creation/:userId', async (req, res) => {
-  try{
-    if(verifyUserAccountCreation(req.params.userId)) {
+  try {
+    if (verifyUserAccountCreation(req.params.userId)) {
       res.status(200).send(`
       <h1>Account Validated</h1>
       <p> Please log in to the OpenJio App to enjoy the application! </p>
       <p> Remember to social distance and stay healthy! </p>
       `);
-    }else{
+    } else {
       //verify account false
       res.status(401).send(`
       <h1>Account Validation Fail</h1>
       <p> Please check that the link is correct </p>
       `);
     }
-
-  }catch (err) {
+  } catch (err) {
     res.status(500).send(`
       <h1>Unknown Error: 500</h1>
       <p> Please try again later</p>
     `);
+  }
+});
+
+/*
+  Endpoint: PUT /users/give-badge
+  Content type: JSON { userId:'string', badgeType: 'string'}
+  Return: true
+*/
+router.put('/give-badge/', async (req, res) => {
+  try {
+    const {userId, badgeType} = req.body;
+    giveBadge(userId, badgeType)
+      .then((resp) => {
+        res.status(200).json(resp);
+      })
+      .catch((e) => {
+        throw e;
+      });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+/*
+  Endpoint: GET /users/monthly-leaderboard
+  Content type: -
+  Return: Array of users with top 10 monthly badge count, including badges
+*/
+
+router.get('/monthly-leaderboard', async (req, res) => {
+  try {
+    const leaderboard = await retrieveLeaderboard('MONTHLY');
+    res.json(leaderboard);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: GET /users/overall-leaderboard
+  Content type: -
+  Return: Array of users with top 10 overall badge count, including badges
+*/
+
+router.get('/overall-leaderboard', async (req, res) => {
+  try {
+    const leaderboard = await retrieveLeaderboard('TOTAL');
+    res.json(leaderboard);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
+/*
+  KEEP THIS AT LAST PLACE TO PREVENT IT FROM PICKING UP OTHER HTTP GET CALLS
+  Endpoint: GET /users/:userId
+  Content type: -
+  Return: Array of all user objects
+*/
+router.get('/:userId', async (req, res) => {
+  try {
+    const user = await retrieveUserByUserId(req.params.userId);
+    res.status(200).json(user);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
   }
 });
 

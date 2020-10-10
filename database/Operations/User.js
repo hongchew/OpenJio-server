@@ -1,9 +1,16 @@
+const {Op} = require('sequelize');
 const {User} = require('../Models/User');
 const {Address} = require('../Models/Address');
 const {Wallet} = require('../Models/Wallet');
+const {Badge} = require('../Models/Badge');
 
 const {sendEmail} = require('../../utils/mailer');
+const badgeControl = require('../../enum/BadgeControl');
 const {createWallet} = require('./Wallet');
+const {
+  populateBadgesOnUserCreation,
+  retrieveBadgeByUserIdAndBadgeType,
+} = require('./Badge');
 
 /*
   Create and insert user into database
@@ -21,18 +28,25 @@ const createUser = async (email, password, name) => {
     newUser.password = User.encryptPassword(password, newUser.salt);
     await newUser.save();
 
-    createWallet(newUser.userId);
+    return await Promise.all([
+      createWallet(newUser.userId),
+      populateBadgesOnUserCreation(newUser.userId),
+    ])
+      .then(async (res) => {
+        sendEmail(email, {
+          subject: 'New Account Creation at OpenJio',
+          text: `
+  <p>A new account had been created at OpenJio with this email address. </P>
+  <p>If you had created an OpenJio account, please click <a href= "http://localhost:3000/users/verify-account-creation/${newUser.userId}">here</a> to verify the account.
+  <p>If you had not, please ignore this email. </p>
+        `,
+        });
 
-    sendEmail(email, {
-      subject: 'New Account Creation at OpenJio',
-      text: `
-<p>A new account had been created at OpenJio with this email address. </P>
-<p>If you had created an OpenJio account, please click <a href= "http://localhost:3000/users/verify-account-creation/${newUser.userId}">here</a> to verify the account.
-<p>If you had not, please ignore this email. </p>
-      `,
-    });
-
-    return await retrieveUserByUserId(newUser.userId);
+        return await retrieveUserByUserId(newUser.userId);
+      })
+      .catch((e) => {
+        throw e;
+      });
   } catch (e) {
     console.log(e);
     throw e;
@@ -53,7 +67,7 @@ const retrieveUserByUserId = async (userId) => {
       attributes: {
         exclude: ['salt', 'password'],
       },
-      include: [Address, Wallet],
+      include: [Address, Wallet, Badge],
     });
     return user;
   } catch (e) {
@@ -268,6 +282,78 @@ const verifyUserAccountCreation = async (userId) => {
   }
 };
 
+/*
+  Update counter on user and user-badge 
+  Parameters: (userId: string, badgeType: string)
+  Return: true
+*/
+const giveBadge = async (userId, badgeType) => {
+  try {
+    if (!badgeControl.types[badgeType]) {
+      throw 'This badge does not exist';
+    }
+    console.log(retrieveUserByUserId);
+    const user = await retrieveUserByUserId(userId);
+    if (!user) {
+      throw 'user does not exist';
+    }
+    const badge = await retrieveBadgeByUserIdAndBadgeType(userId, badgeType);
+
+    user.incrementBadgeCount();
+    badge.incrementBadgeCount();
+
+    return await Promise.all([user.save(), badge.save()]).then(() => true);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Get leaderboard 
+  Parameters: (type = "TOTAL" || "MONTHLY")
+  Return: array of top 10 users with more than 0 badges sorted in first to last in terms of monthly/total badge count
+*/
+const retrieveLeaderboard = async (type) => {
+  try {
+    const leaderboard = await User.findAll({
+      where:
+        type === 'MONTHLY'
+          ? {
+              badgeCountMonthly: {
+                [Op.gt]: 0,
+              },
+            }
+          : {
+              badgeCountTotal: {
+                [Op.gt]: 0,
+              },
+            },
+      order: [
+        [type === 'MONTHLY' ? 'badgeCountMonthly' : 'badgeCountTotal', 'DESC'],
+      ],
+      limit: 10,
+      attributes: {
+        exclude: [
+          'salt',
+          'password',
+          'isBlackListed',
+          'hasCovid',
+          'strikeCount',
+          'defaultAddressId',
+        ],
+      },
+      include: Badge,
+    });
+
+    console.log(leaderboard);
+    return leaderboard;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createUser,
   verifyUserLogin,
@@ -281,4 +367,6 @@ module.exports = {
   retrieveUserByUserId,
   retrieveUserByEmail,
   verifyUserAccountCreation,
+  giveBadge,
+  retrieveLeaderboard,
 };

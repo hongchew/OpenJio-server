@@ -8,11 +8,9 @@ const {Wallet} = require('../Models/Wallet');
 const createWallet = async (userId) => {
   try {
     const newWallet = Wallet.build({
-      userId
+      userId,
     });
     await newWallet.save();
-
-
   } catch (e) {
     console.log(e);
     throw e;
@@ -28,9 +26,9 @@ const retrieveWalletByWalletId = async (walletId) => {
   try {
     const wallet = await Wallet.findOne({
       where: {
-        walletId: walletId
-      }
-    })
+        walletId: walletId,
+      },
+    });
     console.log(wallet);
     return wallet;
   } catch (e) {
@@ -51,7 +49,6 @@ const deductWalletBalance = async (walletId, amountToDeduct) => {
     await wallet.save();
 
     return wallet;
-
   } catch (e) {
     console.log(e);
     throw e;
@@ -70,16 +67,14 @@ const addWalletBalance = async (walletId, amountToAdd) => {
     await wallet.save();
 
     return wallet;
-
   } catch (e) {
     console.log(e);
     throw e;
   }
 };
 
-
 module.exports = {
   createWallet,
   deductWalletBalance,
-  addWalletBalance
-}
+  addWalletBalance,
+};

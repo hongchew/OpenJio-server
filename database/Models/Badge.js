@@ -1,6 +1,11 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
+const {Sequelize, Model, DataTypes} = require('sequelize');
 
-class Badge extends Model {}
+class Badge extends Model {
+  incrementBadgeCount() {
+    this.monthlyCounter += 1;
+    this.totalCounter += 1;
+  }
+}
 
 const initBadge = async (sequelize) => {
   Badge.init(
@@ -34,10 +39,10 @@ const initBadge = async (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Badge",
+      modelName: 'Badge',
     }
   );
   console.log(`****[database] Badge initialized`);
 };
 
-module.exports = { Badge, initBadge };
+module.exports = {Badge, initBadge};

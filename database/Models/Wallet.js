@@ -7,8 +7,12 @@ class Wallet extends Model {
   }
 
   deductFromWallet(amount) {
-    this.balance = this.balance - amount;
-    return this.balance;
+    if (this.balance < amount) {
+      throw 'Insufficient Funds Exception';
+    } else {
+      this.balance = this.balance - amount;
+      return this.balance;
+    }
   }
 }
 
