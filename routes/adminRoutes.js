@@ -25,46 +25,19 @@ router.get('/', (req, res) => {
 */
 router.post('/register', async (req, res) => {
   try {
-    var newAdmin;
-    if (req.body.adminType === 'SUPER_ADMIN') {
-      newAdmin = await createAdmin(
-        req.body.name,
-        req.body.email,
-        req.body.password,
-        'SUPER_ADMIN'
-      );
-    } else {
-      newAdmin = await createAdmin(
-        req.body.name,
-        req.body.email,
-        req.body.password,
-        'ADMIN'
-      );
-    }
+
+    const newAdmin = await createAdmin (
+      req.body.name,
+      req.body.email,
+      req.body.adminType
+    )
 
     if (!newAdmin) {
       throw 'Admin creation failed!';
     }
     res.json(newAdmin);
   } catch (e) {
-    console.error(e);
-    //delete sensitive information
-    e.errors.forEach((err) => delete err.instance);
-    if (e.name === 'SequelizeValidationError') {
-      res.status(400).json(e);
-    } else if (e.name === 'SequelizeUniqueConstraintError') {
-      // email is taken
-
-      // delete sensitive information
-      delete e.sql;
-      delete e.parent;
-      delete e.original;
-
-      res.status(400).json(e);
-    } else {
-      // generic server error
-      res.status(500).json(e);
-    }
+    res.status(500).json(e);
   }
 });
 
