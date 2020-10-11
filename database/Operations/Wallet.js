@@ -73,8 +73,63 @@ const addWalletBalance = async (walletId, amountToAdd) => {
   }
 };
 
+/*
+  Set/Edit wallet limit
+  Parameters: (walletId: string, limit: double)
+  Return: Wallet object
+*/
+const setWalletLimit = async (walletId, limit) => {
+  try {
+    const wallet = await retrieveWalletByWalletId(walletId);
+    wallet.setWalletLimit(limit);
+    await wallet.save();
+    return wallet;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Delete wallet limit
+  Parameters: (walletId: string)
+  Return: Wallet object
+*/
+const deleteWalletLimit = async (walletId) => {
+  try {
+    const wallet = await retrieveWalletByWalletId(walletId);
+    wallet.deleteWalletLimit();
+    await wallet.save();
+    return wallet;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Make Donation
+  Parameters: (walletId: string, donation: double)
+  Return: Wallet object
+*/
+const donate = async (walletId, donation) => {
+  try {
+    const wallet = await retrieveWalletByWalletId(walletId);
+    wallet.deductFromWallet(donation);
+    await wallet.save();
+
+    return wallet;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createWallet,
   deductWalletBalance,
   addWalletBalance,
+  setWalletLimit,
+  deleteWalletLimit,
+  donate,
 };

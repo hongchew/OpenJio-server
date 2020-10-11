@@ -14,6 +14,14 @@ class Wallet extends Model {
       return this.balance;
     }
   }
+
+  setWalletLimit(limit) {
+    this.walletLimit = limit;
+  }
+
+  deleteWalletLimit() {
+    this.walletLimit = null;
+  }
 }
 
 const initWallet = async (sequelize) => {
