@@ -64,7 +64,10 @@ app.post('/manual-trigger-monthly', (req, res) => {
     .then(() => {
       res.json(true);
     })
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      console.log(e)
+      res.status(500).json(false);
+    });
 });
 //#endregion
 
