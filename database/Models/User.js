@@ -22,6 +22,7 @@ class User extends Model {
   incrementBadgeCount() {
     this.badgeCountMonthly += 1;
     this.badgeCountTotal += 1;
+    this.lastBadgeReceived = new Date();
   }
 
   static generatePassword() {
@@ -102,6 +103,9 @@ const initUser = async (sequelize) => {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
+      lastBadgeReceived: {
+        type: Sequelize.DATE,
+      }
     },
     {
       sequelize,
