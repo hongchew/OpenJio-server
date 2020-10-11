@@ -81,15 +81,7 @@ const retrieveBadgeByUserIdAndBadgeType = async (userId, badgeType) => {
   }
 };
 
-const resetMonthlyBadgeCounts = async () => {
-  await Promise.all([
-    User.update({badgeCountMonthly: 0}, {where: {}}),
-    Badge.update({monthlyCounter: 0}, {where: {}}),
-  ]) 
-}
-
 module.exports = {
   populateBadgesOnUserCreation,
   retrieveBadgeByUserIdAndBadgeType,
-  resetMonthlyBadgeCounts
 };
