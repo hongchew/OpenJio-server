@@ -132,4 +132,5 @@ module.exports = {
   setWalletLimit,
   deleteWalletLimit,
   donate,
+  retrieveWalletByWalletId,
 };
