@@ -44,17 +44,28 @@ app.use('/files', express.static('files'));
 
 //#endregion
 
-//#region Scheduled Tasks
+//#region Routine Tasks
 const cron = require('node-cron');
-const {resetMonthlyBadgeCounts} = require('./database/Operations/Badge');
+const {doMonthlyTasks} = require('./utils/routineTasks');
 cron.schedule('* * 1 * *', async () => {
-  console.log('*** MONTHLY RESET OF LEADERBOARD ***');
-  console.log(`Current timestamp: ${new Date().getTime()}`);
-  resetMonthlyBadgeCounts().then(() => {
-    console.log('*** Reset Completed ***');
-  });
+  try {
+    await doMonthlyTasks();
+  } catch (e) {
+    console.log(e);
+  }
 });
 
+//#endregion
+
+//#region Manual Trigger for Routine Tasks Endpoints
+app.post('/manual-trigger-monthly', (req, res) => {
+  console.log('\n*** MANUALLY TRIGGERING MONTHLY TASKS *** ');
+  doMonthlyTasks()
+    .then(() => {
+      res.json(true);
+    })
+    .catch((e) => console.log(e));
+});
 //#endregion
 
 //#region Testing endpoints
