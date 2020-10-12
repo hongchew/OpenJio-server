@@ -1,4 +1,5 @@
 const {Transaction} = require('../Models/Transaction');
+const {Op} = require('sequelize');
 const {
   retrieveWalletByWalletId,
   retrieveWalletByUserId,
@@ -7,37 +8,59 @@ const {
 } = require('./Wallet');
 const {retrieveUserByEmail} = require('./User');
 
-const getDb = require('../../database/index');
-
-const sequelizeInstance = await getDb().then((db) => db);
+// For Managed Transaction (Archived for now)
+// const getDb = require('../../database/index');
+// const sequelizeInstance = await getDb().then((db) => db);
 
 /*
-  Create a transaction between sender and recipient
+  Create an user transaction between sender and recipient
   Parameters: (userId: string)
   Return: Transaction object
 */
-const createTransaction = async (
+const createUserTransaction = async (
   senderWalletId,
   recipientWalletId,
   amount,
   description,
-  transactionType, transaction
+  transactionType
 ) => {
   try {
     const newTransaction = Transaction.build({
+      senderWalletId: senderWalletId,
+      recipientWalletId: recipientWalletId,
       amount: amount,
-      transactionType: transactionType,
       description: description,
+      transactionType: transactionType
     });
-    newTransaction.senderWallet = await retrieveWalletByWalletId(
-      senderWalletId
-    );
-    newTransaction.recipientWallet = await retrieveWalletByUserId(
-      recipientWalletId
-    );
-    await newTransaction.save({
-      transaction: transaction
+
+    await newTransaction.save();
+
+    return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Create a withdraw/donate transaction from sender
+  Parameters: (userId: string)
+  Return: Transaction object
+*/
+const createWithdrawDonateTransaction = async (
+  senderWalletId,
+  amount,
+  transactionType
+) => {
+  try {
+    const newTransaction = Transaction.build({
+      senderWalletId: senderWalletId,
+      amount: amount,
+      transactionType: transactionType
     });
+
+    await newTransaction.save();
+
     return newTransaction;
   } catch (e) {
     console.log(e);
@@ -51,12 +74,9 @@ const createTransaction = async (
   Return: Transaction object
 */
 const makeUserPayment = async (walletId, email, amount, description) => {
-
-  console.log('SEQUELIZE INSTANCE: ' + sequelizeInstance);
-
-  // ***Maybe can take out***
+  // Archived
+  // const sequelizeInstance = getDb();
   // const t = sequelizeInstance.transaction();
-
 
   try {
     const recipient = await retrieveUserByEmail(email);
@@ -66,45 +86,102 @@ const makeUserPayment = async (walletId, email, amount, description) => {
     }
 
     const senderWalletId = walletId;
-    const recipientWalletId = recipient.walletId;
+
+    const recipientWallet = await retrieveWalletByUserId(recipient.userId);
+    const recipientWalletId = recipientWallet.walletId;
+
     const transactionType = 'USER';
+    // Deduct from sender' wallet
+    await deductWalletBalance(senderWalletId, amount);
 
-    const result = await sequelizeInstance.transaction(async (t) => {
-      // Deduct from sender' wallet
-      await deductWalletBalance(
-        {
-          senderWalletId,
-          amount,
-        },
-        {transaction: t}
-      );
+    // Add to recipient's wallet
+    await addWalletBalance(recipientWalletId, amount);
 
-      // Add to recipient's wallet
-      await addWalletBalance(
-        {
-          recipientWalletId,
-          amount,
-        },
-        {transaction: t}
-      );
+    // Create new transaction
+    const newTransaction = await createUserTransaction(
+      senderWalletId,
+      recipientWalletId,
+      amount,
+      description,
+      transactionType
+    );
 
-      // Create new transaction
-      const newTransaction = await createTransaction(
-        {
-          senderWalletId,
-          recipientWalletId,
-          amount,
-          description,
-          transactionType,
-        },
-        {transaction: t}
-      );
-      
-      console.log(result);
-      return newTransaction;
+    return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
 
-    });
+/*
+  Withdraw money from wallet (transaction)
+  Parameters: (walletId: UUID, amount: string)
+  Return: Transaction object
+*/
+const makeWithdrawal = async (walletId, amount) => {
+  try {
 
+    const userWalletId = walletId;
+    const transactionType = 'WITHDRAW';
+
+    // Deduct from wallet
+    await deductWalletBalance(
+      userWalletId,
+      amount
+    );
+
+    // Create new transaction
+    const newTransaction = await createWithdrawDonateTransaction(
+      userWalletId,
+      amount,
+      transactionType
+    );
+
+    return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Donate money from wallet (transaction)
+  Parameters: (walletId: UUID, amount: string)
+  Return: Transaction object
+*/
+const makeDonation = async (walletId, amount) => {
+  try {
+    const userWalletId = walletId;
+    const transactionType = 'DONATE';
+
+    // Deduct from wallet
+    await deductWalletBalance(
+      userWalletId,
+      amount
+    );
+
+    // Create new transaction
+    const newTransaction = await createWithdrawDonateTransaction(
+      userWalletId,
+      amount,
+      transactionType
+    );
+    return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Retrieve all transactions
+  Parameters: ()
+  Return: Array of Model.Transaction
+*/
+const retrieveAllTransactions = async () => {
+  try {
+    const transactions = await Transaction.findAll();
+    return transactions;
   } catch (e) {
     console.log(e);
     throw e;
@@ -118,12 +195,15 @@ const makeUserPayment = async (walletId, email, amount, description) => {
 */
 const retrieveAllTransactionsByUserId = async (userId) => {
   try {
+    // Note got senderWalletId & recipientWalletId in a transaction(Possible to split)
+    const wallet = await retrieveWalletByUserId(userId);
+    const walletId = wallet.walletId;
+
     const transactions = await Transaction.findAll({
       where: {
-        userId: userId,
+        [Op.or]: [{senderWalletId: walletId}, {recipientWalletId: walletId}],
       },
     });
-    console.log(transactions);
     return transactions;
   } catch (e) {
     console.log(e);
@@ -143,7 +223,6 @@ const retrieveTransactionByTransactionId = async (transactionId) => {
         transactionId: transactionId,
       },
     });
-    console.log(transaction);
     return transaction;
   } catch (e) {
     console.log(e);
@@ -152,8 +231,12 @@ const retrieveTransactionByTransactionId = async (transactionId) => {
 };
 
 module.exports = {
-  createTransaction,
+  createUserTransaction,
+  createWithdrawDonateTransaction,
   retrieveAllTransactionsByUserId,
   retrieveTransactionByTransactionId,
-  makeUserPayment
+  makeUserPayment,
+  makeWithdrawal,
+  makeDonation,
+  retrieveAllTransactions,
 };

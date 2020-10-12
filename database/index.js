@@ -29,7 +29,7 @@ let db;
 
 const getDb = async () => {
   if (db) {
-    await db.sync();
+    // await db.sync();
     return db;
   }
 

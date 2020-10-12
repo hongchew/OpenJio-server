@@ -5,16 +5,14 @@ const {Sequelize} = require('sequelize');
 // const {getDb} = require('../database/index');
 // const sequelizeInstance = getDb().then((db) => db);
 
-const {
-  addWalletBalance,
-  deductWalletBalance,
-} = require('../database/Operations/Wallet');
 const {retrieveUserByEmail} = require('../database/Operations/User');
 const {
-  createTransaction,
   retrieveAllTransactionsByUserId,
   retrieveTransactionByTransactionId,
-  makeUserPayment
+  retrieveAllTransactions,
+  makeUserPayment,
+  makeWithdrawal,
+  makeDonation
 } = require('../database/Operations/Transaction');
 
 const router = express.Router();
@@ -31,15 +29,45 @@ router.get('/', (req, res) => {
 */
 router.post('/process-payment', async (req, res) => {
   try {
-    // const recipient = await retrieveUserByEmail(req.body.email);
-    // const senderWalletId = req.body.walletId;
-    // const recipientWalletId = recipient.walletId;
-    // const {amount, description} = req.body;
-    // const t = sequelizeInstance.transaction();
-    // const t = sequelize.transaction();
 
     const {walletId, email, amount, description} = req.body;
     const newTransaction = await makeUserPayment(walletId, email, amount, description);
+    res.status(200).json(newTransaction);
+  
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: POST /transactions/withdraw
+  Content type: JSON { walletId: 'UUID', amount: 'string' }
+  Return: Model.Transaction object 
+*/
+router.post('/withdraw', async (req, res) => {
+  try {
+
+    const {walletId, amount} = req.body;
+    const newTransaction = await makeWithdrawal(walletId, amount);
+    res.status(200).json(newTransaction);
+  
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: POST /transactions/donate
+  Content type: JSON { walletId: 'UUID', amount: 'string'}
+  Return: Model.Transaction object 
+*/
+router.post('/donate', async (req, res) => {
+  try {
+
+    const {walletId, amount} = req.body;
+    const newTransaction = await makeDonation(walletId, amount);
     res.status(200).json(newTransaction);
   
   } catch (e) {
@@ -53,9 +81,24 @@ router.post('/process-payment', async (req, res) => {
   Content type: JSON { userId: UUID}
   Return: Array of all transaction objects under the user
 */
-router.get('/:userId', async (req, res) => {
+router.get('/retrieve-all', async (req, res) => {
   try {
-    const transactions = await retrieveAllTransactionsByUserId(req.body.userId);
+    const transactions = await retrieveAllTransactions();
+    res.status(200).json(transactions);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: GET /transactions/:userId
+  Content type: JSON { userId: UUID}
+  Return: Array of all transaction objects under the user
+*/
+router.get('/by/:userId', async (req, res) => {
+  try {
+    const transactions = await retrieveAllTransactionsByUserId(req.params.userId);
     res.status(200).json(transactions);
   } catch (e) {
     console.log(e);
@@ -71,7 +114,7 @@ router.get('/:userId', async (req, res) => {
 router.get('/:transactionId', async (req, res) => {
   try {
     const transaction = await retrieveTransactionByTransactionId(
-      req.body.transactionId
+      req.params.transactionId
     );
     res.status(200).json(transaction);
   } catch (e) {
