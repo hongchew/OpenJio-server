@@ -8,8 +8,7 @@ const {
   deductWalletBalance,
 } = require('../database/Operations/Wallet');
 const {
-  retrieveUserByEmail,
-  retrieveUserByMobile,
+  retrieveUserByEmail
 } = require('../database/Operations/User');
 const {
   createTransaction,
@@ -28,25 +27,16 @@ router.get('/', (req, res) => {
 
 /*
   Endpoint: POST /transactions/process-payment
-  Content type: JSON { userId: 'UUID', walletId: 'UUID', amount: 'string', mobile number: 'string', email: 'string', description: 'string'}
+  Content type: JSON { walletId: 'UUID', email: 'string', amount: 'string', description: 'string'}
   Return: Model.Transaction object 
 */
 router.post('/process-payment', async (req, res) => {
   try {
     // Sender can send to either email or mobile number
-    const recipientByEmail = await retrieveUserByEmail(req.body.email);
-    const recipientByMobile = await retrieveUserByMobile(req.body.mobileNumber);
+    const recipient = await retrieveUserByEmail(req.body.email);
 
-    let recipient;
-    if (recipientByEmail) {
-      recipient = recipientByEmail;
-      //console.log('Recipient: ' + recipient);
-    } else if (recipientByMobile) {
-      recipient = recipientByMobile;
-      //console.log('Recipient: ' + recipient);
-    } else {
-      //console.log('Recipient: ' + recipient);
-      throw 'Error: Failed to find recipient!';
+    if (!recipient) {
+      res.status(500).json({message: 'Failed to find recipient with email: ' + req.body.email});
     }
 
     const senderWalletId = req.body.walletId;
@@ -59,6 +49,7 @@ router.post('/process-payment', async (req, res) => {
     try {
       const t = sequelizeInstance.transaction();
 
+      // sequelizeInstance.transaction is not a function (Change to just the functions themselves)
       let result = await sequelizeInstance.transaction(async (t) => {
         // Deduct from sender' wallet
         const deductingFromSender = await deductWalletBalance(
@@ -81,14 +72,15 @@ router.post('/process-payment', async (req, res) => {
         // Create new transaction
         const newTransaction = await createTransaction(
           {
-            senderWallet,
-            recipientWallet,
+            senderWalletId,
+            recipientWalletId,
             amount,
             description,
             transactionType,
           },
           {transaction: t}
         );
+
         res.status(200).json(newTransaction);
       });
     } catch (e) {
