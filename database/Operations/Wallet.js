@@ -1,4 +1,5 @@
 const {Wallet} = require('../Models/Wallet');
+const {Sequelize} = require('sequelize');
 
 /*
   Create an insert wallet into database

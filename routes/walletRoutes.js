@@ -1,11 +1,13 @@
 const express = require('express');
+const {Sequelize} = require('sequelize');
+const router = express.Router();
 const {
   setWalletLimit,
   retrieveWalletByWalletId,
+  retrieveWalletByUserId,
   deleteWalletLimit,
   retrieveAllWallets
 } = require('../database/Operations/Wallet');
-const router = express.Router();
 
 /* http://localhost:3000/wallets/ . */
 router.get('/', (req, res) => {
@@ -37,10 +39,10 @@ router.get('/retrieve-wallet', async (req, res) => {
   }
   Return: Wallet Object
 */
-router.get('/retrieve-wallet-by-userId', async (req, res) => {
+router.post('/retrieve-wallet-by-userId', async (req, res) => {
   try {
     const wallet = await retrieveWalletByUserId(req.body.userId);
-    res.status(200).json(wallet);
+    res.json(wallet);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
