@@ -6,6 +6,7 @@ const {
   retrieveWalletByWalletId,
   retrieveWalletByUserId,
   deleteWalletLimit,
+  retrieveAllWallets
 } = require('../database/Operations/Wallet');
 
 /* http://localhost:3000/wallets/ . */
@@ -87,5 +88,23 @@ router.put('/update-wallet-limit', async (req, res) => {
     res.status(500).json(e);
   }
 });
+
+/* --------------------------------
+  Endpoint: GET /wallets/retrieve-all
+  Content type: (null)
+  Return: Models.Wallet objects 
+-------------------------------- */
+router.get('/retrieve-all', async (req, res) => {
+  try {
+    const wallets = await retrieveAllWallets();
+    res.json(wallets);
+  } catch (e) {
+    res.status(500).json({
+      message: 'Error retrieving Wallets!',
+    });
+  }
+});
+
+
 
 module.exports = router;

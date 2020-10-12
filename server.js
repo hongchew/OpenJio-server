@@ -33,7 +33,7 @@ const announcementsRouter = require('./routes/announcementsRoutes');
 const requestsRouter = require('./routes/requestsRoutes');
 const addressesRouter = require('./routes/addressesRoutes');
 const walletsRouter = require('./routes/walletRoutes');
-const transactionsRouter = require('./routes/transactionRoutes');
+const transactionRouter = require('./routes/transactionRoutes');
 
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
@@ -41,7 +41,7 @@ app.use('/announcements', announcementsRouter);
 app.use('/requests', requestsRouter);
 app.use('/addresses', addressesRouter);
 app.use('/wallets', walletsRouter);
-app.use('/transactions', transactionsRouter);
+app.use('/transactions', transactionRouter);
 app.use('/files', express.static('files'));
 
 //#endregion
