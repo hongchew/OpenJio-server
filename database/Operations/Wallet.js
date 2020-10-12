@@ -38,6 +38,26 @@ const retrieveWalletByWalletId = async (walletId) => {
 };
 
 /*
+  Retrieve wallet of user via userId
+  Parameters: (userId: string)
+  Return: Wallet object (or null)
+*/
+const retrieveWalletByUserId = async (userId) => {
+  try {
+    const wallet = await Wallet.findOne({
+      where: {
+        userId: userId,
+      },
+    });
+    console.log(`Wallet info: ${wallet}`);
+    return wallet;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
   Deduct wallet balance
   Parameters: (walletId: string, amountToDeduct: double)
   Return: Wallet object
@@ -133,4 +153,5 @@ module.exports = {
   deleteWalletLimit,
   donate,
   retrieveWalletByWalletId,
+  retrieveWalletByUserId
 };

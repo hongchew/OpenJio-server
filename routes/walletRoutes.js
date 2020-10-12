@@ -30,6 +30,23 @@ router.get('/retrieve-wallet', async (req, res) => {
 });
 
 /*
+  Endpoint: GET /wallets/retrieve-wallet-by-userId
+  Content type: JSON {
+      userId: string
+  }
+  Return: Wallet Object
+*/
+router.get('/retrieve-wallet-by-userId', async (req, res) => {
+  try {
+    const wallet = await retrieveWalletByUserId(req.body.userId);
+    res.status(200).json(wallet);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
   Endpoint: PUT /wallets/remove-wallet-limit
   Content type: JSON {
       walletId: string
