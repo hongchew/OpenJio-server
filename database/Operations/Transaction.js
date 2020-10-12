@@ -1,17 +1,27 @@
 const {Transaction} = require('../Models/Transaction');
-const {retrieveWalletByWalletId, retrieveWalletByUserId} = require('./Wallet');
+const {
+  retrieveWalletByWalletId,
+  retrieveWalletByUserId,
+  addWalletBalance,
+  deductWalletBalance,
+} = require('./Wallet');
+const {retrieveUserByEmail} = require('./User');
+
+const {getDb} = require('../../database/index');
+
+const sequelizeInstance = getDb().then((db) => db);
 
 /*
   Create a transaction between sender and recipient
   Parameters: (userId: string)
-  Return:  object
+  Return: Transaction object
 */
 const createTransaction = async (
   senderWalletId,
   recipientWalletId,
   amount,
   description,
-  transactionType
+  transactionType, transaction
 ) => {
   try {
     const newTransaction = Transaction.build({
@@ -25,8 +35,73 @@ const createTransaction = async (
     newTransaction.recipientWallet = await retrieveWalletByUserId(
       recipientWalletId
     );
-    await newTransaction.save();
+    await newTransaction.save({
+      transaction: transaction
+    });
     return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Make USER payment
+  Parameters: (walletId: UUID, email: string, amount: string, description: string)
+  Return: Transaction object
+*/
+const makeUserPayment = async (walletId, email, amount, description) => {
+  
+  // ***Maybe can take out***
+  const t = sequelizeInstance.transaction();
+
+  try {
+    const recipient = await retrieveUserByEmail(email);
+
+    if (!recipient) {
+      throw 'Recipient with email address: ' + email + ' not found';
+    }
+
+    const senderWalletId = walletId;
+    const recipientWalletId = recipient.walletId;
+    const transactionType = 'USER';
+
+    const result = await sequelizeInstance.transaction(async (t) => {
+      // Deduct from sender' wallet
+      await deductWalletBalance(
+        {
+          senderWalletId,
+          amount,
+        },
+        {transaction: t}
+      );
+
+      // Add to recipient's wallet
+      await addWalletBalance(
+        {
+          recipientWalletId,
+          amount,
+        },
+        {transaction: t}
+      );
+
+      // Create new transaction
+      const newTransaction = await createTransaction(
+        {
+          senderWalletId,
+          recipientWalletId,
+          amount,
+          description,
+          transactionType,
+        },
+        {transaction: t}
+      );
+      
+      console.log(result);
+      return newTransaction;
+
+    });
+
   } catch (e) {
     console.log(e);
     throw e;
@@ -59,22 +134,23 @@ const retrieveAllTransactionsByUserId = async (userId) => {
   Return: Model.Transaction
 */
 const retrieveTransactionByTransactionId = async (transactionId) => {
-    try {
-      const transaction = await Transaction.findOne({
-        where: {
-          transactionId: transactionId,
-        },
-      });
-      console.log(transaction);
-      return transaction;
-    } catch (e) {
-      console.log(e);
-      throw e;
-    }
-  };
+  try {
+    const transaction = await Transaction.findOne({
+      where: {
+        transactionId: transactionId,
+      },
+    });
+    console.log(transaction);
+    return transaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
 
 module.exports = {
   createTransaction,
   retrieveAllTransactionsByUserId,
-  retrieveTransactionByTransactionId
+  retrieveTransactionByTransactionId,
+  makeUserPayment
 };

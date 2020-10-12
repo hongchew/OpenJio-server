@@ -62,11 +62,13 @@ const retrieveWalletByUserId = async (userId) => {
   Parameters: (walletId: string, amountToDeduct: double)
   Return: Wallet object
 */
-const deductWalletBalance = async (walletId, amountToDeduct) => {
+const deductWalletBalance = async (walletId, amountToDeduct, transaction) => {
   try {
     const wallet = await retrieveWalletByWalletId(walletId);
     wallet.deductFromWallet(amountToDeduct);
-    await wallet.save();
+    await wallet.save({
+      transaction: transaction
+    });
 
     return wallet;
   } catch (e) {
@@ -80,11 +82,13 @@ const deductWalletBalance = async (walletId, amountToDeduct) => {
   Parameters: (walletId: string, amountToAdd: double)
   Return: Wallet object
 */
-const addWalletBalance = async (walletId, amountToAdd) => {
+const addWalletBalance = async (walletId, amountToAdd, transaction) => {
   try {
     const wallet = await retrieveWalletByWalletId(walletId);
     wallet.topUpWallet(amountToAdd);
-    await wallet.save();
+    await wallet.save({
+      transaction: transaction
+    });
 
     return wallet;
   } catch (e) {
