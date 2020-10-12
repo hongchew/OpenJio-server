@@ -331,6 +331,7 @@ const retrieveLeaderboard = async (type) => {
             },
       order: [
         [type === 'MONTHLY' ? 'badgeCountMonthly' : 'badgeCountTotal', 'DESC'],
+        ['lastBadgeReceived', 'ASC'],
       ],
       limit: 10,
       attributes: {
