@@ -1,24 +1,34 @@
-const { Transaction } = require('../Models/Transaction');
-const { retrieveWalletByWalletId, retrieveWalletByUserId } = require('./Wallet');
+const {Transaction} = require('../Models/Transaction');
+const {retrieveWalletByWalletId, retrieveWalletByUserId} = require('./Wallet');
 
 /*
   Create a transaction between sender and recipient
   Parameters: (userId: string)
   Return:  object
 */
-const createTransaction = async (senderWalletId, recipientWalletId, amount, description, transactionType) => {
+const createTransaction = async (
+  senderWalletId,
+  recipientWalletId,
+  amount,
+  description,
+  transactionType
+) => {
   try {
     const newTransaction = Transaction.build({
       amount: amount,
       transactionType: transactionType,
       description: description,
     });
-    newTransaction.senderWallet = await retrieveWalletByWalletId(senderWalletId);
-    newTransaction.recipientWallet = await retrieveWalletByUserId(recipientWalletId);
+    newTransaction.senderWallet = await retrieveWalletByWalletId(
+      senderWalletId
+    );
+    newTransaction.recipientWallet = await retrieveWalletByUserId(
+      recipientWalletId
+    );
     await newTransaction.save();
     return newTransaction;
   } catch (e) {
-    console.log(e); 
+    console.log(e);
     throw e;
   }
 };
@@ -29,14 +39,34 @@ const createTransaction = async (senderWalletId, recipientWalletId, amount, desc
   Return: Array of Model.Transaction
 */
 const retrieveAllTransactionsByUserId = async (userId) => {
+  try {
+    const transactions = await Transaction.findAll({
+      where: {
+        userId: userId,
+      },
+    });
+    console.log(transactions);
+    return transactions;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Retrieve one transaction associated by transactionId
+  Parameters: (transactionId: string)
+  Return: Model.Transaction
+*/
+const retrieveTransactionByTransactionId = async (transactionId) => {
     try {
-      const transactions = await Transaction.findAll({
+      const transaction = await Transaction.findOne({
         where: {
-          userId: userId,
+          transactionId: transactionId,
         },
       });
-      console.log(transactions);
-      return transactions;
+      console.log(transaction);
+      return transaction;
     } catch (e) {
       console.log(e);
       throw e;
@@ -45,5 +75,6 @@ const retrieveAllTransactionsByUserId = async (userId) => {
 
 module.exports = {
   createTransaction,
-  retrieveAllTransactionsByUserId
+  retrieveAllTransactionsByUserId,
+  retrieveTransactionByTransactionId
 };

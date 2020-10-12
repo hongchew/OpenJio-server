@@ -14,6 +14,7 @@ const {
 const {
   createTransaction,
   retrieveAllTransactionsByUserId,
+  retrieveTransactionByTransactionId,
 } = require('../database/Operations/Transaction');
 
 const router = express.Router();
@@ -31,7 +32,6 @@ router.get('/', (req, res) => {
   Return: Model.Transaction object 
 */
 router.post('/process-payment', async (req, res) => {
-
   try {
     // Sender can send to either email or mobile number
     const recipientByEmail = await retrieveUserByEmail(req.body.email);
@@ -57,36 +57,40 @@ router.post('/process-payment', async (req, res) => {
 
     // Managed transaction with sequelize & rollback
     try {
-
       const t = sequelizeInstance.transaction();
 
       let result = await sequelizeInstance.transaction(async (t) => {
-
         // Deduct from sender' wallet
-        const deductingFromSender = await deductWalletBalance({
-          senderWalletId,
-          amount
-        }, {transaction: t});
+        const deductingFromSender = await deductWalletBalance(
+          {
+            senderWalletId,
+            amount,
+          },
+          {transaction: t}
+        );
 
         // Add to recipient's wallet
-        const addingToRecipient = await addWalletBalance({
-          recipientWalletId,
-          amount
-        }, {transaction: t});
+        const addingToRecipient = await addWalletBalance(
+          {
+            recipientWalletId,
+            amount,
+          },
+          {transaction: t}
+        );
 
         // Create new transaction
-        const newTransaction = await createTransaction({
-          senderWallet,
-          recipientWallet,
-          amount,
-          description,
-          transactionType
-        }, {transaction: t});
-
+        const newTransaction = await createTransaction(
+          {
+            senderWallet,
+            recipientWallet,
+            amount,
+            description,
+            transactionType,
+          },
+          {transaction: t}
+        );
         res.status(200).json(newTransaction);
-
       });
-
     } catch (e) {
       // Automatically rollback transaction if there are any errors
       console.log(e);
@@ -105,13 +109,30 @@ router.post('/process-payment', async (req, res) => {
   Return: Array of all transaction objects under the user
 */
 router.get('/:userId', async (req, res) => {
-    try {
-      const transactions = await retrieveAllTransactionsByUserId(req.body.userId);
-      res.status(200).json(transactions);
-    } catch (e) {
-      console.log(e);
-      res.status(500).json(e);
-    }
-  });
+  try {
+    const transactions = await retrieveAllTransactionsByUserId(req.body.userId);
+    res.status(200).json(transactions);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: GET /transactions/:transactionId
+  Content type: JSON { transactionId: UUID }
+  Return: Model.Transaction object 
+*/
+router.get('/:transactionId', async (req, res) => {
+  try {
+    const transaction = await retrieveTransactionByTransactionId(
+      req.body.transactionId
+    );
+    res.status(200).json(transaction);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
 
 module.exports = router;
