@@ -145,6 +145,21 @@ const donate = async (walletId, donation) => {
   }
 };
 
+/* ----------------------------------------
+  For API testing:
+  Retrieve all wallets from database
+  Parameters: (null)
+  Return: Array of Wallet objects
+---------------------------------------- */
+const retrieveAllWallets = async () => {
+  try {
+    const wallets = await Wallet.findAll({});
+    return wallets;
+  } catch (e) {
+    throw console.error(e);
+  }
+};
+
 module.exports = {
   createWallet,
   deductWalletBalance,
@@ -153,5 +168,6 @@ module.exports = {
   deleteWalletLimit,
   donate,
   retrieveWalletByWalletId,
-  retrieveWalletByUserId
+  retrieveWalletByUserId,
+  retrieveAllWallets
 };

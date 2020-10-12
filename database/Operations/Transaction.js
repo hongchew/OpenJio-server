@@ -1,12 +1,23 @@
 const {Transaction} = require('../Models/Transaction');
-const {retrieveWalletByWalletId, retrieveWalletByUserId} = require('./Wallet');
+const {Op} = require('sequelize');
+const {
+  retrieveWalletByWalletId,
+  retrieveWalletByUserId,
+  addWalletBalance,
+  deductWalletBalance,
+} = require('./Wallet');
+const {retrieveUserByEmail} = require('./User');
+
+// For Managed Transaction (Archived for now)
+// const getDb = require('../../database/index');
+// const sequelizeInstance = await getDb().then((db) => db);
 
 /*
-  Create a transaction between sender and recipient
+  Create an user transaction between sender and recipient
   Parameters: (userId: string)
-  Return:  object
+  Return: Transaction object
 */
-const createTransaction = async (
+const createUserTransaction = async (
   senderWalletId,
   recipientWalletId,
   amount,
@@ -15,18 +26,162 @@ const createTransaction = async (
 ) => {
   try {
     const newTransaction = Transaction.build({
+      senderWalletId: senderWalletId,
+      recipientWalletId: recipientWalletId,
       amount: amount,
-      transactionType: transactionType,
       description: description,
+      transactionType: transactionType
     });
-    newTransaction.senderWallet = await retrieveWalletByWalletId(
-      senderWalletId
-    );
-    newTransaction.recipientWallet = await retrieveWalletByUserId(
-      recipientWalletId
-    );
+
     await newTransaction.save();
+
     return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Create a withdraw/donate transaction from sender
+  Parameters: (userId: string)
+  Return: Transaction object
+*/
+const createWithdrawDonateTransaction = async (
+  senderWalletId,
+  amount,
+  transactionType
+) => {
+  try {
+    const newTransaction = Transaction.build({
+      senderWalletId: senderWalletId,
+      amount: amount,
+      transactionType: transactionType
+    });
+
+    await newTransaction.save();
+
+    return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Make USER payment
+  Parameters: (walletId: UUID, email: string, amount: string, description: string)
+  Return: Transaction object
+*/
+const makeUserPayment = async (walletId, email, amount, description) => {
+  // Archived
+  // const sequelizeInstance = getDb();
+  // const t = sequelizeInstance.transaction();
+
+  try {
+    const recipient = await retrieveUserByEmail(email);
+
+    if (!recipient) {
+      throw 'Recipient with email address: ' + email + ' not found';
+    }
+
+    const senderWalletId = walletId;
+
+    const recipientWallet = await retrieveWalletByUserId(recipient.userId);
+    const recipientWalletId = recipientWallet.walletId;
+
+    const transactionType = 'USER';
+    // Deduct from sender' wallet
+    await deductWalletBalance(senderWalletId, amount);
+
+    // Add to recipient's wallet
+    await addWalletBalance(recipientWalletId, amount);
+
+    // Create new transaction
+    const newTransaction = await createUserTransaction(
+      senderWalletId,
+      recipientWalletId,
+      amount,
+      description,
+      transactionType
+    );
+
+    return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Withdraw money from wallet (transaction)
+  Parameters: (walletId: UUID, amount: string)
+  Return: Transaction object
+*/
+const makeWithdrawal = async (walletId, amount) => {
+  try {
+
+    const userWalletId = walletId;
+    const transactionType = 'WITHDRAW';
+
+    // Deduct from wallet
+    await deductWalletBalance(
+      userWalletId,
+      amount
+    );
+
+    // Create new transaction
+    const newTransaction = await createWithdrawDonateTransaction(
+      userWalletId,
+      amount,
+      transactionType
+    );
+
+    return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Donate money from wallet (transaction)
+  Parameters: (walletId: UUID, amount: string)
+  Return: Transaction object
+*/
+const makeDonation = async (walletId, amount) => {
+  try {
+    const userWalletId = walletId;
+    const transactionType = 'DONATE';
+
+    // Deduct from wallet
+    await deductWalletBalance(
+      userWalletId,
+      amount
+    );
+
+    // Create new transaction
+    const newTransaction = await createWithdrawDonateTransaction(
+      userWalletId,
+      amount,
+      transactionType
+    );
+    return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Retrieve all transactions
+  Parameters: ()
+  Return: Array of Model.Transaction
+*/
+const retrieveAllTransactions = async () => {
+  try {
+    const transactions = await Transaction.findAll();
+    return transactions;
   } catch (e) {
     console.log(e);
     throw e;
@@ -40,12 +195,15 @@ const createTransaction = async (
 */
 const retrieveAllTransactionsByUserId = async (userId) => {
   try {
+    // Note got senderWalletId & recipientWalletId in a transaction(Possible to split)
+    const wallet = await retrieveWalletByUserId(userId);
+    const walletId = wallet.walletId;
+
     const transactions = await Transaction.findAll({
       where: {
-        userId: userId,
+        [Op.or]: [{senderWalletId: walletId}, {recipientWalletId: walletId}],
       },
     });
-    console.log(transactions);
     return transactions;
   } catch (e) {
     console.log(e);
@@ -59,22 +217,26 @@ const retrieveAllTransactionsByUserId = async (userId) => {
   Return: Model.Transaction
 */
 const retrieveTransactionByTransactionId = async (transactionId) => {
-    try {
-      const transaction = await Transaction.findOne({
-        where: {
-          transactionId: transactionId,
-        },
-      });
-      console.log(transaction);
-      return transaction;
-    } catch (e) {
-      console.log(e);
-      throw e;
-    }
-  };
+  try {
+    const transaction = await Transaction.findOne({
+      where: {
+        transactionId: transactionId,
+      },
+    });
+    return transaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
 
 module.exports = {
-  createTransaction,
+  createUserTransaction,
+  createWithdrawDonateTransaction,
   retrieveAllTransactionsByUserId,
-  retrieveTransactionByTransactionId
+  retrieveTransactionByTransactionId,
+  makeUserPayment,
+  makeWithdrawal,
+  makeDonation,
+  retrieveAllTransactions,
 };

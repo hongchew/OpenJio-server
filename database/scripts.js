@@ -1,6 +1,10 @@
 const {createSuperAdmin} = require('./Operations/Admin');
 const {createUser, giveBadge} = require('./Operations/User');
 const {addAddress} = require('./Operations/Address');
+const {
+  retrieveWalletByUserId,
+  addWalletBalance,
+} = require('./Operations/Wallet');
 const badgeControl = require('../enum/BadgeControl');
 
 const onInitPopulateDatabase = async () => {
@@ -45,6 +49,21 @@ const onInitPopulateDatabase = async () => {
     }
 
     user1.save();
+
+    // Retrieve user 1's wallet
+    const user1Wallet = await retrieveWalletByUserId(user1.userId);
+    if (user1Wallet) {
+      // Adding $100 balance to user 1
+      const addingToUser1Wallet = await addWalletBalance(
+        user1Wallet.walletId,
+        100
+      );
+      // Check if top up was successful, alternatively can view on postman
+      if (addingToUser1Wallet.balance === 100) {
+        console.log('Successfully topped up user 1 wallet!');
+      }
+    }
+
     console.log('User created with the name: ' + user1.name);
 
     // Second user (paul) without COVID-19 & not blacklisted
@@ -105,7 +124,9 @@ const onInitPopulateDatabase = async () => {
           await giveBadge(createdUser.userId, badgeControl.types.LOCAL_LOBANG);
         }
       })
-    ).then((res) => console.log('**** [Database] Initialization Completed ****'));
+    ).then((res) =>
+      console.log('**** [Database] Initialization Completed ****')
+    );
   } catch (error) {
     console.error('****[Database] Initialization Failed:', error);
   }
