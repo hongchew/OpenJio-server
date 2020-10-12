@@ -12,15 +12,13 @@ const createWallet = async (userId) => {
     });
     await newWallet.save();
   } catch (e) {
-    console.log(e); 
+    console.log(e);
     throw e;
   }
 };
 
-
-
 /*
-  Retrieve wallet by wallet id
+  Create an insert wallet into database
   Parameters: (walletId: string)
   Return: Wallet object (or null)
 */
@@ -29,40 +27,6 @@ const retrieveWalletByWalletId = async (walletId) => {
     const wallet = await Wallet.findOne({
       where: {
         walletId: walletId,
-      },
-    });
-    console.log(wallet);
-    return wallet;
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
-};
-
-/* ----------------------------------------
-  Retrieve all wallets from database
-  Parameters: (null)
-  Return: Array of Wallet objects
----------------------------------------- */
-const retrieveAllWallets = async () => {
-  try {
-    const wallets = await Wallet.findAll({});
-    return wallets;
-  } catch (e) {
-    throw console.error(e);
-  }
-};
-
-/*
-  Retrieve wallet by user id
-  Parameters: (userId: string)
-  Return: Wallet object (or null)
-*/
-const retrieveWalletByUserId = async (userId) => {
-  try {
-    const wallet = await Wallet.findOne({
-      where: {
-        userId: userId,
       },
     });
     console.log(wallet);
@@ -106,7 +70,7 @@ const addWalletBalance = async (walletId, amountToAdd) => {
   } catch (e) {
     console.log(e);
     throw e;
-  } 
+  }
 };
 
 /*
@@ -169,6 +133,4 @@ module.exports = {
   deleteWalletLimit,
   donate,
   retrieveWalletByWalletId,
-  retrieveWalletByUserId,
-  retrieveAllWallets
 };
