@@ -50,7 +50,8 @@ router.post('/process-payment', async (req, res) => {
       const t = sequelizeInstance.transaction();
 
       // sequelizeInstance.transaction is not a function (Change to just the functions themselves)
-      let result = await sequelizeInstance.transaction(async (t) => {
+      // let result = await sequelizeInstance.transaction(async (t) => {
+        
         // Deduct from sender' wallet
         const deductingFromSender = await deductWalletBalance(
           {
@@ -82,7 +83,9 @@ router.post('/process-payment', async (req, res) => {
         );
 
         res.status(200).json(newTransaction);
-      });
+
+      // });
+
     } catch (e) {
       // Automatically rollback transaction if there are any errors
       console.log(e);
