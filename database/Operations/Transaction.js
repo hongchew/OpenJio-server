@@ -7,7 +7,7 @@ const {
 } = require('./Wallet');
 const {retrieveUserByEmail} = require('./User');
 
-const {getDb} = require('../../database/index');
+const getDb = require('../../database/index');
 
 const sequelizeInstance = getDb().then((db) => db);
 
@@ -53,7 +53,7 @@ const createTransaction = async (
 const makeUserPayment = async (walletId, email, amount, description) => {
   
   // ***Maybe can take out***
-  const t = sequelizeInstance.transaction();
+  // const t = sequelizeInstance.transaction();
 
   try {
     const recipient = await retrieveUserByEmail(email);
