@@ -9,7 +9,7 @@ const {retrieveUserByEmail} = require('./User');
 
 const getDb = require('../../database/index');
 
-const sequelizeInstance = getDb().then((db) => db);
+const sequelizeInstance = await getDb().then((db) => db);
 
 /*
   Create a transaction between sender and recipient
@@ -51,9 +51,12 @@ const createTransaction = async (
   Return: Transaction object
 */
 const makeUserPayment = async (walletId, email, amount, description) => {
-  
+
+  console.log('SEQUELIZE INSTANCE: ' + sequelizeInstance);
+
   // ***Maybe can take out***
   // const t = sequelizeInstance.transaction();
+
 
   try {
     const recipient = await retrieveUserByEmail(email);
