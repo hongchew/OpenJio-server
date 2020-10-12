@@ -169,11 +169,13 @@ const getDb = async () => {
 
     // Wallet
     Wallet.belongsTo(User, {foreignKey: 'userId'}); // wallet.userId
+    
     Wallet.hasMany(Transaction, {
       as: 'senderTransactions',
       foreignKey: 'senderWalletId',
       sourceKey: 'walletId',
     }); //wallet.senderTransactions
+
     Wallet.hasMany(Transaction, {
       as: 'recipientTransactions',
       foreignKey: 'recipientWalletId',

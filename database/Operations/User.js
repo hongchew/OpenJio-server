@@ -77,7 +77,7 @@ const retrieveUserByUserId = async (userId) => {
 };
 
 /*
-  Find and retrieve user from database with userId
+  Find and retrieve user from database with email
   Parameters: (email: string)
   Return: User object (null if not found)
 */
@@ -86,6 +86,25 @@ const retrieveUserByEmail = async (email) => {
     const user = await User.findOne({
       where: {
         email: email,
+      },
+    });
+    return user;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Find and retrieve user from database with mobile number (For payment)
+  Parameters: (mobile number: string)
+  Return: User object (null if not found)
+*/
+const retrieveUserByMobile = async (mobileNumber) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        mobileNumber: mobileNumber,
       },
     });
     return user;
@@ -364,6 +383,7 @@ module.exports = {
   retrieveAllUsersWithCovid,
   retrieveUserByUserId,
   retrieveUserByEmail,
+  retrieveUserByMobile,
   verifyUserAccountCreation,
   giveBadge,
   retrieveLeaderboard,
