@@ -1,4 +1,5 @@
 const {Wallet} = require('../Models/Wallet');
+const {Sequelize} = require('sequelize');
 
 /*
   Create an insert wallet into database
@@ -30,6 +31,26 @@ const retrieveWalletByWalletId = async (walletId) => {
       },
     });
     console.log(wallet);
+    return wallet;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Retrieve wallet of user via userId
+  Parameters: (userId: string)
+  Return: Wallet object (or null)
+*/
+const retrieveWalletByUserId = async (userId) => {
+  try {
+    const wallet = await Wallet.findOne({
+      where: {
+        userId: userId,
+      },
+    });
+    console.log(`Wallet info: ${wallet}`);
     return wallet;
   } catch (e) {
     console.log(e);
@@ -125,6 +146,21 @@ const donate = async (walletId, donation) => {
   }
 };
 
+/* ----------------------------------------
+  For API testing:
+  Retrieve all wallets from database
+  Parameters: (null)
+  Return: Array of Wallet objects
+---------------------------------------- */
+const retrieveAllWallets = async () => {
+  try {
+    const wallets = await Wallet.findAll({});
+    return wallets;
+  } catch (e) {
+    throw console.error(e);
+  }
+};
+
 module.exports = {
   createWallet,
   deductWalletBalance,
@@ -133,4 +169,6 @@ module.exports = {
   deleteWalletLimit,
   donate,
   retrieveWalletByWalletId,
+  retrieveWalletByUserId,
+  retrieveAllWallets
 };

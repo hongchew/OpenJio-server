@@ -1,10 +1,13 @@
 const express = require('express');
+const {Sequelize} = require('sequelize');
+const router = express.Router();
 const {
   setWalletLimit,
   retrieveWalletByWalletId,
+  retrieveWalletByUserId,
   deleteWalletLimit,
+  retrieveAllWallets
 } = require('../database/Operations/Wallet');
-const router = express.Router();
 
 /* http://localhost:3000/wallets/ . */
 router.get('/', (req, res) => {
@@ -23,6 +26,23 @@ router.get('/retrieve-wallet', async (req, res) => {
   try {
     const wallet = await retrieveWalletByWalletId(req.body.walletId);
     res.status(200).json(wallet);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: GET /wallets/retrieve-wallet-by-userId
+  Content type: JSON {
+      userId: string
+  }
+  Return: Wallet Object
+*/
+router.post('/retrieve-wallet-by-userId', async (req, res) => {
+  try {
+    const wallet = await retrieveWalletByUserId(req.body.userId);
+    res.json(wallet);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
@@ -68,5 +88,23 @@ router.put('/update-wallet-limit', async (req, res) => {
     res.status(500).json(e);
   }
 });
+
+/* --------------------------------
+  Endpoint: GET /wallets/retrieve-all
+  Content type: (null)
+  Return: Models.Wallet objects 
+-------------------------------- */
+router.get('/retrieve-all', async (req, res) => {
+  try {
+    const wallets = await retrieveAllWallets();
+    res.json(wallets);
+  } catch (e) {
+    res.status(500).json({
+      message: 'Error retrieving Wallets!',
+    });
+  }
+});
+
+
 
 module.exports = router;

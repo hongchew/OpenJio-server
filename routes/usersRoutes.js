@@ -229,8 +229,10 @@ router.post('/upload-avatar/:userId', async (req, res) => {
       let avatar = req.files.avatar;
       console.log(req.files);
       //Use the mv() method to place the file in files directory
-      const avatarPath =
-        './files/' + req.params.userId + '.' + avatar.name.split('.').pop();
+      const avatarPath = `./files/${
+        req.params.userId
+      }_${new Date().getTime()}.${avatar.name.split('.').pop()}`;
+
       avatar.mv(avatarPath);
 
       const user = await updateUserDetails({
@@ -247,6 +249,7 @@ router.post('/upload-avatar/:userId', async (req, res) => {
       });
     }
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 });
