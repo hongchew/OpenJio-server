@@ -1,6 +1,6 @@
 module.exports =  {
     TOP_UP: "TOP_UP",
-    DONATION: "DONATION",
+    DONATE: "DONATE",
     WITHDRAW: "WITHDRAW",
     USER: "USER"
 }
