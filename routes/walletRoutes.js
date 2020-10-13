@@ -47,8 +47,8 @@ router.put('/remove-wallet-limit', async (req, res) => {
 });
 
 /*
-  Endpoint: PUT /wallets/update-wallet
-  Content type: JSON Model.Wallet {
+  Endpoint: PUT /wallets/update-wallet-limit
+  Content type: JSON {
       walletId: string
       walletLimit: double
       other attributes would not be updated
