@@ -1,12 +1,13 @@
 const express = require('express');
 const paypal = require('paypal-rest-sdk');
+const {makeTopUp} = require('../database/Operations/Transaction');
 
 const router = express.Router();
 
 paypal.configure({
   mode: 'sandbox', //sandbox or live
-  client_id: process.env.CLIENT_ID,  
-  client_secret: process.env.CLIENT_SECRET
+  client_id: process.env.CLIENT_ID,
+  client_secret: process.env.CLIENT_SECRET,
 });
 
 /*
@@ -20,11 +21,11 @@ router.get('/', (req, res) => {
 });
 
 router.get('/topup', (req, res) => {
-  var {amount, userId} = req.query;
-  console.log({amount, userId});
-  const successUrl = `http://10.0.2.2:3000/paypal/success?amount=${amount.toString()}&userId=${userId}`;
+  var {amount, walletId} = req.query;
+  console.log({amount, walletId});
+  const successUrl = `http://10.0.2.2:3000/paypal/success?amount=${amount.toString()}&walletId=${walletId}`;
   amount = (amount / 100).toFixed(2);
-  console.log(successUrl)
+  console.log(successUrl);
   var create_payment_json = {
     intent: 'sale',
     payer: {
@@ -73,8 +74,8 @@ router.get('/topup', (req, res) => {
 router.get('/success', (req, res) => {
   var PayerID = req.query.PayerID;
   var paymentId = req.query.paymentId;
-  var {userId, amount} = req.query;
-  amount = (amount / 100).toFixed(2).toString();
+  var {walletId, amount} = req.query;
+  amount = (amount / 100).toFixed(2);
 
   var execute_payment_json = {
     payer_id: PayerID,
@@ -98,9 +99,15 @@ router.get('/success', (req, res) => {
       throw error;
     } else {
       console.log('Get Payment Response');
-      console.log(payment);
-      console.log(`handleTopUpBackend(${userId},${amount})`)
-      res.render('success');
+      console.log(JSON.stringify(payment));
+      makeTopUp(
+        walletId,
+        amount,
+        payment.transactions[0].related_resources[0].sale.id //txn id
+      ).then((txn) => {
+        console.log(txn);
+        res.render('success');
+      });
     }
   });
 });
