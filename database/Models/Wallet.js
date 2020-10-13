@@ -2,7 +2,7 @@ const {Sequelize, Model, DataTypes} = require('sequelize');
 
 class Wallet extends Model {
   topUpWallet(amount) {
-    this.balance = this.balance + amount;
+    this.balance = parseFloat(this.balance) + parseFloat(amount);
     return this.balance;
   }
 
