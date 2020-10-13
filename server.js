@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const dotenv = require('dotenv');
+const engines = require("consolidate");
+dotenv.config();
 
 //#region Database
 const getDb = require('./database');
@@ -10,6 +13,9 @@ getDb();
 //#region Express Config
 app.use('/files', express.static('files'));
 app.use(express.json());
+app.engine("ejs", engines.ejs);
+app.set("views", "./views");
+app.set("view engine", "ejs");
 
 // enable files upload
 const fileUpload = require('express-fileupload');
@@ -34,6 +40,7 @@ const requestsRouter = require('./routes/requestsRoutes');
 const addressesRouter = require('./routes/addressesRoutes');
 const walletsRouter = require('./routes/walletRoutes');
 const transactionRouter = require('./routes/transactionRoutes');
+const paypalRouter = require('./routes/paypalRoutes');
 
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
@@ -42,6 +49,7 @@ app.use('/requests', requestsRouter);
 app.use('/addresses', addressesRouter);
 app.use('/wallets', walletsRouter);
 app.use('/transactions', transactionRouter);
+app.use('/paypal', paypalRouter);
 app.use('/files', express.static('files'));
 
 //#endregion
