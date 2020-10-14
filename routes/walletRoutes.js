@@ -22,9 +22,9 @@ router.get('/', (req, res) => {
   Return: Wallet Object
 */
 //working
-router.get('/retrieve-wallet', async (req, res) => {
+router.get('/retrieve-wallet/:walletId', async (req, res) => {
   try {
-    const wallet = await retrieveWalletByWalletId(req.body.walletId);
+    const wallet = await retrieveWalletByWalletId(req.params.walletId);
     res.status(200).json(wallet);
   } catch (e) {
     console.log(e);
@@ -39,9 +39,9 @@ router.get('/retrieve-wallet', async (req, res) => {
   }
   Return: Wallet Object
 */
-router.post('/retrieve-wallet-by-userId', async (req, res) => {
+router.get('/retrieve-wallet-by-userId/:userId', async (req, res) => {
   try {
-    const wallet = await retrieveWalletByUserId(req.body.userId);
+    const wallet = await retrieveWalletByUserId(req.params.userId);
     res.json(wallet);
   } catch (e) {
     console.log(e);

@@ -30,7 +30,6 @@ const retrieveWalletByWalletId = async (walletId) => {
         walletId: walletId,
       },
     });
-    console.log(wallet);
     return wallet;
   } catch (e) {
     console.log(e);
@@ -50,7 +49,6 @@ const retrieveWalletByUserId = async (userId) => {
         userId: userId,
       },
     });
-    console.log(`Wallet info: ${wallet}`);
     return wallet;
   } catch (e) {
     console.log(e);
