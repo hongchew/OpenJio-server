@@ -356,7 +356,7 @@ router.get('/:email', async (req, res) => {
   Content type: -
   Return: Array of all user objects
 */
-router.get('/:userId', async (req, res) => {
+router.get('/byUserId/:userId', async (req, res) => {
   try {
     const user = await retrieveUserByUserId(req.params.userId);
     res.status(200).json(user);
