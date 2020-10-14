@@ -335,12 +335,11 @@ router.get('/overall-leaderboard', async (req, res) => {
 });
 
 /*
-  KEEP THIS AT LAST PLACE TO PREVENT IT FROM PICKING UP OTHER HTTP GET CALLS
-  Endpoint: GET /users/:email
+  Endpoint: GET /users/email/:email
   Content type: -
   Return: User object
 */
-router.get('/:email', async (req, res) => {
+router.get('/email/:email', async (req, res) => {
   try {
     const user = await retrieveUserByEmail(req.params.email);
     res.status(200).json(user);
@@ -356,7 +355,7 @@ router.get('/:email', async (req, res) => {
   Content type: -
   Return: Array of all user objects
 */
-router.get('/byUserId/:userId', async (req, res) => {
+router.get('/:userId', async (req, res) => {
   try {
     const user = await retrieveUserByUserId(req.params.userId);
     res.status(200).json(user);
