@@ -67,7 +67,11 @@ const retrieveUserByUserId = async (userId) => {
       attributes: {
         exclude: ['salt', 'password'],
       },
-      include: [Address, Wallet, Badge],
+      include: [
+        Address,
+        Wallet,
+        {model: Badge, order: [['name', 'DESC']], separate: true},
+      ],
     });
     return user;
   } catch (e) {
@@ -344,7 +348,7 @@ const retrieveLeaderboard = async (type) => {
           'defaultAddressId',
         ],
       },
-      include: Badge,
+      include: [{model: Badge, order: [['name', 'DESC']], separate: true}],
     });
     return leaderboard;
   } catch (e) {
