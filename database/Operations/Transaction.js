@@ -51,14 +51,18 @@ const createUserTransaction = async (
 const createWithdrawDonateTransaction = async (
   senderWalletId,
   amount,
-  transactionType
+  transactionType,
+  description="No Description was asssociated with this transaction"
 ) => {
   try {
     const newTransaction = Transaction.build({
       senderWalletId: senderWalletId,
       amount: amount,
       transactionType: transactionType,
+      description: description
     });
+     
+    newTransaction.description = newTransaction.description + newTransaction.transactionId
 
     await newTransaction.save();
 
@@ -129,7 +133,8 @@ const makeWithdrawal = async (walletId, amount) => {
     const newTransaction = await createWithdrawDonateTransaction(
       userWalletId,
       amount,
-      transactionTypeEnum.WITHDRAW
+      transactionTypeEnum.WITHDRAW,
+      `Withdrawl of SGD${amount}, Transaction ID: `
     );
 
     return newTransaction;
@@ -155,9 +160,10 @@ const makeDonation = async (walletId, amount) => {
     const newTransaction = await createWithdrawDonateTransaction(
       userWalletId,
       amount,
-      transactionTypeEnum.DONATE
+      transactionTypeEnum.DONATE,
+      `Donation of SGD${amount}, Transaction ID: `
     );
-    return newTransaction;
+    return newTransaction; 
   } catch (e) {
     console.log(e);
     throw e;
@@ -231,7 +237,7 @@ const createTopUpTransaction = async (walletId, amount, paypalId) => {
     const newTransaction = Transaction.build({
       recipientWalletId: walletId,
       amount: amount,
-      description: `Top Up of ${amount}, Paypal Transaction Id: ${paypalId}`,
+      description: `Top Up of SGD${amount}, Paypal Transaction Id: ${paypalId}`,
       transactionType: transactionTypeEnum.TOP_UP,
     });
 

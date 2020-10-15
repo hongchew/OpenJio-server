@@ -39,7 +39,7 @@ const onInitPopulateDatabase = async () => {
     user1.isBlackListed = false;
     user1.strikeCount = 1;
     user1.isValidated = true;
-    user1.mobileNumber = "97748080";
+    user1.mobileNumber = '97748080';
 
     // Add to user address
     const address1 = {
@@ -81,7 +81,7 @@ const onInitPopulateDatabase = async () => {
       } else {
         console.log('Failed to donate');
       }
-      const topup1 = await makeTopUp(user1Wallet.walletId, 50, '1');
+      const topup1 = await makeTopUp(user1Wallet.walletId, 50, 'OPENJIOSCRIPT0001');
       if (topup1) {
         console.log('User 1 Topped up $50');
       } else {
@@ -110,7 +110,7 @@ const onInitPopulateDatabase = async () => {
       user3.isBlackListed = true;
       user3.strikeCount = 3;
       user3.isValidated = true;
-      user3.mobileNumber = "91253838";
+      user3.mobileNumber = '91253838';
       // Add to user address
       const address3 = {
         line1: '21 Heng Mui Keng Terrace',
@@ -146,9 +146,23 @@ const onInitPopulateDatabase = async () => {
         var createdUser = await createUser(user.email, 'password', user.name);
         createdUser.isValidated = true;
         await createdUser.save();
-        for (let i = 0; i < Math.floor(Math.random() * 15); i++) {
+        for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
           await giveBadge(createdUser.userId, badgeControl.types.LOCAL_LOBANG);
         }
+        for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
+          await giveBadge(
+            createdUser.userId,
+            badgeControl.types.EXCELLENT_COMMUNICATOR
+          );
+        }
+        for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
+          await giveBadge(
+            createdUser.userId,
+            badgeControl.types.FAST_AND_FURIOUS
+          );
+        }
+
+        await giveBadge(createdUser.userId, badgeControl.types.SUPER_NEIGHBOUR);
       })
     ).then((res) =>
       console.log('**** [Database] Initialization Completed ****')
