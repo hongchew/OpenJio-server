@@ -15,7 +15,7 @@ const transactionTypeEnum = require('../../enum/TransactionType');
 
 /*
   Create an user transaction between sender and recipient
-  Parameters: (userId: string)
+  Parameters: (senderWalletId, recipientWalletId, amount, description, transactionType)
   Return: Transaction object
 */
 const createUserTransaction = async (
@@ -45,7 +45,7 @@ const createUserTransaction = async (
 
 /*
   Create a withdraw/donate transaction from sender
-  Parameters: (userId: string)
+  Parameters: (senderWalletId, amount, transactionType)
   Return: Transaction object
 */
 const createWithdrawDonateTransaction = async (
@@ -91,7 +91,6 @@ const makeUserPayment = async (walletId, email, amount, description) => {
     const recipientWallet = await retrieveWalletByUserId(recipient.userId);
     const recipientWalletId = recipientWallet.walletId;
 
-    const transactionType = 'USER';
     // Deduct from sender' wallet
     await deductWalletBalance(senderWalletId, amount);
 
@@ -122,7 +121,6 @@ const makeUserPayment = async (walletId, email, amount, description) => {
 const makeWithdrawal = async (walletId, amount) => {
   try {
     const userWalletId = walletId;
-    const transactionType = 'WITHDRAW';
 
     // Deduct from wallet
     await deductWalletBalance(userWalletId, amount);
@@ -149,7 +147,6 @@ const makeWithdrawal = async (walletId, amount) => {
 const makeDonation = async (walletId, amount) => {
   try {
     const userWalletId = walletId;
-    const transactionType = 'DONATE';
 
     // Deduct from wallet
     await deductWalletBalance(userWalletId, amount);

@@ -90,6 +90,7 @@ router.put('/update-wallet-limit', async (req, res) => {
 });
 
 /* --------------------------------
+  For Postman testing purpose
   Endpoint: GET /wallets/retrieve-all
   Content type: (null)
   Return: Models.Wallet objects 

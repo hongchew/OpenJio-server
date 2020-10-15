@@ -5,7 +5,6 @@ const {Sequelize} = require('sequelize');
 // const {getDb} = require('../database/index');
 // const sequelizeInstance = getDb().then((db) => db);
 
-const {retrieveUserByEmail} = require('../database/Operations/User');
 const {
   retrieveAllTransactionsByUserId,
   retrieveTransactionByTransactionId,
