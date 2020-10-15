@@ -121,21 +121,38 @@ router.get('/:transactionId', async (req, res) => {
     const transaction = await retrieveTransactionByTransactionId(
       req.params.transactionId
     );
-    if (transaction.recipientWalletId != null) {
+    let selectedRecipientDetails, selectedSenderDetails;
+
+    if (transaction.recipientWalletId !== null) {
       const recipientWallet = await retrieveWalletByWalletId(
         transaction.recipientWalletId
       );
       const recipientDetails = await retrieveUserByUserId(
         recipientWallet.userId
       );
-      const selectedRecipientDetails = {
+      selectedRecipientDetails = {
         name: recipientDetails.name,
         email: recipientDetails.email,
       };
-      transaction.recipientWalletId = selectedRecipientDetails;
     }
 
-    res.status(200).json(transaction);
+    if (transaction.senderWalletId !== null) {
+      const senderWallet = await retrieveWalletByWalletId(
+        transaction.senderWalletId
+      );
+      const senderDetails = await retrieveUserByUserId(senderWallet.userId);
+      selectedSenderDetails = {
+        name: senderDetails.name,
+        email: senderDetails.email,
+      };
+    }
+    const transactionDetails = {
+      senderDetails: selectedSenderDetails,
+      recipientDetails: selectedRecipientDetails,
+      transaction: transaction,
+    };
+
+    res.status(200).json(transactionDetails);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
