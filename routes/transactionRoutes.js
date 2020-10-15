@@ -11,8 +11,13 @@ const {
   retrieveAllTransactions,
   makeUserPayment,
   makeWithdrawal,
-  makeDonation
+  makeDonation,
 } = require('../database/Operations/Transaction');
+const {
+  retrieveWalletByUserId,
+  retrieveWalletByWalletId,
+} = require('../database/Operations/Wallet');
+const {retrieveUserByUserId} = require('../database/Operations/User');
 
 const router = express.Router();
 
@@ -28,11 +33,14 @@ router.get('/', (req, res) => {
 */
 router.post('/process-payment', async (req, res) => {
   try {
-
     const {walletId, email, amount, description} = req.body;
-    const newTransaction = await makeUserPayment(walletId, email, amount, description);
+    const newTransaction = await makeUserPayment(
+      walletId,
+      email,
+      amount,
+      description
+    );
     res.status(200).json(newTransaction);
-  
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
@@ -46,11 +54,9 @@ router.post('/process-payment', async (req, res) => {
 */
 router.post('/withdraw', async (req, res) => {
   try {
-
     const {walletId, amount} = req.body;
     const newTransaction = await makeWithdrawal(walletId, amount);
     res.status(200).json(newTransaction);
-  
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
@@ -64,11 +70,9 @@ router.post('/withdraw', async (req, res) => {
 */
 router.post('/donate', async (req, res) => {
   try {
-
     const {walletId, amount} = req.body;
     const newTransaction = await makeDonation(walletId, amount);
     res.status(200).json(newTransaction);
-  
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
@@ -97,7 +101,9 @@ router.get('/retrieve-all', async (req, res) => {
 */
 router.get('/by/:userId', async (req, res) => {
   try {
-    const transactions = await retrieveAllTransactionsByUserId(req.params.userId);
+    const transactions = await retrieveAllTransactionsByUserId(
+      req.params.userId
+    );
     res.status(200).json(transactions);
   } catch (e) {
     console.log(e);
@@ -115,6 +121,20 @@ router.get('/:transactionId', async (req, res) => {
     const transaction = await retrieveTransactionByTransactionId(
       req.params.transactionId
     );
+    if (transaction.recipientWalletId != null) {
+      const recipientWallet = await retrieveWalletByWalletId(
+        transaction.recipientWalletId
+      );
+      const recipientDetails = await retrieveUserByUserId(
+        recipientWallet.userId
+      );
+      const selectedRecipientDetails = {
+        name: recipientDetails.name,
+        email: recipientDetails.email,
+      };
+      transaction.recipientWalletId = selectedRecipientDetails;
+    }
+
     res.status(200).json(transaction);
   } catch (e) {
     console.log(e);
