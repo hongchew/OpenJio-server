@@ -16,7 +16,7 @@ const createAdmin = async (name, email, adminType) => {
     const adminCheck = await retrieveAdminByEmail(email)
     //error with this line
     if (adminCheck !== null) {
-      throw 'Email is already used!'
+      throw 'Email is already used'
     } 
 
     const newAdmin = Admin.build({
@@ -28,8 +28,8 @@ const createAdmin = async (name, email, adminType) => {
     //generate a random password
     const password = Admin.generatePassword();
     const content = {
-      subject: 'Thank you for creating an account with OpenJio!',
-      text: `The password for your new account is: ${password}`,
+      subject: 'OpenJio Admin Creation',
+      text: `Your admin account for OpenJio had been created. The password for your new account is: ${password}`,
     };
     console.log('password sent to new account email')
 
@@ -80,7 +80,7 @@ const retrieveAdminByEmail = async (email) => {
         email: email,
       },
     });
-    console.log(`I found an admin entry with the field ${admin}`)
+    console.log(`Admin retrieved: ${admin}`)
     return admin;
   } catch (e) {
     throw console.error(e);
