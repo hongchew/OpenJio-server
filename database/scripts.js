@@ -40,6 +40,7 @@ const onInitPopulateDatabase = async () => {
     user1.strikeCount = 1;
     user1.isValidated = true;
     user1.mobileNumber = '97748080';
+    user1.avatarPath = "./files/john.jpg"
 
     // Add to user address
     const address1 = {
@@ -54,6 +55,27 @@ const onInitPopulateDatabase = async () => {
     if (assignAddressToUser) {
       console.log('Address successfully assigned to user: ' + user1.userId);
     }
+
+    for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
+      await giveBadge(user1.userId, badgeControl.types.LOCAL_LOBANG);
+    }
+    for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
+      await giveBadge(user1.userId, badgeControl.types.LOCAL_LOBANG);
+    }
+    for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
+      await giveBadge(
+        user1.userId,
+        badgeControl.types.EXCELLENT_COMMUNICATOR
+      );
+    }
+    for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
+      await giveBadge(
+        user1.userId,
+        badgeControl.types.FAST_AND_FURIOUS
+      );
+    }
+
+    await giveBadge(user1.userId, badgeControl.types.SUPER_NEIGHBOUR);
 
     user1.save();
 
@@ -99,6 +121,7 @@ const onInitPopulateDatabase = async () => {
       user2.isBlackListed = false;
       user2.strikeCount = 2;
       user2.isValidated = true;
+      user2.avatarPath = "./files/paul.jpg"
       user2.save();
       console.log('User created with the name: ' + user2.name);
     }
@@ -111,6 +134,7 @@ const onInitPopulateDatabase = async () => {
       user3.strikeCount = 3;
       user3.isValidated = true;
       user3.mobileNumber = '91253838';
+      user3.avatarPath = "./files/tom.jpg"
       // Add to user address
       const address3 = {
         line1: '21 Heng Mui Keng Terrace',
@@ -145,6 +169,7 @@ const onInitPopulateDatabase = async () => {
       ].map(async (user) => {
         var createdUser = await createUser(user.email, 'password', user.name);
         createdUser.isValidated = true;
+        createdUser.avatarPath = `./files/${user.email.split('@')[0]}.jpg`
         await createdUser.save();
         for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
           await giveBadge(createdUser.userId, badgeControl.types.LOCAL_LOBANG);
