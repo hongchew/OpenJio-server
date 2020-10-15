@@ -81,7 +81,7 @@ const onInitPopulateDatabase = async () => {
       } else {
         console.log('Failed to donate');
       }
-      const topup1 = await makeTopUp(user1Wallet.walletId, 50, '1');
+      const topup1 = await makeTopUp(user1Wallet.walletId, 50, 'OPENJIOSCRIPT0001');
       if (topup1) {
         console.log('User 1 Topped up $50');
       } else {
