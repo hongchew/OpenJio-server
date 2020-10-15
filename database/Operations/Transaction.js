@@ -134,7 +134,7 @@ const makeWithdrawal = async (walletId, amount) => {
       userWalletId,
       amount,
       transactionTypeEnum.WITHDRAW,
-      `Withdrawl of SGD${amount}, Transaction ID: `
+      `Withdrawal of SGD${parseFloat(amount).toFixed(2)}, Transaction ID: `
     );
 
     return newTransaction;
@@ -161,7 +161,7 @@ const makeDonation = async (walletId, amount) => {
       userWalletId,
       amount,
       transactionTypeEnum.DONATE,
-      `Donation of SGD${amount}, Transaction ID: `
+      `Donation of SGD${parseFloat(amount).toFixed(2)}, Transaction ID: `
     );
     return newTransaction; 
   } catch (e) {
@@ -237,7 +237,7 @@ const createTopUpTransaction = async (walletId, amount, paypalId) => {
     const newTransaction = Transaction.build({
       recipientWalletId: walletId,
       amount: amount,
-      description: `Top Up of SGD${amount}, Paypal Transaction Id: ${paypalId}`,
+      description: `Top Up of SGD${parseFloat(amount).toFixed(2)}, Paypal Transaction Id: ${paypalId}`,
       transactionType: transactionTypeEnum.TOP_UP,
     });
 
