@@ -33,6 +33,7 @@ const onInitPopulateDatabase = async () => {
     user1.isBlackListed = false;
     user1.strikeCount = 1;
     user1.isValidated = true;
+    user1.mobileNumber = "97748080";
 
     // Add to user address
     const address1 = {
@@ -85,6 +86,7 @@ const onInitPopulateDatabase = async () => {
       user3.isBlackListed = true;
       user3.strikeCount = 3;
       user3.isValidated = true;
+      user3.mobileNumber = "91253838";
       // Add to user address
       const address3 = {
         line1: '21 Heng Mui Keng Terrace',

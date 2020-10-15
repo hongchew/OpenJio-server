@@ -92,5 +92,6 @@ const retrieveAddressByAddressId = async (addressId) => {
 
 module.exports = {
   addAddress,
-  deleteAddressByAddresId
+  deleteAddressByAddresId,
+  retrieveAllAddressesByUserId
 };
