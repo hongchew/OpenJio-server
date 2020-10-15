@@ -15,6 +15,7 @@ const {
   verifyUserAccountCreation,
   giveBadge,
   retrieveLeaderboard,
+  retrieveUserByEmail,
 } = require('../database/Operations/User');
 
 /*
@@ -329,6 +330,21 @@ router.get('/overall-leaderboard', async (req, res) => {
     const leaderboard = await retrieveLeaderboard('TOTAL');
     res.json(leaderboard);
   } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: GET /users/email/:email
+  Content type: -
+  Return: User object
+*/
+router.get('/email/:email', async (req, res) => {
+  try {
+    const user = await retrieveUserByEmail(req.params.email);
+    res.status(200).json(user);
+  } catch (e) {
+    console.log(e);
     res.status(500).json(e);
   }
 });

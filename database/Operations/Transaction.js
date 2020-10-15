@@ -7,6 +7,7 @@ const {
   deductWalletBalance,
 } = require('./Wallet');
 const {retrieveUserByEmail} = require('./User');
+const transactionTypeEnum = require('../../enum/TransactionType');
 
 // For Managed Transaction (Archived for now)
 // const getDb = require('../../database/index');
@@ -30,7 +31,7 @@ const createUserTransaction = async (
       recipientWalletId: recipientWalletId,
       amount: amount,
       description: description,
-      transactionType: transactionType
+      transactionType: transactionType,
     });
 
     await newTransaction.save();
@@ -56,7 +57,7 @@ const createWithdrawDonateTransaction = async (
     const newTransaction = Transaction.build({
       senderWalletId: senderWalletId,
       amount: amount,
-      transactionType: transactionType
+      transactionType: transactionType,
     });
 
     await newTransaction.save();
@@ -103,7 +104,7 @@ const makeUserPayment = async (walletId, email, amount, description) => {
       recipientWalletId,
       amount,
       description,
-      transactionType
+      transactionTypeEnum.USER
     );
 
     return newTransaction;
@@ -120,21 +121,17 @@ const makeUserPayment = async (walletId, email, amount, description) => {
 */
 const makeWithdrawal = async (walletId, amount) => {
   try {
-
     const userWalletId = walletId;
     const transactionType = 'WITHDRAW';
 
     // Deduct from wallet
-    await deductWalletBalance(
-      userWalletId,
-      amount
-    );
+    await deductWalletBalance(userWalletId, amount);
 
     // Create new transaction
     const newTransaction = await createWithdrawDonateTransaction(
       userWalletId,
       amount,
-      transactionType
+      transactionTypeEnum.WITHDRAW
     );
 
     return newTransaction;
@@ -155,16 +152,13 @@ const makeDonation = async (walletId, amount) => {
     const transactionType = 'DONATE';
 
     // Deduct from wallet
-    await deductWalletBalance(
-      userWalletId,
-      amount
-    );
+    await deductWalletBalance(userWalletId, amount);
 
     // Create new transaction
     const newTransaction = await createWithdrawDonateTransaction(
       userWalletId,
       amount,
-      transactionType
+      transactionTypeEnum.DONATE
     );
     return newTransaction;
   } catch (e) {
@@ -230,6 +224,50 @@ const retrieveTransactionByTransactionId = async (transactionId) => {
   }
 };
 
+/*
+  Create a top up transaction
+  Parameters: (walletId: string, amount: double)
+  Return: Transaction object
+*/
+const createTopUpTransaction = async (walletId, amount, paypalId) => {
+  try {
+    const newTransaction = Transaction.build({
+      recipientWalletId: walletId,
+      amount: amount,
+      description: `Top Up of ${amount}, Paypal Transaction Id: ${paypalId}`,
+      transactionType: transactionTypeEnum.TOP_UP,
+    });
+
+    await newTransaction.save();
+
+    return newTransaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Make a top up
+  Parameters: (walletId: string, amount: double)
+  Return: Transaction object
+*/
+const makeTopUp = async (walletId, amount, paypalId) => {
+  try {
+    await addWalletBalance(walletId, amount);
+    const transaction = await createTopUpTransaction(
+      walletId,
+      amount,
+      paypalId
+    );
+
+    return transaction
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createUserTransaction,
   createWithdrawDonateTransaction,
@@ -239,4 +277,5 @@ module.exports = {
   makeWithdrawal,
   makeDonation,
   retrieveAllTransactions,
+  makeTopUp,
 };

@@ -6,6 +6,12 @@ const {
   addWalletBalance,
 } = require('./Operations/Wallet');
 const badgeControl = require('../enum/BadgeControl');
+const {
+  makeDonation,
+  makeWithdrawal,
+  makeTopUp,
+} = require('./Operations/Transaction');
+const TransactionType = require('../enum/TransactionType');
 
 const onInitPopulateDatabase = async () => {
   // Populate admin
@@ -62,6 +68,24 @@ const onInitPopulateDatabase = async () => {
       // Check if top up was successful, alternatively can view on postman
       if (addingToUser1Wallet.balance === 100) {
         console.log('Successfully topped up user 1 wallet!');
+      }
+      const trans1 = await makeWithdrawal(user1Wallet.walletId, '10');
+      if (trans1) {
+        console.log('Withdraw $10 for user 1');
+      } else {
+        console.log('Failed to withdraw');
+      }
+      const trans2 = await makeDonation(user1Wallet.walletId, '10');
+      if (trans2) {
+        console.log('User 1 Make Donation $10');
+      } else {
+        console.log('Failed to donate');
+      }
+      const topup1 = await makeTopUp(user1Wallet.walletId, 50, '1');
+      if (topup1) {
+        console.log('User 1 Topped up $50');
+      } else {
+        console.log('Failed to top up');
       }
     }
 

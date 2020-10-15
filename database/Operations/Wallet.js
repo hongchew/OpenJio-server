@@ -1,4 +1,5 @@
 const {Wallet} = require('../Models/Wallet');
+const {Sequelize} = require('sequelize');
 
 /*
   Create an insert wallet into database
@@ -29,7 +30,6 @@ const retrieveWalletByWalletId = async (walletId) => {
         walletId: walletId,
       },
     });
-    console.log(wallet);
     return wallet;
   } catch (e) {
     console.log(e);
@@ -49,7 +49,6 @@ const retrieveWalletByUserId = async (userId) => {
         userId: userId,
       },
     });
-    console.log(`Wallet info: ${wallet}`);
     return wallet;
   } catch (e) {
     console.log(e);
