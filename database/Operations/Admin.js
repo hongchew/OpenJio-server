@@ -1,7 +1,7 @@
 const {Admin} = require('../Models/Admin');
 const ADMIN_TYPE = require('../../enum/AdminType');
 const {Sequelize} = require('sequelize');
-const nodemailer = require('nodemailer');
+const {sendEmail} = require('../../utils/mailer');
 
 /*
   Create new admin inside database
@@ -11,17 +11,33 @@ const nodemailer = require('nodemailer');
     adminType: string)
   Return: Admin object if create is successful
 */
-const createAdmin = async (name, email, password, adminType) => {
+const createAdmin = async (name, email, adminType) => {
   try {
+    const adminCheck = await retrieveAdminByEmail(email)
+    //error with this line
+    if (adminCheck !== null) {
+      throw 'Email is already used'
+    } 
+
     const newAdmin = Admin.build({
       name: name,
       email: email,
       adminType: adminType,
     });
 
+    //generate a random password
+    const password = Admin.generatePassword();
+    const content = {
+      subject: 'OpenJio Admin Creation',
+      text: `Your admin account for OpenJio had been created. The password for your new account is: ${password}`,
+    };
+    console.log('password sent to new account email')
+
     newAdmin.salt = Admin.generateSalt();
     newAdmin.password = Admin.encryptPassword(password, newAdmin.salt);
-
+    console.log('sending email')
+    sendEmail(newAdmin.email,content)
+    console.log('email sent')
     await newAdmin.save();
 
     return await retrieveAdminByAdminId(newAdmin.adminId);
@@ -64,6 +80,7 @@ const retrieveAdminByEmail = async (email) => {
         email: email,
       },
     });
+    console.log(`Admin retrieved: ${admin}`)
     return admin;
   } catch (e) {
     throw console.error(e);
@@ -118,30 +135,6 @@ const changeAdminPassword = async (email, currPassword, newPassword) => {
     console.log(e);
     throw e;
   }
-};
-
-/*
-  Send email to admin
-  Parameters: (email: string, content: JSON)
-  Return: Promise 
-*/
-const sendEmail = async (email, content) => {
-  var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'openjio4103@gmail.com',
-      pass: '4103openjio',
-    },
-  });
-
-  var mailOptions = {
-    from: 'openjio4103@gmail.com',
-    to: email,
-    subject: content.subject,
-    text: content.text,
-  };
-
-  return transporter.sendMail(mailOptions);
 };
 
 /*

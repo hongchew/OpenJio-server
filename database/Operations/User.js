@@ -1,9 +1,19 @@
+const {Op} = require('sequelize');
 const {User} = require('../Models/User');
 const {Address} = require('../Models/Address');
-const nodemailer = require('nodemailer');
+const {Wallet} = require('../Models/Wallet');
+const {Badge} = require('../Models/Badge');
+
+const {sendEmail} = require('../../utils/mailer');
+const badgeControl = require('../../enum/BadgeControl');
+const {createWallet} = require('./Wallet');
+const {
+  populateBadgesOnUserCreation,
+  retrieveBadgeByUserIdAndBadgeType,
+} = require('./Badge');
 
 /*
-  Create an insert user into database
+  Create and insert user into database
   Parameters: (email: string, password: string, name: string)
   Return: User object of new user (null if not found)
 */
@@ -16,10 +26,27 @@ const createUser = async (email, password, name) => {
 
     newUser.salt = User.generateSalt();
     newUser.password = User.encryptPassword(password, newUser.salt);
-
     await newUser.save();
 
-    return await retrieveUserByUserId(newUser.userId);
+    return await Promise.all([
+      createWallet(newUser.userId),
+      populateBadgesOnUserCreation(newUser.userId),
+    ])
+      .then(async (res) => {
+        sendEmail(email, {
+          subject: 'New Account Creation at OpenJio',
+          text: `
+  <p>A new account had been created at OpenJio with this email address. </P>
+  <p>If you had created an OpenJio account, please click <a href= "http://localhost:3000/users/verify-account-creation/${newUser.userId}">here</a> to verify the account.
+  <p>If you had not, please ignore this email. </p>
+        `,
+        });
+
+        return await retrieveUserByUserId(newUser.userId);
+      })
+      .catch((e) => {
+        throw e;
+      });
   } catch (e) {
     console.log(e);
     throw e;
@@ -40,7 +67,11 @@ const retrieveUserByUserId = async (userId) => {
       attributes: {
         exclude: ['salt', 'password'],
       },
-      include: Address,
+      include: [
+        Address,
+        Wallet,
+        {model: Badge, order: [['name', 'DESC']], separate: true},
+      ],
     });
     return user;
   } catch (e) {
@@ -105,6 +136,7 @@ const changeUserPassword = async (email, currPassword, newPassword) => {
     //check current password against password in the database
     else if (user.isCorrectPassword(currPassword)) {
       user.password = User.encryptPassword(newPassword, user.salt);
+      user.isPasswordReset = false; // set flag to false after every password change
       return user.save();
     } else {
       return null;
@@ -113,30 +145,6 @@ const changeUserPassword = async (email, currPassword, newPassword) => {
     console.log(e);
     throw e;
   }
-};
-
-/*
-  Send email to user
-  Parameters: (email: string, content: JSON)
-  Return: Promise 
-*/
-const sendEmail = async (email, content) => {
-  var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'openjio4103@gmail.com',
-      pass: '4103openjio',
-    },
-  });
-
-  var mailOptions = {
-    from: 'password-rest@openjio.com',
-    to: email,
-    subject: content.subject,
-    text: content.text,
-  };
-
-  return transporter.sendMail(mailOptions);
 };
 
 /*
@@ -159,6 +167,7 @@ const resetUserPassword = async (email) => {
       };
 
       user.password = User.encryptPassword(newPassword, user.salt);
+      user.isPasswordReset = true; //set flag to true for prompt to change password on login
       user.save();
       return sendEmail(email, content);
     }
@@ -257,6 +266,97 @@ const retrieveAllUsersWithCovid = async () => {
   }
 };
 
+/*
+  Verify User Account Creation
+  Parameters: (userId : string)
+  Return: boolean
+*/
+const verifyUserAccountCreation = async (userId) => {
+  try {
+    const user = await retrieveUserByUserId(userId);
+    if (!user) {
+      return false;
+    }
+
+    user.isValidated = true;
+    await user.save();
+    return true;
+  } catch (e) {
+    throw e;
+  }
+};
+
+/*
+  Update counter on user and user-badge 
+  Parameters: (userId: string, badgeType: string)
+  Return: true
+*/
+const giveBadge = async (userId, badgeType) => {
+  try {
+    if (!badgeControl.types[badgeType]) {
+      throw 'This badge does not exist';
+    }
+    console.log(retrieveUserByUserId);
+    const user = await retrieveUserByUserId(userId);
+    if (!user) {
+      throw 'user does not exist';
+    }
+    const badge = await retrieveBadgeByUserIdAndBadgeType(userId, badgeType);
+
+    user.incrementBadgeCount();
+    badge.incrementBadgeCount();
+
+    return await Promise.all([user.save(), badge.save()]).then(() => true);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Get leaderboard 
+  Parameters: (type = "TOTAL" || "MONTHLY")
+  Return: array of top 10 users with more than 0 badges sorted in first to last in terms of monthly/total badge count
+*/
+const retrieveLeaderboard = async (type) => {
+  try {
+    const leaderboard = await User.findAll({
+      where:
+        type === 'MONTHLY'
+          ? {
+              badgeCountMonthly: {
+                [Op.gt]: 0,
+              },
+            }
+          : {
+              badgeCountTotal: {
+                [Op.gt]: 0,
+              },
+            },
+      order: [
+        [type === 'MONTHLY' ? 'badgeCountMonthly' : 'badgeCountTotal', 'DESC'],
+        ['lastBadgeReceived', 'ASC'],
+      ],
+      limit: 10,
+      attributes: {
+        exclude: [
+          'salt',
+          'password',
+          'isBlackListed',
+          'hasCovid',
+          'strikeCount',
+          'defaultAddressId',
+        ],
+      },
+      include: [{model: Badge, order: [['name', 'DESC']], separate: true}],
+    });
+    return leaderboard;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createUser,
   verifyUserLogin,
@@ -268,5 +368,8 @@ module.exports = {
   retrieveAllUsers,
   retrieveAllUsersWithCovid,
   retrieveUserByUserId,
-  retrieveUserByEmail
+  retrieveUserByEmail,
+  verifyUserAccountCreation,
+  giveBadge,
+  retrieveLeaderboard,
 };

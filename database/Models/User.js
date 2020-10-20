@@ -19,8 +19,14 @@ class User extends Model {
     return User.encryptPassword(enteredPassword, this.salt) === this.password;
   }
 
+  incrementBadgeCount() {
+    this.badgeCountMonthly += 1;
+    this.badgeCountTotal += 1;
+    this.lastBadgeReceived = new Date();
+  }
+
   static generatePassword() {
-    const buf = Buffer.alloc(10);
+    const buf = Buffer.alloc(5);
     return crypto.randomFillSync(buf).toString('hex');
   }
 }
@@ -81,6 +87,25 @@ const initUser = async (sequelize) => {
       avatarPath: {
         type: Sequelize.STRING,
       },
+      isValidated: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      isPasswordReset: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      badgeCountMonthly: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      badgeCountTotal: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      lastBadgeReceived: {
+        type: Sequelize.DATE,
+      }
     },
     {
       sequelize,

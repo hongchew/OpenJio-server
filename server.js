@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const dotenv = require('dotenv');
+const engines = require("consolidate");
+dotenv.config();
 
 //#region Database
 const getDb = require('./database');
@@ -10,6 +13,9 @@ getDb();
 //#region Express Config
 app.use('/files', express.static('files'));
 app.use(express.json());
+app.engine("ejs", engines.ejs);
+app.set("views", "./views");
+app.set("view engine", "ejs");
 
 // enable files upload
 const fileUpload = require('express-fileupload');
@@ -32,14 +38,47 @@ const adminsRouter = require('./routes/adminRoutes');
 const announcementsRouter = require('./routes/announcementsRoutes');
 const requestsRouter = require('./routes/requestsRoutes');
 const addressesRouter = require('./routes/addressesRoutes');
+const walletsRouter = require('./routes/walletRoutes');
+const transactionRouter = require('./routes/transactionRoutes');
+const paypalRouter = require('./routes/paypalRoutes');
 
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
 app.use('/announcements', announcementsRouter);
 app.use('/requests', requestsRouter);
 app.use('/addresses', addressesRouter);
+app.use('/wallets', walletsRouter);
+app.use('/transactions', transactionRouter);
+app.use('/paypal', paypalRouter);
 app.use('/files', express.static('files'));
 
+//#endregion
+
+//#region Routine Tasks
+const cron = require('node-cron');
+const {doMonthlyTasks} = require('./utils/routineTasks');
+cron.schedule('* * 1 * *', async () => {
+  try {
+    await doMonthlyTasks();
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+//#endregion
+
+//#region Manual Trigger for Routine Tasks Endpoints
+app.post('/manual-trigger-monthly', (req, res) => {
+  console.log('\n*** MANUALLY TRIGGERING MONTHLY TASKS *** ');
+  doMonthlyTasks()
+    .then(() => {
+      res.json(true);
+    })
+    .catch((e) => {
+      console.log(e)
+      res.status(500).json(false);
+    });
+});
 //#endregion
 
 //#region Testing endpoints
@@ -48,16 +87,6 @@ app.get('/', (req, res) => {
     <h1>IS4103 Information Systems Capstone Project AY2021 Semester 1</h1>
     <h2>TT01 - OpenJio Server on express.js</h2>
   `);
-});
-
-app.get('/test', (req, res) => {
-  res.json({status: 'success - the server is running'});
-});
-
-app.post('/testJson', (req, res) => {
-  console.log(req.body);
-  req.body.acknowledgement = true;
-  res.json(req.body);
 });
 
 const port = process.env.PORT || 3000;
