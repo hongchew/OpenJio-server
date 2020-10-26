@@ -1,7 +1,11 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
 const announcementStatus = require("../../enum/AnnouncementStatus")
 
-class Announcement extends Model {}
+class Announcement extends Model {
+  disableAnnouncement() {
+    this.announcementStatus = 'PAST';
+  }
+}
 
 const initAnnouncement = async (sequelize) => {
   Announcement.init(
@@ -28,7 +32,7 @@ const initAnnouncement = async (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      closeTIme: {
+      closeTime: {
         type: DataTypes.DATE,
       },
     },
