@@ -1,9 +1,10 @@
+const { get } = require('../../routes/adminRoutes');
 const {Announcement} = require('../Models/Announcement');
 
 /* ----------------------------------------
-  ATTENTION: STILL A WORK IN PROGRESS
+  ATTENTION: STILL A WORK IN PROGRESS UNTIL CLARIFICATIONS FOR startLocation AND destination
   Create an announcement tagged to a user
-  Parameters: (userId, startLocation, description, closeTime
+  Parameters: (userId, startLocation, description, closeTime)
   Return: Announcement object
 ---------------------------------------- */
 const createAnnouncement = async (
@@ -11,17 +12,20 @@ const createAnnouncement = async (
   startLocation,
   description,
   closeTime,
-  addressId
+  destination
 ) => {
   try {
     const newAnnouncement = Announcement.build({
       userId: userId,
       announcementStatus: 'ACTIVE',
       description: description,
-      closeTime: closeTime //need to figure out time conversion
-      
+      closeTime: new Date (closeTime) //since it is returned to us in a JSON format
     });
-    setTimeout(closeAnnouncement(announcementId), 3600000);
+
+    //Setting the timeout of the close time
+    const now = new Date().getTime();
+    var timeDiff = new Date(closeTime).getTime() - now;
+    setTimeout(closeAnnouncement(announcementId), timeDiff);
     await newAnnouncement.save();
 
     return newAnnouncement;
@@ -32,7 +36,22 @@ const createAnnouncement = async (
 };
 
 /* ----------------------------------------
-  Retrieve all transactions associated with a user
+  Retrieve all announcements from the database without userId filter
+  Parameters: Null
+  Return: Array of announcement objects 
+---------------------------------------- */
+const retrieveAllAnnouncements = async () => {
+  try {
+    const announcements = await Announcement.findAll();
+    return announcements;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/* ----------------------------------------
+  Retrieve all announcements associated with a user
   Parameters: userId
   Return: Array of announcement objects 
 ---------------------------------------- */
@@ -51,7 +70,7 @@ const retrieveAllAnnouncementsbyUserId = async (userId) => {
 };
 
 /* ----------------------------------------
-  Retrieve a single announcement by userId, usually used for announcement updates
+  Retrieve a single announcement by userId - may be used for internal validations
   Parameters: userId
   Return: 1 announcement object
 ---------------------------------------- */
@@ -70,7 +89,7 @@ const retrieveAnnouncementByUserId = async (userId) => {
 };
 
 /* ----------------------------------------
-  Retrieve a single announcement by announcementId, used for internal purposes
+  Retrieve a single announcement by announcementId
   Parameters: announcementId
   Return: 1 announcement object
 ---------------------------------------- */
@@ -85,9 +104,10 @@ const retrieveAnnouncementByAnnouncementId = async (announcementId) => {
 };
 
 /* ----------------------------------------
-  Update an announcement to PAST upon timeout
+  Close an announcement to PAST upon timeout
   Parameters: announcementId
   Return: Null
+  Note: No need to export this function since it's a timeout function
 ---------------------------------------- */
 const closeAnnouncement = async (announcementId) => {
   try {
@@ -99,7 +119,26 @@ const closeAnnouncement = async (announcementId) => {
     const closedAnnouncement = announcement.disableAnnouncement();
     await closedAnnouncement.save();
     console.log(`AnnouncementID ${announcementId} is closed!`)
-    return await retrieveAnnouncementByAnnouncementId(closedAnnouncement.announcementId);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/* ----------------------------------------
+  Update details of an announcement by passing in an updated announcement object
+  Parameters: announcement object
+  Return: announcement object
+---------------------------------------- */
+const updateAnnouncement = async (announcement) => {
+  try {
+    const announcementToUpdate = await retrieveAnnouncementByAnnouncementId(announcement.announcementId);
+    //Backend announcement validation
+    if (!announcementToUpdate) {
+      throw `Announcement ${announcement.announcementId} not found!`;
+    }
+    const updatedAnnouncement = await announcementToUpdate.update(announcement);
+    return await retrieveAnnouncementByAnnouncementId(updatedAnnouncement.announcementId);
   } catch (e) {
     console.log(e);
     throw e;
@@ -109,7 +148,9 @@ const closeAnnouncement = async (announcementId) => {
 
 module.exports = {
   createAnnouncement,
+  retrieveAllAnnouncements,
   retrieveAllAnnouncementsbyUserId,
   retrieveAnnouncementByUserId,
-  retrieveAnnouncementByAnnouncementId
+  retrieveAnnouncementByAnnouncementId,
+  updateAnnouncement,
 };
