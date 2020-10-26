@@ -1,8 +1,15 @@
 const express = require('express');
 const paypal = require('paypal-rest-sdk');
 const axios = require('axios');
-const {makeTopUp, makeRecurrentTransaction} = require('../database/Operations/Transaction');
-const {createMonthlyTopUp} = require('../database/Operations/RecurrentAgreement');
+const {
+  makeTopUp,
+  makeRecurrentTransaction,
+} = require('../database/Operations/Transaction');
+const {
+  createMonthlyTopUp,
+  retrieveRecurrentAgreementByRecurrentAgreementId,
+  cancelRecurrentAgreement,
+} = require('../database/Operations/RecurrentAgreement');
 
 const router = express.Router();
 const serverUrl = 'http://10.0.2.2';
@@ -34,7 +41,11 @@ router.post('/webhook-test', async (req, res) => {
     //is a recur
     //add to wallet
     console.log('recurring payment, updating db...');
-    await makeRecurrentTransaction(payment.billing_agreement_id, payment.amount.total, payment.id);
+    await makeRecurrentTransaction(
+      payment.billing_agreement_id,
+      payment.amount.total,
+      payment.id
+    );
   } else {
     console.log('one time payment, ignoring');
   }
@@ -53,7 +64,11 @@ router.post('/payment-sale-completed-webhook', async (req, res) => {
     //is a recur
     //add to wallet
     console.log('recurring payment, updating db...');
-    await makeRecurrentTopUp(payment.billing_agreement_id, payment.amount.total, payment.id);
+    await makeRecurrentTopUp(
+      payment.billing_agreement_id,
+      payment.amount.total,
+      payment.id
+    );
   } else {
     console.log('one time payment, ignoring');
   }
@@ -354,18 +369,47 @@ router.get('/monthly-top-up-success', async (req, res) => {
 });
 
 /*
-  Endpoint: DELETE /paypal/monthly-topup/:recurrentAgreementId
+  Endpoint: DELETE /paypal/recurrent-agreement/:recurrentAgreementId
   Content type: -
   Return: return updated user object
 */
-router.delete('/monthly-topup/:recurrentAgreementId', async (req, res) => {
-  try{
-    const {recurrentAgreementId} = req.params;
-    
-  }catch(e){
-    console.log(e);
-    res.status(500).json(e);
+router.delete(
+  '/recurrent-agreement/:recurrentAgreementId',
+  async (req, res) => {
+    try {
+      const {recurrentAgreementId} = req.params;
+      const agreement = await retrieveRecurrentAgreementByRecurrentAgreementId(
+        recurrentAgreementId
+      );
+      if (!agreement) {
+        res.status(404).json({message: 'agreement not found'});
+      }
+      // call paypal API to cancel subscription
+      const resp = await axios.post(
+        `https://api.sandbox.paypal.com/v1/billing/subscriptions/${agreement.paypalSubscriptionId}/cancel`,
+        {reason: 'Cancellation of Recurrent Payment'},
+        {
+          headers: {
+            'content-type': 'application/json',
+          },
+          auth: {
+            username: clientId,
+            password: clientSecret,
+          },
+        }
+      );
+
+      if (resp.status === 204) {
+        const user = await cancelRecurrentAgreement(agreement);
+        res.status(200).json(user);
+      }
+
+      res.status(resp.status).json(resp.data);
+    } catch (e) {
+      console.log(e);
+      res.status(e.status ? e.status : 500).json(e);
+    }
   }
-})
+);
 
 module.exports = router;
