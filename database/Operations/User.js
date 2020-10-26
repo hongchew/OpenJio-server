@@ -3,6 +3,8 @@ const {User} = require('../Models/User');
 const {Address} = require('../Models/Address');
 const {Wallet} = require('../Models/Wallet');
 const {Badge} = require('../Models/Badge');
+const {RecurrentAgreement} = require('../Models/RecurrentAgreement');
+
 
 const {sendEmail} = require('../../utils/mailer');
 const badgeControl = require('../../enum/BadgeControl');
@@ -70,6 +72,7 @@ const retrieveUserByUserId = async (userId) => {
       include: [
         Address,
         Wallet,
+        {model: Wallet, include:[RecurrentAgreement]},
         {model: Badge, order: [['name', 'DESC']], separate: true},
       ],
     });

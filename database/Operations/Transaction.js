@@ -232,12 +232,12 @@ const retrieveTransactionByTransactionId = async (transactionId) => {
   Parameters: (walletId: string, amount: double)
   Return: Transaction object
 */
-const createTopUpTransaction = async (walletId, amount, paypalId) => {
+const createTopUpTransaction = async (walletId, amount, paypalId, desc = null) => {
   try {
     const newTransaction = Transaction.build({
       recipientWalletId: walletId,
       amount: amount,
-      description: `Top Up of SGD${parseFloat(amount).toFixed(2)}, Paypal Transaction Id: ${paypalId}`,
+      description: desc ? desc : `Top Up of SGD${parseFloat(amount).toFixed(2)}, Paypal Transaction Id: ${paypalId}`,
       transactionType: transactionTypeEnum.TOP_UP,
     });
 
@@ -271,6 +271,16 @@ const makeTopUp = async (walletId, amount, paypalId) => {
   }
 };
 
+/*
+  Make a recurring transaction with recurring transaction webhook
+  Parameters: (subscriptionId: string, amount: double, paypalId: string,)
+  Return: Transaction object
+*/
+const makeRecurrentTransaction = async (subscriptionId, amount, paypalId)=> {
+  // stub
+  console.log([subscriptionId, amount, paypalId]);
+}
+
 module.exports = {
   createUserTransaction,
   createWithdrawDonateTransaction,
@@ -281,4 +291,5 @@ module.exports = {
   makeDonation,
   retrieveAllTransactions,
   makeTopUp,
+  makeRecurrentTransaction
 };

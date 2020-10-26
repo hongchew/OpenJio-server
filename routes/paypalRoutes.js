@@ -1,7 +1,8 @@
 const express = require('express');
 const paypal = require('paypal-rest-sdk');
 const axios = require('axios');
-const {makeTopUp} = require('../database/Operations/Transaction');
+const {makeTopUp, makeRecurrentTransaction} = require('../database/Operations/Transaction');
+const {createMonthlyTopUp} = require('../database/Operations/RecurrentAgreement');
 
 const router = express.Router();
 const serverUrl = 'http://10.0.2.2';
@@ -21,6 +22,49 @@ router.get('/', (req, res) => {
   res.render('index');
 });
 
+/*
+  Endpoint: POST /paypal/webhook-test
+  Content type: -
+  Return: print webhook calls
+*/
+router.post('/webhook-test', async (req, res) => {
+  res.status(200).send();
+  const payment = req.body.resource;
+  if (payment.billing_agreement_id) {
+    //is a recur
+    //add to wallet
+    console.log('recurring payment, updating db...');
+    await makeRecurrentTransaction(payment.billing_agreement_id, payment.amount.total, payment.id);
+  } else {
+    console.log('one time payment, ignoring');
+  }
+  console.log(payment);
+});
+
+/*
+  Endpoint: POST /paypal/webhook-test
+  Content type: -
+  Return: print webhook calls
+*/
+router.post('/payment-sale-completed-webhook', async (req, res) => {
+  res.status(200).send();
+  const payment = req.body.resource;
+  if (payment.billing_agreement_id) {
+    //is a recur
+    //add to wallet
+    console.log('recurring payment, updating db...');
+    await makeRecurrentTopUp(payment.billing_agreement_id, payment.amount.total, payment.id);
+  } else {
+    console.log('one time payment, ignoring');
+  }
+  console.log(payment);
+});
+
+/*
+  Endpoint: GET /paypal/top-up
+  Content type: -
+  Return: redirect to /topup-success
+*/
 router.get('/topup', (req, res) => {
   var {amount, walletId} = req.query;
   console.log({amount, walletId});
@@ -73,6 +117,11 @@ router.get('/topup', (req, res) => {
   });
 });
 
+/*
+  Endpoint: GET /paypal/top-up-success
+  Content type: -
+  Return: redirect to success.ejs
+*/
 router.get('/topup-success', (req, res) => {
   var PayerID = req.query.PayerID;
   var paymentId = req.query.paymentId;
@@ -114,10 +163,20 @@ router.get('/topup-success', (req, res) => {
   });
 });
 
+/*
+  Endpoint: GET /paypal/cancel
+  Content type: -
+  Return: redirect to cancel.ejs
+*/
 router.get('/cancel', (req, res) => {
   res.render('cancel');
 });
 
+/*
+  Endpoint: GET /paypal/monthly-top-up
+  Content type: -
+  Return: redirect to /monthly-top-up-success
+*/
 router.get('/monthly-topup', async (req, res) => {
   try {
     var {amount, walletId} = req.query;
@@ -143,7 +202,7 @@ router.get('/monthly-topup', async (req, res) => {
         plan.name === 'OpenJio Recurrent Top Up' &&
         plan.description === `SGD${amountNumber}`
     )[0];
-    console.log('\nTopup billing plan found:')
+    console.log('\nTopup billing plan found:');
     console.log(billingPlan);
     if (!billingPlan) {
       // Create new plan
@@ -252,11 +311,61 @@ router.get('/monthly-topup', async (req, res) => {
   }
 });
 
-router.get('/monthly-top-up-success', (req, res) => {
-  console.log('\nTopup subscription approved!');
-  console.log(req.query);
-  // Fill the database here
-  res.render('success');
+/*
+  Endpoint: GET /paypal/monthly-top-up-success
+  Content type: -
+  Return: redirect to success.ejs
+*/
+router.get('/monthly-top-up-success', async (req, res) => {
+  try {
+    console.log('\nTopup subscription approved!');
+    console.log(req.query);
+    // Fill the database here
+    var {amount, walletId, subscription_id} = req.query;
+    const subscriptionResponse = await axios.get(
+      `https://api.sandbox.paypal.com/v1/billing/subscriptions/${subscription_id}`,
+      {
+        headers: {
+          'content-type': 'application/json',
+        },
+        auth: {
+          username: clientId,
+          password: clientSecret,
+        },
+      }
+    );
+    const subscription = subscriptionResponse.data;
+    console.log('subscription response:');
+    console.log(subscription);
+    amount = (amount / 100).toFixed(2);
+
+    await createMonthlyTopUp(
+      walletId,
+      subscription.id,
+      subscription.plan_id,
+      amount
+    );
+
+    res.render('success');
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
 });
+
+/*
+  Endpoint: DELETE /paypal/monthly-topup/:recurrentAgreementId
+  Content type: -
+  Return: return updated user object
+*/
+router.delete('/monthly-topup/:recurrentAgreementId', async (req, res) => {
+  try{
+    const {recurrentAgreementId} = req.params;
+    
+  }catch(e){
+    console.log(e);
+    res.status(500).json(e);
+  }
+})
 
 module.exports = router;
