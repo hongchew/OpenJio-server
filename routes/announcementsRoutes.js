@@ -1,5 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const {
+    createAnnouncement,
+    retrieveAllAnnouncements,
+    retrieveAnnouncementByUserId,
+    retrieveAllAnnouncementsByUserId,
+    retrieveAnnouncementByAnnouncementId,
+    updateAnnouncement
+  } = require('../database/Operations/Announcement');
 
 /* http://localhost:3000/announcements/ . */
 router.get('/', (req, res) => {
