@@ -17,7 +17,6 @@ const createRequest = async (userId, requestId, title, description, amount) => {
       amount: amount,
       requestStatus: REQUEST_STATUS.PENDING, //Start of a request
     });
-
     return newRequest;
   } catch (e) {
     console.log(e);
@@ -33,23 +32,6 @@ const createRequest = async (userId, requestId, title, description, amount) => {
 const retrieveAllRequests = async () => {
   try {
     const requests = await Request.findAll();
-    return requests;
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
-};
-
-/*
-  Retrieve all requests associated with given userId
-  Parameters: (userId: string)
-  Return: Array of Model.Request
-*/
-const retrieveAllRequestsByUserId = async (userId) => {
-  try {
-    const requests = await Request.findAll({
-      where: {userId: userId},
-    });
     return requests;
   } catch (e) {
     console.log(e);
@@ -75,6 +57,23 @@ const retrieveRequestById = async (requestId) => {
   }
 };
 
+/*
+  Retrieve all requests associated with given userId
+  Parameters: (userId: string)
+  Return: Array of Model.Request
+*/
+const retrieveAllRequestsByUserId = async (userId) => {
+  try {
+    const requests = await Request.findAll({
+      where: {userId: userId},
+    });
+    return requests;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 /* ----------------------------------------
   Delete Request
   Parameters: (requestId: UUID)
@@ -90,7 +89,7 @@ const deleteRequest = async (requestId) => {
 
     const deletedRequest = await admin.destroy();
 
-    if (adminDeleted) {
+    if (deletedRequest) {
       console.log('Request deleted!');
       return null;
     }
@@ -123,6 +122,91 @@ const updateRequest = async (request) => {
   }
 };
 
+/*
+REQUESTER verify request
+Parameters: requestId
+Return: Request Object
+*/
+const verifyRequest = async (requestId) => {
+  try {
+    const request = await retrieveRequestById(requestId);
+    request.verifyRequest();
+    await request.save();
+    return request;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+ANNOUNCER reject request
+Parameters: requestId
+Return: Request Object
+*/
+const rejectRequest = async (requestId) => {
+  try {
+    const request = await retrieveRequestById(requestId);
+    request.rejectRequest();
+    await request.save();
+    return request;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+ANNOUNCER schedule request
+Parameters: requestId
+Return: Request Object
+*/
+const scheduleRequest = async (requestId) => {
+  try {
+    const request = await retrieveRequestById(requestId);
+    request.scheduleRequest();
+    await request.save();
+    return request;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+ANNOUNCER doing request
+Parameters: requestId
+Return: Request Object
+*/
+const doingRequest = async (requestId) => {
+  try {
+    const request = await retrieveRequestById(requestId);
+    request.doingRequest();
+    await request.save();
+    return request;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+ANNOUNCER complete request
+Parameters: requestId
+Return: Request Object
+*/
+const completeRequest = async (requestId) => {
+  try {
+    const request = await retrieveRequestById(requestId);
+    request.completeRequest();
+    await request.save();
+    return request;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createRequest,
   retrieveAllRequests,
@@ -130,4 +214,9 @@ module.exports = {
   retrieveRequestById,
   deleteRequest,
   updateRequest,
+  verifyRequest,
+  rejectRequest,
+  scheduleRequest,
+  doingRequest,
+  completeRequest,
 };
