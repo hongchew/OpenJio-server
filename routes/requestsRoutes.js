@@ -2,6 +2,7 @@ const express = require('express');
 const {
   retrieveAllRequests,
   retrieveRequestById,
+  updateRequest,
 } = require('../database/Operations/Request');
 const router = express.Router();
 
@@ -42,36 +43,24 @@ router.get('/retrieve', async (req, res) => {
   }
 });
 
-/* ----------------------------------------
-    Retrieve details of a single announcement by announcementId
-    Endpoint: GET /announcements/by/:userId
-    Parameters: userId
-    Return: JSON array of announcements
-  ---------------------------------------- */
-router.get('/by/:announcementId', async (req, res) => {
+/*
+  Endpoint: PUT /requests/update-request
+  Content type: JSON Model.Request {
+    requestId: string,
+    title, string,
+    description: string,
+    amount: double,
+    //request status should not be updated with this method
+    //expose this method only to requester
+  } * only requestId is compulsory, every other field can be on a need-to-update basis.
+  Return: Model.Request object with updated properties
+*/
+router.put('/update-request', async (req, res) => {
   try {
-    const announcement = await retrieveAnnouncementByAnnouncementId(
-      req.params.announcementId
-    );
-    res.status(200).json(announcement);
+    const updatedRequest = await updateRequest(req.body);
+    res.status(200).json(updatedRequest);
   } catch (e) {
-    console.log(e);
-    res.status(500).json(e);
-  }
-});
-
-/* ----------------------------------------
-    Update details of an announcement by passing in an updated announcement object
-    Endpoint: PUT /announcements/update-announcement
-    Body: Announcement object to update the database
-    Return: Announcement object with updated properties
-  ---------------------------------------- */
-router.put('/update-announcement', async (req, res) => {
-  try {
-    const updatedAnnouncement = await updateAnnouncement(req.body.announcement);
-    res.status(200).json(updatedAnnouncement);
-  } catch (e) {
-    console.log(e);
+    //generic server error
     res.status(500).json(e);
   }
 });
