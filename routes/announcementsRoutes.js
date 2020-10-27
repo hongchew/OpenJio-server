@@ -36,7 +36,7 @@ router.get('/all-announcements/:userId', async (req, res) => {
   Retrieve details of a single announcement by announcementId
   Endpoint: GET /announcements/by/:userId
   Parameters: userId
-  Return: JSON array of announcements
+  Return: JSON of announcement
 ---------------------------------------- */
 router.get('/by/:announcementId', async (req, res) => {
   try {

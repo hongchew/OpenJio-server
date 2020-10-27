@@ -19,6 +19,7 @@ router.get('/', (req, res) => {
   Endpoint: POST /temperatures/create-log
   Body: JSON {temperature: 'double', userId: 'string}
   Return: Model.TemperatureLog object
+  Status: Passed postman test
 ---------------------------------------- */
 router.post('/create-log', async (req, res) => {
   try {
@@ -41,6 +42,7 @@ router.post('/create-log', async (req, res) => {
   Endpoint: GET /temperatures/by/:userId
   Parameters: userId
   Return: JSON array of temperature logs
+  Status: Passed postman test
 ---------------------------------------- */
 router.get('/all-temperature-log/:userId', async (req, res) => {
   try {
@@ -59,8 +61,9 @@ router.get('/all-temperature-log/:userId', async (req, res) => {
   Endpoint: GET /temperatures/by/:temperatureLogId
   Parameters: temperatureLogId
   Return: JSON of temperature log
+  Status: Passed postman test
 ---------------------------------------- */
-router.get('/by/:temperatureId', async (req, res) => {
+router.get('/by/:temperatureLogId', async (req, res) => {
   try {
     const temperatureLog = await retrieveTemperatureLogByTemperatureLogId(
       req.params.temperatureLogId
@@ -72,3 +75,4 @@ router.get('/by/:temperatureId', async (req, res) => {
   }
 });
 
+module.exports = router;
