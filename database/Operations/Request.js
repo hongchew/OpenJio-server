@@ -99,10 +99,35 @@ const deleteRequest = async (requestId) => {
   }
 };
 
+/*
+  Update Request Details
+  Parameters: (Request: object {
+    requestId, string,
+    title: string,
+    description: string,
+    amount: double
+  })
+  Return: Request object
+*/
+const updateRequest = async (request) => {
+  try {
+    const requestToUpdate = await retrieveRequestById(request.requestId);
+    if (!requestToUpdate) {
+      throw 'User not found';
+    }
+    const updatedRequest = await requestToUpdate.update(request);
+    return await retrieveRequestById(updatedRequest.requestId);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createRequest,
   retrieveAllRequests,
   retrieveAllRequestsByUserId,
   retrieveRequestById,
   deleteRequest,
+  updateRequest,
 };
