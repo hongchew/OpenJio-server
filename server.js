@@ -41,6 +41,7 @@ const addressesRouter = require('./routes/addressesRoutes');
 const walletsRouter = require('./routes/walletRoutes');
 const transactionRouter = require('./routes/transactionRoutes');
 const paypalRouter = require('./routes/paypalRoutes');
+const temperatureRouter = require('./routes/temperatureRoutes');
 
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
@@ -50,6 +51,7 @@ app.use('/addresses', addressesRouter);
 app.use('/wallets', walletsRouter);
 app.use('/transactions', transactionRouter);
 app.use('/paypal', paypalRouter);
+app.use('/temperatures', temperatureRouter);
 app.use('/files', express.static('files'));
 
 //#endregion

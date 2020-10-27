@@ -1,4 +1,4 @@
-const { get } = require('../../routes/adminRoutes');
+const ANNOUNCEMENT_STATUS = require('../../enum/AnnouncementStatus');
 const {Announcement} = require('../Models/Announcement');
 
 /* ----------------------------------------
@@ -6,10 +6,11 @@ const {Announcement} = require('../Models/Announcement');
   Create an announcement tagged to a user
   Parameters: (userId, startLocation, description, closeTime)
   Return: Announcement object
+  Note: startLocation stores the addressId being used
 ---------------------------------------- */
 const createAnnouncement = async (
   userId,
-  startLocation,
+  addressId,
   description,
   closeTime,
   destination
@@ -17,18 +18,42 @@ const createAnnouncement = async (
   try {
     const newAnnouncement = Announcement.build({
       userId: userId,
-      announcementStatus: 'ACTIVE',
+      announcementStatus: ANNOUNCEMENT_STATUS.ACTIVE,
       description: description,
+      startLocation: addressId,
+      destination: destination,
       closeTime: new Date (closeTime) //since it is returned to us in a JSON format
     });
 
     //Setting the timeout of the close time
     const now = new Date().getTime();
     var timeDiff = new Date(closeTime).getTime() - now;
-    setTimeout(closeAnnouncement(announcementId), timeDiff);
+    setTimeout(closeAnnouncement(newAnnouncement.announcementId), timeDiff);
     await newAnnouncement.save();
 
     return newAnnouncement;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/* ----------------------------------------
+  Close an announcement to PAST upon timeout
+  Parameters: announcementId
+  Return: Null
+  Note: No need to export this function since it's a timeout function
+---------------------------------------- */
+const closeAnnouncement = async (announcementId) => {
+  try {
+    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    //Backend announcement validation
+    if (!announcement) {
+      throw `Announcement ${announcementId} not found!`;
+    }
+    const closedAnnouncement = announcement.disableAnnouncement();
+    await closedAnnouncement.save();
+    console.log(`AnnouncementID ${announcementId} is closed!`)
   } catch (e) {
     console.log(e);
     throw e;
@@ -55,7 +80,7 @@ const retrieveAllAnnouncements = async () => {
   Parameters: userId
   Return: Array of announcement objects 
 ---------------------------------------- */
-const retrieveAllAnnouncementsbyUserId = async (userId) => {
+const retrieveAllAnnouncementsByUserId = async (userId) => {
   try {
     const announcements = await Announcement.findAll({
       where: {
@@ -104,28 +129,6 @@ const retrieveAnnouncementByAnnouncementId = async (announcementId) => {
 };
 
 /* ----------------------------------------
-  Close an announcement to PAST upon timeout
-  Parameters: announcementId
-  Return: Null
-  Note: No need to export this function since it's a timeout function
----------------------------------------- */
-const closeAnnouncement = async (announcementId) => {
-  try {
-    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
-    //Backend announcement validation
-    if (!announcement) {
-      throw `Announcement ${announcementId} not found!`;
-    }
-    const closedAnnouncement = announcement.disableAnnouncement();
-    await closedAnnouncement.save();
-    console.log(`AnnouncementID ${announcementId} is closed!`)
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
-};
-
-/* ----------------------------------------
   Update details of an announcement by passing in an updated announcement object
   Parameters: announcement object
   Return: announcement object
@@ -149,7 +152,7 @@ const updateAnnouncement = async (announcement) => {
 module.exports = {
   createAnnouncement,
   retrieveAllAnnouncements,
-  retrieveAllAnnouncementsbyUserId,
+  retrieveAllAnnouncementsByUserId,
   retrieveAnnouncementByUserId,
   retrieveAnnouncementByAnnouncementId,
   updateAnnouncement,

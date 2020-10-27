@@ -1,4 +1,4 @@
-const {Request} = require('../Models/Requst');
+const {Request} = require('../Models/Request');
 const REQUEST_STATUS = require('../../enum/RequestStatus');
 const {Sequelize} = require('sequelize');
 
