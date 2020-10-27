@@ -2,11 +2,10 @@ const ANNOUNCEMENT_STATUS = require('../../enum/AnnouncementStatus');
 const {Announcement} = require('../Models/Announcement');
 
 /* ----------------------------------------
-  ATTENTION: STILL A WORK IN PROGRESS UNTIL CLARIFICATIONS FOR startLocation AND destination
   Create an announcement tagged to a user
-  Parameters: (userId, startLocation, description, closeTime)
+  Parameters: (userId:'string' , addressId:'string' , description:'string', closeTime:'string of date in ISO8601 format' , destination:'string')
   Return: Announcement object
-  Note: startLocation stores the addressId being used
+  Note: startLocation stores the addressId being used, closeTime contains the string of date in ISO8601 format
 ---------------------------------------- */
 const createAnnouncement = async (
   userId,
@@ -25,11 +24,17 @@ const createAnnouncement = async (
       closeTime: new Date (closeTime) //since it is returned to us in a JSON format
     });
 
+    if (!newAnnouncement) {
+      throw `Announcement creation failed!`;
+    }
+    await newAnnouncement.save();
+
     //Setting the timeout of the close time
     const now = new Date().getTime();
     var timeDiff = new Date(closeTime).getTime() - now;
-    setTimeout(closeAnnouncement(newAnnouncement.announcementId), timeDiff);
-    await newAnnouncement.save();
+    setTimeout(function () {
+      closeAnnouncement(newAnnouncement.announcementId);
+    }, timeDiff)
 
     return newAnnouncement;
   } catch (e) {
@@ -51,9 +56,8 @@ const closeAnnouncement = async (announcementId) => {
     if (!announcement) {
       throw `Announcement ${announcementId} not found!`;
     }
-    const closedAnnouncement = announcement.disableAnnouncement();
-    await closedAnnouncement.save();
-    console.log(`AnnouncementID ${announcementId} is closed!`)
+    announcement.disableAnnouncement();
+    await announcement.save()
   } catch (e) {
     console.log(e);
     throw e;
@@ -148,6 +152,26 @@ const updateAnnouncement = async (announcement) => {
   }
 };
 
+/* ----------------------------------------
+  Delete an announcement
+  Parameters: announcementId
+  Return: Null
+---------------------------------------- */
+const deleteAnnouncementByAnnouncementId = async (announcementId) => {
+  try {
+    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    if (!announcement) {
+      throw `Announcement ${announcementId} is not found`;
+    }
+    await announcement.destroy();
+
+    return `Announcement ${announcementId} successfully deleted`;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 
 module.exports = {
   createAnnouncement,
@@ -156,4 +180,5 @@ module.exports = {
   retrieveAnnouncementByUserId,
   retrieveAnnouncementByAnnouncementId,
   updateAnnouncement,
+  deleteAnnouncementByAnnouncementId
 };

@@ -11,7 +11,7 @@ const router = express.Router();
 
 /* http://localhost:3000/temperatures/ . */
 router.get('/', (req, res) => {
-  res.send('Transaction API endpoint ');
+  res.send('Temperature API endpoint ');
 });
 
 /* ----------------------------------------
@@ -25,7 +25,8 @@ router.post('/create-log', async (req, res) => {
   try {
     const newTemperatureLog = await createTemperatureLog (
       req.body.userId,
-      req.body.temperature
+      req.body.temperature,
+      req.body.hasCovid
     )
 
     if (!newTemperatureLog) {

@@ -8,10 +8,12 @@ const {TemperatureLog} = require('../Models/TemperatureLog');
 ---------------------------------------- */
 const createTemperatureLog = async (
   userId,
-  temperature
+  temperature,
+  hasCovid
 ) => {
   try {
-    const risk = (temperature > 37.5) ? TEMPERATURE_RISK_LEVEL.HIGH_RISK : TEMPERATURE_RISK_LEVEL.LOW_RISK;
+    //To check for high risk
+    const risk = (hasCovid || temperature > 37.5) ? TEMPERATURE_RISK_LEVEL.HIGH_RISK : TEMPERATURE_RISK_LEVEL.LOW_RISK;
 
     const newTempLog = TemperatureLog.build({
       temperature: temperature,
