@@ -3,7 +3,7 @@ const announcementStatus = require("../../enum/AnnouncementStatus")
 
 class Announcement extends Model {
   disableAnnouncement() {
-    this.announcementStatus = 'PAST';
+    this.announcementStatus = announcementStatus.PAST;
   }
 }
 
