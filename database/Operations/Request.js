@@ -99,7 +99,7 @@ const deleteRequest = async (requestId) => {
       throw 'Request with ' + requestId + ' does not exist';
     }
 
-    const deletedRequest = await admin.destroy();
+    const deletedRequest = await request.destroy();
 
     if (deletedRequest) {
       console.log('Request deleted!');

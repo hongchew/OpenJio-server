@@ -22,6 +22,7 @@ router.get('/', (req, res) => {
   Endpoint: GET /requests/retrieve-all
   Content type:
   Return: Models.Request objects 
+  Tested and working
 -------------------------------- */
 router.get('/retrieve-all', async (req, res) => {
   try {
@@ -38,6 +39,7 @@ router.get('/retrieve-all', async (req, res) => {
     Endpoint: GET /requests/retrieve
     Content type: JSON { requestId: 'UUID'}
     Return: Array of Models.Request objects 
+    Tested and working
   -------------------------------- */
 router.get('/retrieve', async (req, res) => {
   try {
@@ -61,28 +63,7 @@ router.get('/retrieve', async (req, res) => {
     //expose this method only to requester
   } * only requestId is compulsory, every other field can be on a need-to-update basis.
   Return: Model.Request object with updated properties
-*/
-router.put('/update-request', async (req, res) => {
-  try {
-    const updatedRequest = await updateRequest(req.body);
-    res.status(200).json(updatedRequest);
-  } catch (e) {
-    //generic server error
-    res.status(500).json(e);
-  }
-});
-
-/*
-  Endpoint: PUT /requests/update-request
-  Content type: JSON Model.Request {
-    requestId: string,
-    title, string,
-    description: string,
-    amount: double,
-    //request status should not be updated with this method
-    //expose this method only to requester
-  } * only requestId is compulsory, every other field can be on a need-to-update basis.
-  Return: Model.Request object with updated properties
+  Tested and working
 */
 router.put('/update-request', async (req, res) => {
   try {
@@ -100,6 +81,7 @@ router.put('/update-request', async (req, res) => {
     requestId: string, 
   }
   Return: JSON status
+  Tested and working
 */
 router.put('/delete-request', async (req, res) => {
   try {
@@ -120,6 +102,7 @@ router.put('/delete-request', async (req, res) => {
     requestId: string, 
   }
   Return: JSON Request Object with updated status
+  Tested and working
 */
 router.put('/verify-request', async (req, res) => {
   try {
@@ -137,6 +120,7 @@ router.put('/verify-request', async (req, res) => {
     requestId: string, 
   }
   Return: JSON Request Object with updated status
+  Tested and working
 */
 router.put('/reject-request', async (req, res) => {
   try {
@@ -154,6 +138,7 @@ router.put('/reject-request', async (req, res) => {
     requestId: string, 
   }
   Return: JSON Request Object with updated status
+  Tested and working
 */
 router.put('/schedule-request', async (req, res) => {
   try {
@@ -171,6 +156,7 @@ router.put('/schedule-request', async (req, res) => {
     requestId: string, 
   }
   Return: JSON Request Object with updated status
+  Tested and working
 */
 router.put('/doing-request', async (req, res) => {
   try {
@@ -188,6 +174,7 @@ router.put('/doing-request', async (req, res) => {
     requestId: string, 
   }
   Return: JSON Request Object with updated status
+  Tested and working
 */
 router.put('/complete-request', async (req, res) => {
   try {
@@ -204,6 +191,7 @@ router.put('/complete-request', async (req, res) => {
   Endpoint: POST /requests/create-request
   Body: JSON {userId: 'string', announcementId: 'string', description: 'string', title: 'string', amount: double}
   Return: Model.Request object
+  Tested and working
 ---------------------------------------- */
 router.post('/create-request', async (req, res) => {
   try {
