@@ -13,7 +13,8 @@ const createMonthlyTopUp = async (
   walletId,
   paypalSubscriptionId,
   paypalPlanId,
-  amount
+  amount,
+  nextPaymentDate
 ) => {
   try {
     const newMonthly = RecurrentAgreement.build({
@@ -22,6 +23,7 @@ const createMonthlyTopUp = async (
       paypalSubscriptionId,
       walletId,
       recurrentAgreementType: recurrentType.TOP_UP,
+      nextPaymentDate
     });
     await newMonthly.save();
   } catch (e) {
@@ -41,6 +43,28 @@ const retrieveRecurrentAgreementByRecurrentAgreementId = async (
     const agreement = await RecurrentAgreement.findOne({
       where: {
         recurrentAgreementId: recurrentAgreementId,
+      },
+    });
+
+    return agreement;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Retrieve recurrent agreement from database with paypalSubscriptionId
+  Parameters: (paypalSubscriptionId: string)
+  Return: RecurrentAgreement object (null if not found)
+*/
+const retrieveRecurrentAgreementByPaypalSubscriptionId = async (
+  paypalSubscriptionId
+) => {
+  try {
+    const agreement = await RecurrentAgreement.findOne({
+      where: {
+        paypalSubscriptionId,
       },
     });
 
@@ -72,8 +96,31 @@ const cancelRecurrentAgreement = async (agreement) => {
   }
 };
 
+/*
+  Update RecurrentAgreement in database
+  Parameters: (recurrentAgreementId: string, options: {fieldsToUpdate: 'newValue'})
+  Return: -
+*/
+const updateRecurrentAgreement = async (
+  recurrentAgreementId,
+  options
+) => {
+  try {
+    const agreementToUpdate = await retrieveRecurrentAgreementByRecurrentAgreementId(recurrentAgreementId);
+    if(!agreementToUpdate){
+      throw 'agreement not found'
+    }
+    return await agreementToUpdate.update(options);
+  } catch (e) {
+    throw e;
+  }
+};
+
+
 module.exports = {
   createMonthlyTopUp,
   retrieveRecurrentAgreementByRecurrentAgreementId,
-  cancelRecurrentAgreement
+  cancelRecurrentAgreement,
+  updateRecurrentAgreement,
+  retrieveRecurrentAgreementByPaypalSubscriptionId
 };

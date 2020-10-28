@@ -27,6 +27,10 @@ const initRecurrentAgreement = async (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      nextPaymentDate: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      }
     },
     {
       sequelize,
