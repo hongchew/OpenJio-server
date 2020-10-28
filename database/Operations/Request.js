@@ -23,6 +23,12 @@ const createRequest = async (
       amount: amount,
       requestStatus: REQUEST_STATUS.PENDING, //Start of a request
     });
+
+    if (!newRequest) {
+      throw `Request creation failed!`;
+    }
+    await newRequest.save();
+
     return newRequest;
   } catch (e) {
     console.log(e);
