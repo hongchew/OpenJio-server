@@ -65,4 +65,26 @@ router.put('/update-request', async (req, res) => {
   }
 });
 
+/*
+  Endpoint: PUT /requests/update-request
+  Content type: JSON Model.Request {
+    requestId: string,
+    title, string,
+    description: string,
+    amount: double,
+    //request status should not be updated with this method
+    //expose this method only to requester
+  } * only requestId is compulsory, every other field can be on a need-to-update basis.
+  Return: Model.Request object with updated properties
+*/
+router.put('/update-request', async (req, res) => {
+  try {
+    const updatedRequest = await updateRequest(req.body);
+    res.status(200).json(updatedRequest);
+  } catch (e) {
+    //generic server error
+    res.status(500).json(e);
+  }
+});
+
 module.exports = router;

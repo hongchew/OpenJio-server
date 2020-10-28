@@ -1,8 +1,27 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
-const requestStatus = require("../../enum/RequestStatus");
-const RequestStatus = require("../../enum/RequestStatus");
+const {Sequelize, Model, DataTypes} = require('sequelize');
+const RequestStatus = require('../../enum/RequestStatus');
 
-class Request extends Model {}
+class Request extends Model {
+  scheduleRequest() {
+    this.requestStatus = RequestStatus.SCHEDULED;
+  }
+
+  rejectRequest() {
+    this.requestStatus = RequestStatus.REJECTED;
+  }
+
+  doingRequest() {
+    this.requestStatus = RequestStatus.DOING;
+  }
+
+  completeRequest() {
+    this.requestStatus = RequestStatus.COMPLETED;
+  }
+
+  verifyRequest() {
+    this.requestStatus = RequestStatus.VERIFED;
+  }
+}
 
 const initRequest = async (sequelize) => {
   Request.init(
@@ -28,15 +47,15 @@ const initRequest = async (sequelize) => {
       requestStatus: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: RequestStatus.PENDING
+        defaultValue: RequestStatus.PENDING,
       },
     },
     {
       sequelize,
-      modelName: "Request",
+      modelName: 'Request',
     }
   );
   console.log(`****[database] Request initialized`);
 };
 
-module.exports = { Request, initRequest };
+module.exports = {Request, initRequest};
