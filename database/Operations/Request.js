@@ -5,13 +5,19 @@ const {Sequelize} = require('sequelize');
 /*
 Create a request tagged to an announcement
 Parameter: userid, requestId, title, description, amount
-Return: Model.Request
+Return: Model.Request object
 */
-const createRequest = async (userId, requestId, title, description, amount) => {
+const createRequest = async (
+  announcementId,
+  userId,
+  title,
+  description,
+  amount
+) => {
   try {
     const newRequest = Request.build({
+      announcementId: announcementId,
       userId: userId,
-      requestId: requestId,
       title: title,
       description: description,
       amount: amount,
