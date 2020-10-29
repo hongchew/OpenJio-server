@@ -57,14 +57,14 @@ router.get('/retrieve', async (req, res) => {
 
 /* --------------------------------
     Get Request by UserId
-    Endpoint: GET /requests/retrieve-by-user
-    Content type: JSON { userId: 'UUID'}
+    Endpoint: GET /requests/by-userId/:userId
+    Parameters: userId
     Return: Array of Models.Request objects 
     Tested and working
   -------------------------------- */
-router.get('/retrieve-by-user', async (req, res) => {
+router.get('/by-userId/:userId', async (req, res) => {
   try {
-    const request = await retrieveAllRequestsByUserId(req.body.userId);
+    const request = await retrieveAllRequestsByUserId(req.params.userId);
     res.status(200).json(request);
   } catch (e) {
     res.status(500).json({
@@ -76,15 +76,15 @@ router.get('/retrieve-by-user', async (req, res) => {
 
 /* --------------------------------
     Get Request by AnnouncementId
-    Endpoint: GET /requests/retrieve-by-announcement
-    Content type: JSON { announcementId: 'UUID'}
+    Endpoint: GET /requests/by-announcementId/:announcementId
+    Parameters: annoucementId
     Return: Array of Models.Request objects 
     Tested and working
   -------------------------------- */
-router.get('/retrieve-by-announcement', async (req, res) => {
+router.get('/by-announcementId/:announcementId', async (req, res) => {
   try {
     const request = await retrieveAllRequestsByAnnouncementId(
-      req.body.announcementId
+      req.params.announcementId
     );
     res.status(200).json(request);
   } catch (e) {
