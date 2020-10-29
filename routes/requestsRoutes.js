@@ -110,26 +110,12 @@ router.get('/past/:userId', async (req, res) => {
     res.status(200).json(pastRequests);
   } catch (e) {
     console.log(e);
-    res.status(500).json(e);
+    res.status(500).json({
+      message:
+        'Error retrieving request from user with userid' + req.params.userId,
+    });
   }
 });
-
-// Better to use params instead of body for single param
-// /* --------------------------------
-//     Endpoint: GET /requests/retrieve
-//     Content type: JSON { requestId: 'UUID'}
-//     Return: Array of Models.Request objects 
-//   -------------------------------- */
-//   router.get('/retrieve', async (req, res) => {
-//     try {
-//       const request = await retrieveRequestById(req.body.requestId);
-//       res.status(200).json(request);
-//     } catch (e) {
-//       res.status(500).json({
-//         message: 'Error retrieving request ' + req.body.requestId,
-//       });
-//     }
-//   });
 
 /*
   Endpoint: PUT /requests/update-request
@@ -190,7 +176,10 @@ router.post('/create-request', async (req, res) => {
 router.delete('/delete/:requestId', async (req, res) => {
   try {
     const request = await deleteRequestByRequestId(req.params.requestId);
-    res.status(200).json(request);
+    res.status(200).send({
+      status: true,
+      message: 'Request deleted',
+    });
   } catch (e) {
     res.status(500).json(e);
   }
@@ -277,6 +266,104 @@ router.put('/complete-request/:requestId', async (req, res) => {
     res.status(200).json(completedRequest);
   } catch (e) {
     //generic server error
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: PUT /requests/reject-request
+  Content type: JSON {
+    requestId: string, 
+  }
+  Return: JSON Request Object with updated status
+  Tested and working
+*/
+router.put('/reject-request', async (req, res) => {
+  try {
+    const rejectedRequest = await rejectRequest(req.body.requestId);
+    res.status(200).json(rejectedRequest);
+  } catch (e) {
+    //generic server error
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: PUT /requests/schedule-request
+  Content type: JSON {
+    requestId: string, 
+  }
+  Return: JSON Request Object with updated status
+  Tested and working
+*/
+router.put('/schedule-request', async (req, res) => {
+  try {
+    const scheduledRequest = await scheduleRequest(req.body.requestId);
+    res.status(200).json(scheduledRequest);
+  } catch (e) {
+    //generic server error
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: PUT /requests/doing-request
+  Content type: JSON {
+    requestId: string, 
+  }
+  Return: JSON Request Object with updated status
+  Tested and working
+*/
+router.put('/doing-request', async (req, res) => {
+  try {
+    const requestDoing = await doingRequest(req.body.requestId);
+    res.status(200).json(requestDoing);
+  } catch (e) {
+    //generic server error
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: PUT /requests/complete-request
+  Content type: JSON {
+    requestId: string, 
+  }
+  Return: JSON Request Object with updated status
+  Tested and working
+*/
+router.put('/complete-request', async (req, res) => {
+  try {
+    const completedRequest = await completeRequest(req.body.requestId);
+    res.status(200).json(completedRequest);
+  } catch (e) {
+    //generic server error
+    res.status(500).json(e);
+  }
+});
+
+/* ----------------------------------------
+  Create a new request
+  Endpoint: POST /requests/create-request
+  Body: JSON {userId: 'string', announcementId: 'string', description: 'string', title: 'string', amount: double}
+  Return: Model.Request object
+  Tested and working
+---------------------------------------- */
+router.post('/create-request', async (req, res) => {
+  try {
+    const newRequest = await createRequest(
+      req.body.announcementId,
+      req.body.userId,
+      req.body.title,
+      req.body.description,
+      req.body.amount
+    );
+
+    if (!newRequest) {
+      throw 'New Request creation failed!';
+    }
+    res.status(200).json(newRequest);
+  } catch (e) {
     res.status(500).json(e);
   }
 });

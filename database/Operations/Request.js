@@ -56,7 +56,6 @@ const createRequest = async (
 
     // Associating request to announcement
     newRequest.announcementId = announcementId;
-    //newRequest.announcementId = announcementId;
 
     // Associating requester to user (requester)
     newRequest.userId = userId;

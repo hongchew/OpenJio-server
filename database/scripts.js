@@ -12,6 +12,8 @@ const {
   makeTopUp,
 } = require('./Operations/Transaction');
 const TransactionType = require('../enum/TransactionType');
+const {createAnnouncement} = require('./Operations/Announcement');
+const {createRequest} = require('./Operations/Request');
 
 const onInitPopulateDatabase = async () => {
   // Populate admin
@@ -123,6 +125,26 @@ const onInitPopulateDatabase = async () => {
       user2.save();
       console.log('User created with the name: ' + user2.name);
     }
+
+    //create announcement1 to user1
+    const announcement1 = await createAnnouncement(
+      user1.userId,
+      assignAddressToUser[0].addressId,
+      'description1',
+      '2020-10-10T10:10:10',
+      'Yio Chu Kang'
+    );
+    console.log(announcement1);
+
+    // user2 send request1 to announcement1 created by user1
+    const request1 = await createRequest(
+      announcement1.announcementId,
+      user2.userId,
+      'Requst1',
+      'Buy Cai Fan please',
+      10.0
+    );
+    console.log(request1);
 
     // Third user (tom) with COVID-19
     user3 = await createUser('tom@email.com', 'password', 'Tom');
