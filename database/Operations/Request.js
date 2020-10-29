@@ -1,22 +1,34 @@
 const {Request} = require('../Models/Request');
 const REQUEST_STATUS = require('../../enum/RequestStatus');
 const {Sequelize} = require('sequelize');
+const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
 
 /*
 Create a request tagged to an announcement
 Parameter: userid, requestId, title, description, amount
-Return: Model.Request
+Return: Model.Request object
 */
-const createRequest = async (userId, requestId, title, description, amount) => {
+const createRequest = async (
+  announcementId,
+  userId,
+  title,
+  description,
+  amount
+) => {
   try {
     const newRequest = Request.build({
+      announcementId: announcementId,
       userId: userId,
-      requestId: requestId,
       title: title,
       description: description,
       amount: amount,
       requestStatus: REQUEST_STATUS.PENDING, //Start of a request
     });
+
+    if (!newRequest) {
+      throw `Request creation failed!`;
+    }
+    await newRequest.save();
 
     return newRequest;
   } catch (e) {
@@ -33,23 +45,6 @@ const createRequest = async (userId, requestId, title, description, amount) => {
 const retrieveAllRequests = async () => {
   try {
     const requests = await Request.findAll();
-    return requests;
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
-};
-
-/*
-  Retrieve all requests associated with given userId
-  Parameters: (userId: string)
-  Return: Array of Model.Request
-*/
-const retrieveAllRequestsByUserId = async (userId) => {
-  try {
-    const requests = await Request.findAll({
-      where: {userId: userId},
-    });
     return requests;
   } catch (e) {
     console.log(e);
@@ -75,6 +70,47 @@ const retrieveRequestById = async (requestId) => {
   }
 };
 
+/*
+  Retrieve all requests associated with given userId
+  Parameters: (userId: string)
+  Return: Array of Model.Request
+*/
+const retrieveAllRequestsByUserId = async (userId) => {
+  try {
+    const requests = await Request.findAll({
+      where: {userId: userId},
+    });
+    return requests;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Retrieve all requests for an announcement that are not made by the same person
+  Parameters: (announcementId: string)
+  Return: Array of Model.Request
+*/
+const retrieveAllRequestsByAnnouncementId = async (announcementId) => {
+  try {
+    const requests = await Request.findAll({
+      where: {announcementId: announcementId},
+    });
+
+    //to filter out any potential requests that are made on announcement by the same person
+    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId)
+    const filteredRequests = requests.filter(
+      (request) =>
+        request.userId !== announcement.userId
+    );
+    return filteredRequests;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 /* ----------------------------------------
   Delete Request
   Parameters: (requestId: UUID)
@@ -88,9 +124,9 @@ const deleteRequest = async (requestId) => {
       throw 'Request with ' + requestId + ' does not exist';
     }
 
-    const deletedRequest = await admin.destroy();
+    const deletedRequest = await request.destroy();
 
-    if (adminDeleted) {
+    if (deletedRequest) {
       console.log('Request deleted!');
       return null;
     }
@@ -123,11 +159,102 @@ const updateRequest = async (request) => {
   }
 };
 
+/*
+REQUESTER verify request
+Parameters: requestId
+Return: Request Object
+*/
+const verifyRequest = async (requestId) => {
+  try {
+    const request = await retrieveRequestById(requestId);
+    request.verifyRequest();
+    await request.save();
+    return request;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+ANNOUNCER reject request
+Parameters: requestId
+Return: Request Object
+*/
+const rejectRequest = async (requestId) => {
+  try {
+    const request = await retrieveRequestById(requestId);
+    request.rejectRequest();
+    await request.save();
+    return request;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+ANNOUNCER schedule request
+Parameters: requestId
+Return: Request Object
+*/
+const scheduleRequest = async (requestId) => {
+  try {
+    const request = await retrieveRequestById(requestId);
+    request.scheduleRequest();
+    await request.save();
+    return request;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+ANNOUNCER doing request
+Parameters: requestId
+Return: Request Object
+*/
+const doingRequest = async (requestId) => {
+  try {
+    const request = await retrieveRequestById(requestId);
+    request.doingRequest();
+    await request.save();
+    return request;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+ANNOUNCER complete request
+Parameters: requestId
+Return: Request Object
+*/
+const completeRequest = async (requestId) => {
+  try {
+    const request = await retrieveRequestById(requestId);
+    request.completeRequest();
+    await request.save();
+    return request;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createRequest,
   retrieveAllRequests,
   retrieveAllRequestsByUserId,
+  retrieveAllRequestsByAnnouncementId,
   retrieveRequestById,
   deleteRequest,
   updateRequest,
+  verifyRequest,
+  rejectRequest,
+  scheduleRequest,
+  doingRequest,
+  completeRequest,
 };

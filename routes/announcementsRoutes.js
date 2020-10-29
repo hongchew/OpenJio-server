@@ -132,6 +132,23 @@ router.put('/update-announcement', async (req, res) => {
 });
 
 /* ----------------------------------------
+  Mark an announcement as complete if it has completed all of it's requests
+  Endpoint: PUT /announcements/update-announcement
+  Body: Announcement object to update the database
+  Return: Announcement object with updated properties
+  Status: Passed postman test
+---------------------------------------- */
+router.put('/update-announcement', async (req, res) => {
+    try {
+      const updatedAnnouncement = await updateAnnouncement(req.body.announcement);
+      res.status(200).json(updatedAnnouncement);
+    } catch (e) {
+      console.log(e);
+      res.status(500).json(e);
+    }
+  });
+
+/* ----------------------------------------
   Delete an announcement via announcementId
   Endpoint: DELETE /announcements/by/:announcementId
   Parameters: announcementId

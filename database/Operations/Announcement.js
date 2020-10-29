@@ -2,6 +2,7 @@ const ANNOUNCEMENT_STATUS = require('../../enum/AnnouncementStatus');
 const {Announcement} = require('../Models/Announcement');
 const axios = require('axios');
 const {retrieveAddressByAddressId} = require('./Address');
+const {retrieveAllRequestsByAnnouncementId} = require('./Request');
 
 /* ----------------------------------------
   Create an announcement tagged to a user
@@ -65,6 +66,8 @@ const closeAnnouncement = async (announcementId) => {
     throw e;
   }
 };
+
+//Another method to mark announcement as complete (checking)
 
 /* ----------------------------------------
   Retrieve all nearby announcements within a 100m radius
