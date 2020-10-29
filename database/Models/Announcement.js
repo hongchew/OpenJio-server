@@ -3,6 +3,9 @@ const AnnouncementStatus = require("../../enum/AnnouncementStatus");
 const announcementStatus = require("../../enum/AnnouncementStatus")
 
 class Announcement extends Model {
+  activateAnnouncement(){
+    this.announcementStatus = announcementStatus.ACTIVE;
+  }
   disableAnnouncement() {
     this.announcementStatus = announcementStatus.PAST;
   }

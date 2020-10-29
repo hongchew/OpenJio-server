@@ -275,6 +275,23 @@ const pastAnnouncement = async (announcementId) => {
   }
 };
 
+/*
+Set announcement as ACTIVE
+Parameters: announcementId
+Return: Announcement Object
+*/
+const activeAnnouncement = async (announcementId) => {
+  try {
+    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    announcement.activateAnnouncement();
+    await announcement.save();
+    return announcement;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createAnnouncement,
   retrieveAllAnnouncements,
@@ -285,5 +302,6 @@ module.exports = {
   updateAnnouncement,
   deleteAnnouncementByAnnouncementId,
   ongoingAnnouncement,
-  pastAnnouncement
+  pastAnnouncement,
+  activeAnnouncement
 };
