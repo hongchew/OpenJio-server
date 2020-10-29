@@ -3,11 +3,13 @@ const router = express.Router();
 const {
   createAnnouncement,
   retrieveAllAnnouncements,
-  retrieveAnnouncementByUserId,
   retrieveAllAnnouncementsByUserId,
+  retrieveAllRequestsForAnnouncement,
   retrieveAnnouncementByAnnouncementId,
   updateAnnouncement,
-  deleteAnnouncementByAnnouncementId
+  deleteAnnouncementByAnnouncementId,
+  ongoingAnnouncement,
+  pastAnnouncement
 } = require('../database/Operations/Announcement');
 
 /* http://localhost:3000/announcements/ . */
@@ -78,6 +80,25 @@ router.get('/all-announcements/:userId', async (req, res) => {
 });
 
 /* ----------------------------------------
+  Retrieve all requests associated with an announcement
+  Endpoint: GET /all-requests/:announcementId
+  Parameters: announcementId
+  Return: JSON array of requests
+  Status: Passed postman test
+---------------------------------------- */
+router.get('/all-requests/:announcementId', async (req, res) => {
+  try {
+    const requests = await retrieveAllRequestsForAnnouncement(
+      req.params.announcementId
+    );
+    res.status(200).json(requests);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/* ----------------------------------------
   Retrieve details of a single announcement by announcementId
   Endpoint: GET /announcements/by/:announcementId
   Parameters: announcementId
@@ -105,7 +126,7 @@ router.get('/by/:announcementId', async (req, res) => {
 ---------------------------------------- */
 router.put('/update-announcement', async (req, res) => {
   try {
-    const updatedAnnouncement = await updateAnnouncement(req.body.announcement);
+    const updatedAnnouncement = await updateAnnouncement(req.body);
     res.status(200).json(updatedAnnouncement);
   } catch (e) {
     console.log(e);
@@ -118,7 +139,7 @@ router.put('/update-announcement', async (req, res) => {
   Endpoint: DELETE /announcements/by/:announcementId
   Parameters: announcementId
   Return: Null
-  Status: 
+  Status: Passed postman test
 ---------------------------------------- */
 router.delete('/by/:announcementId', async (req, res) => {
     try {
@@ -128,5 +149,41 @@ router.delete('/by/:announcementId', async (req, res) => {
       res.status(500).json(e);
     }
   });
+
+  /* ----------------------------------------
+  Set announcement as ONGOING via announcementId
+  Endpoint: PUT /announcements/ongoing-announcement/:announcementId
+  Parameters: announcementId
+  Return: Announcement
+  Status: Passed postman test
+  Purpose: Mainly for postman testing
+---------------------------------------- */
+router.put('/ongoing-announcement/:announcementId', async (req, res) => {
+  try {
+    const announcementOngoing = await ongoingAnnouncement(req.params.announcementId);
+    res.status(200).json(announcementOngoing);
+  } catch (e) {
+    //generic server error
+    res.status(500).json(e);
+  }
+});
+
+  /* ----------------------------------------
+  Set announcement as PAST via announcementId
+  Endpoint: PUT /announcements/past-announcement/:announcementId
+  Parameters: announcementId
+  Return: Announcement
+  Status: Passed postman test
+  Purpose: Mainly for postman testing
+---------------------------------------- */
+router.put('/past-announcement/:announcementId', async (req, res) => {
+  try {
+    const announcementPast = await pastAnnouncement(req.params.announcementId);
+    res.status(200).json(announcementPast);
+  } catch (e) {
+    //generic server error
+    res.status(500).json(e);
+  }
+});
 
 module.exports = router;
