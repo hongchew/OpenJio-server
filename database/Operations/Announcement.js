@@ -1,6 +1,7 @@
 const ANNOUNCEMENT_STATUS = require('../../enum/AnnouncementStatus');
 const {Announcement} = require('../Models/Announcement');
 const {Request} = require('../Models/Request');
+const {User} = require('../Models/User');
 
 /* ----------------------------------------
   Create an announcement tagged to a user
@@ -78,7 +79,14 @@ const closeAnnouncement = async (announcementId) => {
 ---------------------------------------- */
 const retrieveAllAnnouncements = async () => {
   try {
-    const announcements = await Announcement.findAll();
+    const announcements = await Announcement.findAll({
+      include: { 
+        model: User, 
+        attributes: { 
+          exclude: ["salt", "password"] 
+        }
+      }
+    });
     return announcements;
   } catch (e) {
     console.log(e);
