@@ -10,6 +10,8 @@ const {
   doingRequest,
   completeRequest,
   createRequest,
+  retrieveAllRequestsByUserId,
+  retrieveAllRequestsByAnnouncementId,
 } = require('../database/Operations/Request');
 const router = express.Router();
 
@@ -36,6 +38,7 @@ router.get('/retrieve-all', async (req, res) => {
 });
 
 /* --------------------------------
+    Get Request by requestId
     Endpoint: GET /requests/retrieve
     Content type: JSON { requestId: 'UUID'}
     Return: Array of Models.Request objects 
@@ -48,6 +51,47 @@ router.get('/retrieve', async (req, res) => {
   } catch (e) {
     res.status(500).json({
       message: 'Error retrieving request ' + req.body.requestId,
+    });
+  }
+});
+
+/* --------------------------------
+    Get Request by UserId
+    Endpoint: GET /requests/retrieve-by-user
+    Content type: JSON { userId: 'UUID'}
+    Return: Array of Models.Request objects 
+    Tested and working
+  -------------------------------- */
+router.get('/retrieve-by-user', async (req, res) => {
+  try {
+    const request = await retrieveAllRequestsByUserId(req.body.userId);
+    res.status(200).json(request);
+  } catch (e) {
+    res.status(500).json({
+      message:
+        'Error retrieving request from user with userid' + req.body.userId,
+    });
+  }
+});
+
+/* --------------------------------
+    Get Request by AnnouncementId
+    Endpoint: GET /requests/retrieve-by-announcement
+    Content type: JSON { announcementId: 'UUID'}
+    Return: Array of Models.Request objects 
+    Tested and working
+  -------------------------------- */
+router.get('/retrieve-by-announcement', async (req, res) => {
+  try {
+    const request = await retrieveAllRequestsByAnnouncementId(
+      req.body.announcementId
+    );
+    res.status(200).json(request);
+  } catch (e) {
+    res.status(500).json({
+      message:
+        'Error retrieving request from announcement with announcementId' +
+        req.body.announcementId,
     });
   }
 });

@@ -86,6 +86,23 @@ const retrieveAllRequestsByUserId = async (userId) => {
   }
 };
 
+/*
+  Retrieve all requests associated with given announcementId
+  Parameters: (announcementId: string)
+  Return: Array of Model.Request
+*/
+const retrieveAllRequestsByAnnouncementId = async (announcementId) => {
+  try {
+    const requests = await Request.findAll({
+      where: {announcementId: announcementId},
+    });
+    return requests;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 /* ----------------------------------------
   Delete Request
   Parameters: (requestId: UUID)
@@ -231,4 +248,5 @@ module.exports = {
   scheduleRequest,
   doingRequest,
   completeRequest,
+  retrieveAllRequestsByAnnouncementId,
 };
