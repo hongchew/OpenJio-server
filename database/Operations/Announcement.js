@@ -2,7 +2,6 @@ const ANNOUNCEMENT_STATUS = require('../../enum/AnnouncementStatus');
 const {Announcement} = require('../Models/Announcement');
 const axios = require('axios');
 const {retrieveAddressByAddressId} = require('./Address');
-const {retrieveAllRequestsByAnnouncementId} = require('./Request');
 const {Request} = require('../Models/Request');
 const {User} = require('../Models/User');
 
@@ -67,8 +66,24 @@ const closeAnnouncement = async (announcementId) => {
     if (!announcement) {
       throw `Announcement ${announcementId} not found!`;
     }
-    announcement.disableAnnouncement();
-    await announcement.save();
+
+    //check if there are any requests associated with this announcement before closing it
+    const requests = await retrieveAllRequestsForAnnouncement(announcement.announcementId)
+    const acceptedRequests = requests.filter((request) => 
+      request.requestStatus === 'SCHEDULED'
+    )
+    if (acceptedRequests.length !== 0){
+      announcement.ongoingAnnouncement()
+      await announcement.save();
+    } else {
+      announcement.disableAnnouncement()
+      await announcement.save()
+    }
+    //update all these accepted requests to doing
+    await Promise.all(acceptedRequests.map(async(request) => {
+      request.doingRequest()
+      await request.save()
+    }))
   } catch (e) {
     console.log(e);
     throw e;
@@ -106,6 +121,7 @@ const retrieveNearbyAnnouncements = async (addressId) => {
     );
     //To get the announcements within a 400m distance
     const filteredAnnouncements = await filterAnnouncements(activeAnnouncements, lat, long)
+    filteredAnnouncements.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
     return filteredAnnouncements;
   } catch (e) {
     console.log(e);
@@ -125,7 +141,7 @@ const filterAnnouncements = async (activeAnnouncements, lat, long) => {
     await Promise.all(activeAnnouncements.map(async(announcement) => {
       const distance = await calculateDistance(announcement, lat, long)
       if (distance < 400){
-        result.push(announcement)
+        result.push({"announcement":announcement,"distance":distance})
       }
     }));
     return result
@@ -298,6 +314,15 @@ const updateAnnouncement = async (announcement) => {
       announcementToUpdate.announcementStatus === ANNOUNCEMENT_STATUS.PAST
     ) {
       throw `Announcement with ID: ${announcement.announcementId} is already closed and cannot be updated!`;
+    }
+
+    //Announcement cannot be edited if it has already accepted requests
+    const requests = await retrieveAllRequestsForAnnouncement(announcement.announcementId)
+    const acceptedRequests = requests.filter((request) => 
+      request.requestStatus === 'SCHEDULED'
+    )
+    if (acceptedRequests.length !== 0){
+      throw `Announcement with ID: ${announcement.announcementId} already accepted requests and cannot be updated!`;
     }
 
     const updatedAnnouncement = await announcementToUpdate.update(announcement);
