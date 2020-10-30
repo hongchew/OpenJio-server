@@ -3,7 +3,6 @@ const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
 const {Announcement} = require('../Models/Announcement');
 const {Op} = require('sequelize');
 const {retrieveWalletByWalletId, retrieveWalletByUserId} = require('./Wallet');
-const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
 const {retrieveUserByUserId} = require('./User');
 const requestStatus = require('../../enum/RequestStatus');
 const announcementStatus = require("../../enum/AnnouncementStatus")
