@@ -126,11 +126,25 @@ const onInitPopulateDatabase = async () => {
       console.log('User created with the name: ' + user2.name);
     }
 
+    // Retrieve user 3's wallet
+    const user2Wallet = await retrieveWalletByUserId(user2.userId);
+    if (user2Wallet) {
+      // Adding $200 balance to user 1
+      const addingToUser2Wallet = await addWalletBalance(
+        user2Wallet.walletId,
+        200
+      );
+      // Check if top up was successful
+      if (addingToUser2Wallet.balance === 200) {
+        console.log('Successfully topped up user 2 wallet!');
+      }
+    }
+
     //create announcement1 to user1
     const announcement1 = await createAnnouncement(
       user1.userId,
       assignAddressToUser[0].addressId,
-      'description1',
+      'description 1',
       '2020-10-10T10:10:10',
       'Yio Chu Kang'
     );
@@ -138,11 +152,11 @@ const onInitPopulateDatabase = async () => {
 
     // user2 send request1 to announcement1 created by user1
     const request1 = await createRequest(
-      announcement1.announcementId,
-      user2.userId,
-      'Requst1',
+      'Request1',
       'Buy Cai Fan please',
-      10.0
+      10.0,
+      announcement1.announcementId,
+      user2.userId
     );
     console.log(request1);
 
@@ -170,6 +184,21 @@ const onInitPopulateDatabase = async () => {
       }
 
       user3.save();
+
+      // Retrieve user 3's wallet
+      const user3Wallet = await retrieveWalletByUserId(user3.userId);
+      if (user3Wallet) {
+        // Adding $150 balance to user 1
+        const addingToUser3Wallet = await addWalletBalance(
+          user3Wallet.walletId,
+          150
+        );
+        // Check if top up was successful, alternatively can view on postman
+        if (addingToUser3Wallet.balance === 150) {
+          console.log('Successfully topped up user 3 wallet!');
+        }
+      }
+
       console.log('User created with the name: ' + user3.name);
     }
 

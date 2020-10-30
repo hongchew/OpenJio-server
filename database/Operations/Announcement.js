@@ -3,6 +3,8 @@ const {Announcement} = require('../Models/Announcement');
 const axios = require('axios');
 const {retrieveAddressByAddressId} = require('./Address');
 const {retrieveAllRequestsByAnnouncementId} = require('./Request');
+const {Request} = require('../Models/Request');
+const {User} = require('../Models/User');
 
 /* ----------------------------------------
   Create an announcement tagged to a user
@@ -30,9 +32,13 @@ const createAnnouncement = async (
     if (!newAnnouncement) {
       throw `Announcement creation failed!`;
     }
+
+    // Associating announcement to user (announcer)
+    newAnnouncement.userId = userId;
+
     await newAnnouncement.save();
 
-    //Setting the timeout of the close time
+    // Setting the timeout of the close time
     const now = new Date().getTime();
     var timeDiff = new Date(closeTime).getTime() - now;
     setTimeout(function () {
@@ -179,7 +185,14 @@ const calculateDistance = async (announcement, lat, long) => {
 ---------------------------------------- */
 const retrieveAllAnnouncements = async () => {
   try {
-    const announcements = await Announcement.findAll();
+    const announcements = await Announcement.findAll({
+      include: { 
+        model: User, 
+        attributes: { 
+          exclude: ["salt", "password"] 
+        }
+      }
+    });
     return announcements;
   } catch (e) {
     console.log(e);
@@ -200,6 +213,27 @@ const retrieveAllAnnouncementsByUserId = async (userId) => {
       },
     });
     return announcements;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/* ----------------------------------------
+  Retrieve all requests associated with an announcement
+  Parameters: announcementId
+  Return: Array of request objects 
+---------------------------------------- */
+const retrieveAllRequestsForAnnouncement = async (announcementId) => {
+  try {
+
+    const requests = await Request.findAll({
+      where: {
+        announcementId: announcementId
+      },
+    });
+
+    return requests;
   } catch (e) {
     console.log(e);
     throw e;
@@ -254,6 +288,18 @@ const updateAnnouncement = async (announcement) => {
     if (!announcementToUpdate) {
       throw `Announcement ${announcement.announcementId} not found!`;
     }
+
+    // Check if the announcement has already been accepted or past, if so, announcement cannot be updated
+    if (
+      announcementToUpdate.announcementStatus === ANNOUNCEMENT_STATUS.ONGOING
+    ) {
+      throw `Announcement with ID: ${announcement.announcementId} is already ongoing and cannot be updated!`;
+    } else if (
+      announcementToUpdate.announcementStatus === ANNOUNCEMENT_STATUS.PAST
+    ) {
+      throw `Announcement with ID: ${announcement.announcementId} is already closed and cannot be updated!`;
+    }
+
     const updatedAnnouncement = await announcementToUpdate.update(announcement);
     return await retrieveAnnouncementByAnnouncementId(
       updatedAnnouncement.announcementId
@@ -265,7 +311,7 @@ const updateAnnouncement = async (announcement) => {
 };
 
 /* ----------------------------------------
-  Delete an announcement
+  Delete an announcement by announcement ID
   Parameters: announcementId
   Return: Null
 ---------------------------------------- */
@@ -277,9 +323,77 @@ const deleteAnnouncementByAnnouncementId = async (announcementId) => {
     if (!announcement) {
       throw `Announcement ${announcementId} is not found`;
     }
-    await announcement.destroy();
 
-    return `Announcement ${announcementId} successfully deleted`;
+    // Check if the announcement has already been accepted or past, if so, announcement cannot be deleted
+    if (
+      announcement.announcementStatus === ANNOUNCEMENT_STATUS.ONGOING ||
+      announcement.announcementStatus === ANNOUNCEMENT_STATUS.PAST
+    ) {
+      throw `Announcement with ID: ${announcement.announcementId} is already ongoing or closed and cannot be deleted!`;
+    }
+
+    const userId = announcement.userId;
+    const announcementDeleted = await announcement.destroy();
+
+    if (announcementDeleted) {
+      console.log('Announcement with ID: ' + announcementId + ' successfully deleted!');
+      return await retrieveAnnouncementByUserId(userId);
+      // return `Announcement ${announcementId} successfully deleted`;
+    } else {
+      throw 'Failed to delete announcement with ID: ' + announcementId;
+    }
+
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+Set announcement as ONGOING
+Parameters: announcementId
+Return: Announcement Object
+*/
+const ongoingAnnouncement = async (announcementId) => {
+  try {
+    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    announcement.ongoingAnnouncement();
+    await announcement.save();
+    return announcement;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+Set announcement as PAST
+Parameters: announcementId
+Return: Announcement Object
+*/
+const pastAnnouncement = async (announcementId) => {
+  try {
+    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    announcement.disableAnnouncement();
+    await announcement.save();
+    return announcement;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+Set announcement as ACTIVE
+Parameters: announcementId
+Return: Announcement Object
+*/
+const activeAnnouncement = async (announcementId) => {
+  try {
+    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    announcement.activateAnnouncement();
+    await announcement.save();
+    return announcement;
   } catch (e) {
     console.log(e);
     throw e;
@@ -291,8 +405,12 @@ module.exports = {
   retrieveNearbyAnnouncements,
   retrieveAllAnnouncements,
   retrieveAllAnnouncementsByUserId,
+  retrieveAllRequestsForAnnouncement,
   retrieveAnnouncementByUserId,
   retrieveAnnouncementByAnnouncementId,
   updateAnnouncement,
   deleteAnnouncementByAnnouncementId,
+  ongoingAnnouncement,
+  pastAnnouncement,
+  activeAnnouncement
 };
