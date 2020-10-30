@@ -1,11 +1,11 @@
 const {Request} = require('../Models/Request');
-const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
 const {Announcement} = require('../Models/Announcement');
 const {Op} = require('sequelize');
 const {retrieveWalletByWalletId, retrieveWalletByUserId} = require('./Wallet');
 const {retrieveUserByUserId} = require('./User');
 const requestStatus = require('../../enum/RequestStatus');
-const announcementStatus = require("../../enum/AnnouncementStatus")
+const announcementStatus = require('../../enum/AnnouncementStatus');
+const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
 
 /*
   Create a Request between announcer and requester
@@ -21,7 +21,9 @@ const createRequest = async (
 ) => {
   try {
     // Retrieve announcement from announcement Id - Check if announcement exists
-    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    const announcement = await retrieveAnnouncementByAnnouncementId(
+      announcementId
+    );
     if (!announcement) {
       throw 'Announcement with ID: ' + announcementId + ' not found';
     }
@@ -112,7 +114,10 @@ const retrieveAllOngoingRequests = async (userId) => {
       where: {
         userId: userId,
         requestStatus: {
-          [Op.not]: [requestStatus.COMPLETED, requestStatus.VERIFED, requestStatus.REJECTED],
+          [Op.not]: [
+            requestStatus.VERIFIED,
+            requestStatus.REJECTED,
+          ],
         },
       },
     });
@@ -134,7 +139,7 @@ const retrieveAllPastRequests = async (userId) => {
       where: {
         userId: userId,
         requestStatus: {
-          [Op.or]: [requestStatus.COMPLETED, requestStatus.VERIFED],
+          [Op.or]: [requestStatus.COMPLETED, requestStatus.VERIFIED],
         },
       },
     });
@@ -157,10 +162,11 @@ const retrieveAllRequestsByAnnouncementId = async (announcementId) => {
     });
 
     //to filter out any potential requests that are made on announcement by the same person
-    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId)
+    const announcement = await retrieveAnnouncementByAnnouncementId(
+      announcementId
+    );
     const filteredRequests = requests.filter(
-      (request) =>
-        request.userId !== announcement.userId
+      (request) => request.userId !== announcement.userId
     );
     return filteredRequests;
   } catch (e) {
@@ -318,10 +324,12 @@ const deleteRequestByRequestId = async (requestId) => {
     }
 
     // Can only be deleted if status is Pending or Scheduled
-    if (request.requestStatus === requestStatus.DOING || 
-      request.requestStatus === requestStatus.SCHEDULED || 
-      request.requestStatus === requestStatus.VERIFED) {
-        throw 'Request cannot be deleted because it is already accepted by announcer or completed!';
+    if (
+      request.requestStatus === requestStatus.DOING ||
+      request.requestStatus === requestStatus.COMPLETED ||
+      request.requestStatus === requestStatus.VERIFIED
+    ) {
+      throw 'Request cannot be deleted because it is already accepted by announcer or completed!';
     }
 
     const userId = request.userId;
@@ -331,9 +339,8 @@ const deleteRequestByRequestId = async (requestId) => {
       console.log('Request with ID: ' + requestId + ' successfully deleted!');
       return await retrieveAllRequestsByUserId(userId);
     } else {
-        throw 'Failed to delete request with ID: ' + requestId;
+      throw 'Failed to delete request with ID: ' + requestId;
     }
-
   } catch (e) {
     console.log(e);
     throw e;
@@ -354,5 +361,5 @@ module.exports = {
   rejectRequest,
   scheduleRequest,
   doingRequest,
-  completeRequest
+  completeRequest,
 };
