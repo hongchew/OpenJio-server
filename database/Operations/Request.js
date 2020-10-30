@@ -1,12 +1,10 @@
 const {Request} = require('../Models/Request');
+const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
 const {Announcement} = require('../Models/Announcement');
 const {Op} = require('sequelize');
 const {retrieveWalletByWalletId, retrieveWalletByUserId} = require('./Wallet');
-
 const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
-
 const {retrieveUserByUserId} = require('./User');
-
 const requestStatus = require('../../enum/RequestStatus');
 const announcementStatus = require("../../enum/AnnouncementStatus")
 
@@ -149,6 +147,30 @@ const retrieveAllPastRequests = async (userId) => {
 };
 
 /*
+  Retrieve all requests for an announcement that are not made by the same person
+  Parameters: (announcementId: string)
+  Return: Array of Model.Request
+*/
+const retrieveAllRequestsByAnnouncementId = async (announcementId) => {
+  try {
+    const requests = await Request.findAll({
+      where: {announcementId: announcementId},
+    });
+
+    //to filter out any potential requests that are made on announcement by the same person
+    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId)
+    const filteredRequests = requests.filter(
+      (request) =>
+        request.userId !== announcement.userId
+    );
+    return filteredRequests;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/* 
   Retrieve one request associated by requestId
   Parameters: (requestId: UUID)
   Return: Request Model
@@ -323,7 +345,7 @@ module.exports = {
   createRequest,
   retrieveAllRequests,
   retrieveAllRequestsByUserId,
-  retrieveAllRequestsByUserId,
+  retrieveAllRequestsByAnnouncementId,
   retrieveAllOngoingRequests,
   retrieveAllPastRequests,
   retrieveRequestByRequestId,

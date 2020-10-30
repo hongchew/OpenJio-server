@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   createAnnouncement,
+  retrieveNearbyAnnouncements,
   retrieveAllAnnouncements,
   retrieveAllAnnouncementsByUserId,
   retrieveAllRequestsForAnnouncement,
@@ -45,7 +46,24 @@ router.post('/create-announcement', async (req, res) => {
 });
 
 /* ----------------------------------------
-  Retrieve all announcements irregardless of users
+  Retrieve all active announcements in a 100m radius
+  Endpoint: GET /announcements/nearby-announcements/:addressId
+  Parameters: addressId
+  Return: JSON array of active announcements within a 100m radius
+  Status: Can call API but function still work in progress
+---------------------------------------- */
+router.get('/nearby-announcements/:addressId', async (req, res) => {
+    try {
+      const announcements = await retrieveNearbyAnnouncements(req.params.addressId);
+      res.status(200).json(announcements);
+    } catch (e) {
+      console.log(e);
+      res.status(500).json(e);
+    }
+  });
+
+/* ----------------------------------------
+  Retrieve all announcements irregardless of users and distance - probably for internal testing
   Endpoint: GET /announcements/view-all-announcements
   Parameters: Null
   Return: JSON array of announcements
