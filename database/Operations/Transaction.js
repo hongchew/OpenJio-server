@@ -8,6 +8,8 @@ const {
 } = require('./Wallet');
 const {retrieveUserByEmail} = require('./User');
 const transactionTypeEnum = require('../../enum/TransactionType');
+const recurrTypeEnum = require('../../enum/RecurrentTopUpType')
+const {RecurrentAgreement} = require('../Models/RecurrentAgreement');
 
 // For Managed Transaction (Archived for now)
 // const getDb = require('../../database/index');
@@ -52,17 +54,18 @@ const createWithdrawDonateTransaction = async (
   senderWalletId,
   amount,
   transactionType,
-  description="No Description was asssociated with this transaction"
+  description = 'No Description was asssociated with this transaction'
 ) => {
   try {
     const newTransaction = Transaction.build({
       senderWalletId: senderWalletId,
       amount: amount,
       transactionType: transactionType,
-      description: description
+      description: description,
     });
-     
-    newTransaction.description = newTransaction.description + newTransaction.transactionId
+
+    newTransaction.description =
+      newTransaction.description + newTransaction.transactionId;
 
     await newTransaction.save();
 
@@ -163,7 +166,7 @@ const makeDonation = async (walletId, amount) => {
       transactionTypeEnum.DONATE,
       `Donation of SGD${parseFloat(amount).toFixed(2)}, Transaction ID: `
     );
-    return newTransaction; 
+    return newTransaction;
   } catch (e) {
     console.log(e);
     throw e;
@@ -232,12 +235,21 @@ const retrieveTransactionByTransactionId = async (transactionId) => {
   Parameters: (walletId: string, amount: double)
   Return: Transaction object
 */
-const createTopUpTransaction = async (walletId, amount, paypalId) => {
+const createTopUpTransaction = async (
+  walletId,
+  amount,
+  paypalId,
+  desc = null
+) => {
   try {
     const newTransaction = Transaction.build({
       recipientWalletId: walletId,
       amount: amount,
-      description: `Top Up of SGD${parseFloat(amount).toFixed(2)}, Paypal Transaction Id: ${paypalId}`,
+      description: desc
+        ? desc
+        : `Top Up of SGD${parseFloat(amount).toFixed(
+            2
+          )},\n Paypal Transaction Id: ${paypalId}`,
       transactionType: transactionTypeEnum.TOP_UP,
     });
 
@@ -255,16 +267,50 @@ const createTopUpTransaction = async (walletId, amount, paypalId) => {
   Parameters: (walletId: string, amount: double)
   Return: Transaction object
 */
-const makeTopUp = async (walletId, amount, paypalId) => {
+const makeTopUp = async (walletId, amount, paypalId, desc = null) => {
   try {
     await addWalletBalance(walletId, amount);
     const transaction = await createTopUpTransaction(
       walletId,
       amount,
-      paypalId
+      paypalId,
+      desc
     );
 
-    return transaction
+    return transaction;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+  Make a recurring transaction with recurring transaction webhook
+  Parameters: (subscriptionId: string, amount: double, paypalId: string,)
+  Return: RecurrentAgreement object
+*/
+const makeRecurrentTransaction = async (subscriptionId, amount, paypalId) => {
+  try {
+    console.log([subscriptionId, amount, paypalId]);
+    const agreement = await RecurrentAgreement.findOne({
+      where: {
+        paypalSubscriptionId: subscriptionId,
+      },
+    });
+
+    if(agreement.recurrentAgreementType === recurrTypeEnum.TOP_UP){
+      console.log('Recurring TOP_UP payment webhook received')
+      await makeTopUp(
+        agreement.walletId,
+        amount,
+        paypalId,
+        `Monthly Top Up of SGD${parseFloat(amount).toFixed(
+          2
+        )},\nPaypal Transaction Id: ${paypalId}`
+      );
+    }
+
+    return agreement;
   } catch (e) {
     console.log(e);
     throw e;
@@ -281,4 +327,5 @@ module.exports = {
   makeDonation,
   retrieveAllTransactions,
   makeTopUp,
+  makeRecurrentTransaction,
 };
