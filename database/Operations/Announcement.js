@@ -79,10 +79,15 @@ const closeAnnouncement = async (announcementId) => {
       announcement.disableAnnouncement()
       await announcement.save()
     }
-    //update all these accepted requests to doing
-    await Promise.all(acceptedRequests.map(async(request) => {
-      request.doingRequest()
-      await request.save()
+    //update all these accepted requests to doing, and pending requests to rejected
+    await Promise.all(requests.map(async(request) => {
+      if (request.requestStatus === 'SCHEDULED') {
+        request.doingRequest()
+        await request.save()
+      } else {
+        request.rejectRequest()
+        await request.save()
+      }
     }))
   } catch (e) {
     console.log(e);
@@ -355,6 +360,14 @@ const deleteAnnouncementByAnnouncementId = async (announcementId) => {
       announcement.announcementStatus === ANNOUNCEMENT_STATUS.PAST
     ) {
       throw `Announcement with ID: ${announcement.announcementId} is already ongoing or closed and cannot be deleted!`;
+    }
+    //Announcement cannot be deleted if it has already accepted requests
+    const requests = await retrieveAllRequestsForAnnouncement(announcement.announcementId)
+    const acceptedRequests = requests.filter((request) => 
+      request.requestStatus === 'SCHEDULED'
+    )
+    if (acceptedRequests.length !== 0){
+      throw `Announcement with ID: ${announcement.announcementId} already accepted requests and cannot be deleted!`;
     }
 
     const userId = announcement.userId;
