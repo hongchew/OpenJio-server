@@ -161,7 +161,7 @@ router.post('/create-request', async (req, res) => {
 /* ----------------------------------------
   Delete a request via requestId
   Endpoint: DELETE /requests/delete/:requestId
-  Parameters: announcementId
+  Parameters: requestId
   Return: Null
   Status: Passed postman test
 ---------------------------------------- */
