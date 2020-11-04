@@ -50,7 +50,7 @@ router.post('/create-announcement', async (req, res) => {
   Endpoint: GET /announcements/nearby-announcements/:addressId
   Parameters: addressId
   Return: JSON array of active announcements within a 100m radius
-  Status: Can call API but function still work in progress
+  Status: Passed postman test
 ---------------------------------------- */
 router.get('/nearby-announcements/:addressId', async (req, res) => {
     try {
