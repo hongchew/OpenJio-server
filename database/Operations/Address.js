@@ -93,5 +93,5 @@ module.exports = {
   addAddress,
   deleteAddressByAddresId,
   retrieveAllAddressesByUserId,
-  retrieveAddressByAddressId
+  retrieveAddressByAddressId,
 };
