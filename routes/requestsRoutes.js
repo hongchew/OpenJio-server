@@ -12,7 +12,7 @@ const {
   rejectRequest,
   scheduleRequest,
   doingRequest,
-  completeRequest
+  completeRequest,
 } = require('../database/Operations/Request');
 const router = express.Router();
 
@@ -47,9 +47,7 @@ router.get('/retrieve-all', async (req, res) => {
 ---------------------------------------- */
 router.get('/by-requestId/:requestId', async (req, res) => {
   try {
-    const request = await retrieveRequestByRequestId(
-      req.params.requestId
-    );
+    const request = await retrieveRequestByRequestId(req.params.requestId);
     res.status(200).json(request);
   } catch (e) {
     console.log(e);
@@ -66,9 +64,7 @@ router.get('/by-requestId/:requestId', async (req, res) => {
 ---------------------------------------- */
 router.get('/by-userId/:userId', async (req, res) => {
   try {
-    const requests = await retrieveAllRequestsByUserId(
-      req.params.userId
-    );
+    const requests = await retrieveAllRequestsByUserId(req.params.userId);
     res.status(200).json(requests);
   } catch (e) {
     console.log(e);
@@ -85,9 +81,7 @@ router.get('/by-userId/:userId', async (req, res) => {
 ---------------------------------------- */
 router.get('/ongoing/:userId', async (req, res) => {
   try {
-    const ongoingRequests = await retrieveAllOngoingRequests(
-      req.params.userId
-    );
+    const ongoingRequests = await retrieveAllOngoingRequests(req.params.userId);
     res.status(200).json(ongoingRequests);
   } catch (e) {
     console.log(e);
@@ -104,9 +98,7 @@ router.get('/ongoing/:userId', async (req, res) => {
 ---------------------------------------- */
 router.get('/past/:userId', async (req, res) => {
   try {
-    const pastRequests = await retrieveAllPastRequests(
-      req.params.userId
-    );
+    const pastRequests = await retrieveAllPastRequests(req.params.userId);
     res.status(200).json(pastRequests);
   } catch (e) {
     console.log(e);
@@ -169,7 +161,7 @@ router.post('/create-request', async (req, res) => {
 /* ----------------------------------------
   Delete a request via requestId
   Endpoint: DELETE /requests/delete/:requestId
-  Parameters: announcementId
+  Parameters: requestId
   Return: Null
   Status: Passed postman test
 ---------------------------------------- */

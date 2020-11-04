@@ -114,10 +114,7 @@ const retrieveAllOngoingRequests = async (userId) => {
       where: {
         userId: userId,
         requestStatus: {
-          [Op.not]: [
-            requestStatus.VERIFIED,
-            requestStatus.REJECTED,
-          ],
+          [Op.not]: [requestStatus.VERIFIED, requestStatus.REJECTED],
         },
       },
     });
@@ -213,10 +210,10 @@ const updateRequest = async (request) => {
     }
 
     // Retrieve user's wallet to check if he has sufficient wallet balance to update the request
-    const requesterWallet = await retrieveWalletByUserId(request.userId);
-    if (requesterWallet.balance < requestToUpdate.amount) {
-      throw 'Insufficient wallet balance to submit request, please top up your wallet balance and try again';
-    }
+    // const requesterWallet = await retrieveWalletByUserId(request.userId);
+    // if (requesterWallet.balance < requestToUpdate.amount) {
+    //   throw 'Insufficient wallet balance to submit request, please top up your wallet balance and try again';
+    // }
 
     const updatedRequest = await requestToUpdate.update(request);
     return await retrieveRequestByRequestId(updatedRequest.requestId);
