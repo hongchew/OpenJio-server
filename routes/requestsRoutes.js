@@ -12,7 +12,7 @@ const {
   rejectRequest,
   scheduleRequest,
   doingRequest,
-  completeRequest
+  completeRequest,
 } = require('../database/Operations/Request');
 const router = express.Router();
 
@@ -47,9 +47,7 @@ router.get('/retrieve-all', async (req, res) => {
 ---------------------------------------- */
 router.get('/by-requestId/:requestId', async (req, res) => {
   try {
-    const request = await retrieveRequestByRequestId(
-      req.params.requestId
-    );
+    const request = await retrieveRequestByRequestId(req.params.requestId);
     res.status(200).json(request);
   } catch (e) {
     console.log(e);
@@ -66,9 +64,7 @@ router.get('/by-requestId/:requestId', async (req, res) => {
 ---------------------------------------- */
 router.get('/by-userId/:userId', async (req, res) => {
   try {
-    const requests = await retrieveAllRequestsByUserId(
-      req.params.userId
-    );
+    const requests = await retrieveAllRequestsByUserId(req.params.userId);
     res.status(200).json(requests);
   } catch (e) {
     console.log(e);
@@ -85,9 +81,7 @@ router.get('/by-userId/:userId', async (req, res) => {
 ---------------------------------------- */
 router.get('/ongoing/:userId', async (req, res) => {
   try {
-    const ongoingRequests = await retrieveAllOngoingRequests(
-      req.params.userId
-    );
+    const ongoingRequests = await retrieveAllOngoingRequests(req.params.userId);
     res.status(200).json(ongoingRequests);
   } catch (e) {
     console.log(e);
@@ -104,9 +98,7 @@ router.get('/ongoing/:userId', async (req, res) => {
 ---------------------------------------- */
 router.get('/past/:userId', async (req, res) => {
   try {
-    const pastRequests = await retrieveAllPastRequests(
-      req.params.userId
-    );
+    const pastRequests = await retrieveAllPastRequests(req.params.userId);
     res.status(200).json(pastRequests);
   } catch (e) {
     console.log(e);
@@ -181,91 +173,6 @@ router.delete('/delete/:requestId', async (req, res) => {
       message: 'Request deleted',
     });
   } catch (e) {
-    res.status(500).json(e);
-  }
-});
-
-/* ----------------------------------------
-  Verify a request via requestId
-  Endpoint: PUT /requests/verify-request/:requestId
-  Parameters: requestId
-  Return: Request
-  Status: Passed postman test
----------------------------------------- */
-router.put('/verify-request/:requestId', async (req, res) => {
-  try {
-    const verifiedRequest = await verifyRequest(req.params.requestId);
-    res.status(200).json(verifiedRequest);
-  } catch (e) {
-    //generic server error
-    res.status(500).json(e);
-  }
-});
-
-/* ----------------------------------------
-  Reject a request via requestId
-  Endpoint: PUT /requests/reject-request/:requestId
-  Parameters: requestId
-  Return: Request
-  Status: Passed postman test
----------------------------------------- */
-router.put('/reject-request/:requestId', async (req, res) => {
-  try {
-    const rejectedRequest = await rejectRequest(req.params.requestId);
-    res.status(200).json(rejectedRequest);
-  } catch (e) {
-    //generic server error
-    res.status(500).json(e);
-  }
-});
-
-/* ----------------------------------------
-  Schedule a request via requestId
-  Endpoint: PUT /requests/schedule-request/:requestId
-  Parameters: requestId
-  Return: Request
-  Status: Passed postman test
----------------------------------------- */
-router.put('/schedule-request/:requestId', async (req, res) => {
-  try {
-    const scheduledRequest = await scheduleRequest(req.params.requestId);
-    res.status(200).json(scheduledRequest);
-  } catch (e) {
-    //generic server error
-    res.status(500).json(e);
-  }
-});
-
-/* ----------------------------------------
-  Doing a request via requestId
-  Endpoint: PUT /requests/doing-request/:requestId
-  Parameters: requestId
-  Return: Request
-  Status: Passed postman test
----------------------------------------- */
-router.put('/doing-request/:requestId', async (req, res) => {
-  try {
-    const requestDoing = await doingRequest(req.params.requestId);
-    res.status(200).json(requestDoing);
-  } catch (e) {
-    //generic server error
-    res.status(500).json(e);
-  }
-});
-
-/* ----------------------------------------
-  Complete a request via requestId
-  Endpoint: PUT /requests/complete-request/:requestId
-  Parameters: requestId
-  Return: Request
-  Status: Passed postman test
----------------------------------------- */
-router.put('/complete-request/:requestId', async (req, res) => {
-  try {
-    const completedRequest = await completeRequest(req.params.requestId);
-    res.status(200).json(completedRequest);
-  } catch (e) {
-    //generic server error
     res.status(500).json(e);
   }
 });
