@@ -124,10 +124,15 @@ const retrieveNearbyAnnouncements = async (addressId) => {
     const activeAnnouncements = announcements.filter(
       (announcement) => announcement.announcementStatus === 'ACTIVE'
     );
-    //To get the announcements within a 400m distance
-    const filteredAnnouncements = await filterAnnouncements(activeAnnouncements, lat, long)
-    filteredAnnouncements.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
-    return filteredAnnouncements;
+    //To exclude my own announcements
+    const excludedAnnouncements = activeAnnouncements.filter(
+      (announcement) => announcement.userId !== myAddress.userId
+    );
+    //To get the announcements within a 1000m distance
+    const finalAnnouncements = await filterAnnouncements(excludedAnnouncements, lat, long)
+    finalAnnouncements.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+
+    return finalAnnouncements;
   } catch (e) {
     console.log(e);
     throw e;
@@ -137,15 +142,14 @@ const retrieveNearbyAnnouncements = async (addressId) => {
 /* ----------------------------------------
   Nested function from parent RetrieveNearbyAnnouncements to do filtering for distance
   Parameters: activeAnnouncements, start latitude, start longitude
-  Return: Array of announcements that are within 400m
+  Return: Array of announcements that are within 1000m
 ---------------------------------------- */
 const filterAnnouncements = async (activeAnnouncements, lat, long) => {
   try {
     const result = []
-    console.log(`Looping through each announcement to calculate distance now`)
     await Promise.all(activeAnnouncements.map(async(announcement) => {
       const distance = await calculateDistance(announcement, lat, long)
-      if (distance < 400){
+      if (distance < 1000){
         result.push({"announcement":announcement,"distance":distance})
       }
     }));
