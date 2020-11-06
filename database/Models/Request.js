@@ -19,7 +19,7 @@ class Request extends Model {
   }
 
   verifyRequest() {
-    this.requestStatus = RequestStatus.VERIFED;
+    this.requestStatus = RequestStatus.VERIFIED;
   }
 }
 

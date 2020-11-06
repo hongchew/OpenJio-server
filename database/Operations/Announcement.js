@@ -66,8 +66,29 @@ const closeAnnouncement = async (announcementId) => {
     if (!announcement) {
       throw `Announcement ${announcementId} not found!`;
     }
-    announcement.disableAnnouncement();
-    await announcement.save();
+
+    //check if there are any requests associated with this announcement before closing it
+    const requests = await retrieveAllRequestsForAnnouncement(announcement.announcementId)
+    const acceptedRequests = requests.filter((request) => 
+      request.requestStatus === 'SCHEDULED'
+    )
+    if (acceptedRequests.length !== 0){
+      announcement.ongoingAnnouncement()
+      await announcement.save();
+    } else {
+      announcement.disableAnnouncement()
+      await announcement.save()
+    }
+    //update all these accepted requests to doing, and pending requests to rejected
+    await Promise.all(requests.map(async(request) => {
+      if (request.requestStatus === 'SCHEDULED') {
+        request.doingRequest()
+        await request.save()
+      } else {
+        request.rejectRequest()
+        await request.save()
+      }
+    }))
   } catch (e) {
     console.log(e);
     throw e;
@@ -103,9 +124,15 @@ const retrieveNearbyAnnouncements = async (addressId) => {
     const activeAnnouncements = announcements.filter(
       (announcement) => announcement.announcementStatus === 'ACTIVE'
     );
-    //To get the announcements within a 400m distance
-    const filteredAnnouncements = await filterAnnouncements(activeAnnouncements, lat, long)
-    return filteredAnnouncements;
+    //To exclude my own announcements
+    const excludedAnnouncements = activeAnnouncements.filter(
+      (announcement) => announcement.userId !== myAddress.userId
+    );
+    //To get the announcements within a 1000m distance
+    const finalAnnouncements = await filterAnnouncements(excludedAnnouncements, lat, long)
+    finalAnnouncements.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+
+    return finalAnnouncements;
   } catch (e) {
     console.log(e);
     throw e;
@@ -115,16 +142,15 @@ const retrieveNearbyAnnouncements = async (addressId) => {
 /* ----------------------------------------
   Nested function from parent RetrieveNearbyAnnouncements to do filtering for distance
   Parameters: activeAnnouncements, start latitude, start longitude
-  Return: Array of announcements that are within 400m
+  Return: Array of announcements that are within 1000m
 ---------------------------------------- */
 const filterAnnouncements = async (activeAnnouncements, lat, long) => {
   try {
     const result = []
-    console.log(`Looping through each announcement to calculate distance now`)
     await Promise.all(activeAnnouncements.map(async(announcement) => {
       const distance = await calculateDistance(announcement, lat, long)
-      if (distance < 400){
-        result.push(announcement)
+      if (distance < 1000){
+        result.push({"announcement":announcement,"distance":distance})
       }
     }));
     return result
@@ -299,6 +325,15 @@ const updateAnnouncement = async (announcement) => {
       throw `Announcement with ID: ${announcement.announcementId} is already closed and cannot be updated!`;
     }
 
+    //Announcement cannot be edited if it has already accepted requests
+    const requests = await retrieveAllRequestsForAnnouncement(announcement.announcementId)
+    const acceptedRequests = requests.filter((request) => 
+      request.requestStatus === 'SCHEDULED'
+    )
+    if (acceptedRequests.length !== 0){
+      throw `Announcement with ID: ${announcement.announcementId} already accepted requests and cannot be updated!`;
+    }
+
     const updatedAnnouncement = await announcementToUpdate.update(announcement);
     return await retrieveAnnouncementByAnnouncementId(
       updatedAnnouncement.announcementId
@@ -329,6 +364,14 @@ const deleteAnnouncementByAnnouncementId = async (announcementId) => {
       announcement.announcementStatus === ANNOUNCEMENT_STATUS.PAST
     ) {
       throw `Announcement with ID: ${announcement.announcementId} is already ongoing or closed and cannot be deleted!`;
+    }
+    //Announcement cannot be deleted if it has already accepted requests
+    const requests = await retrieveAllRequestsForAnnouncement(announcement.announcementId)
+    const acceptedRequests = requests.filter((request) => 
+      request.requestStatus === 'SCHEDULED'
+    )
+    if (acceptedRequests.length !== 0){
+      throw `Announcement with ID: ${announcement.announcementId} already accepted requests and cannot be deleted!`;
     }
 
     const userId = announcement.userId;

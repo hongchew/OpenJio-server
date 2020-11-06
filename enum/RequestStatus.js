@@ -4,5 +4,5 @@ module.exports = {
   REJECTED: 'REJECTED',
   DOING: 'DOING',
   COMPLETED: 'COMPLETED',
-  VERIFED: 'VERIFIED',
+  VERIFIED: 'VERIFIED',
 };

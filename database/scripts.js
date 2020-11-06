@@ -140,7 +140,7 @@ const onInitPopulateDatabase = async () => {
       }
     }
 
-    //create announcement1 to user1
+    //create past announcement1 to user1(john)
     const announcement1 = await createAnnouncement(
       user1.userId,
       assignAddressToUser[0].addressId,
@@ -150,7 +150,7 @@ const onInitPopulateDatabase = async () => {
     );
     console.log(announcement1);
 
-    // // user2 send request1 to announcement1 created by user1
+    // user2(Paul) send request1 to announcement1 created by user1
     const request1 = await createRequest(
       'Request1',
       'Buy Cai Fan please',
@@ -159,6 +159,26 @@ const onInitPopulateDatabase = async () => {
       user2.userId
     );
     console.log(request1);
+
+    //user1 John creates active announcement3
+    const announcement3 = await createAnnouncement(
+      user1.userId,
+      assignAddressToUser[0].addressId,
+      'description 3',
+      '2021-09-09T10:10:10',
+      'Harbourfront'
+    );
+    console.log(announcement3);
+
+    // user2(Paul) send request3 to announcement3 created by user1
+    const request3 = await createRequest(
+      'Request3',
+      'Buy KFC please',
+      5.0,
+      announcement3.announcementId,
+      user2.userId
+    );
+    console.log(request3);
 
     // Third user (tom) with COVID-19
     user3 = await createUser('tom@email.com', 'password', 'Tom');
@@ -184,6 +204,26 @@ const onInitPopulateDatabase = async () => {
       }
 
       user3.save();
+
+      //User 3 Tom creates announcement2
+      const announcement2 = await createAnnouncement(
+        user3.userId,
+        assignAddressToUser[0].addressId,
+        'description 2',
+        '2021-10-10T10:10:10',
+        'Kent Ridge'
+      );
+      console.log(announcement2);
+
+      // user1 john send request2 to announcement2
+      const request2 = await createRequest(
+        'Request2',
+        'Buy Mcdonalds please',
+        50.0,
+        announcement2.announcementId,
+        user1.userId
+      );
+      console.log(request2);
 
       // Retrieve user 3's wallet
       const user3Wallet = await retrieveWalletByUserId(user3.userId);
