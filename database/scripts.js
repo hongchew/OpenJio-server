@@ -53,8 +53,8 @@ const onInitPopulateDatabase = async () => {
       description: 'My home',
     };
 
-    let assignAddressToUser = await addAddress(user1.userId, address1);
-    if (assignAddressToUser) {
+    let assignAddressToUser1 = await addAddress(user1.userId, address1);
+    if (assignAddressToUser1) {
       console.log('Address successfully assigned to user: ' + user1.userId);
     }
 
@@ -125,6 +125,20 @@ const onInitPopulateDatabase = async () => {
       user2.save();
       console.log('User created with the name: ' + user2.name);
     }
+    // Add to user address
+    const address2 = {
+      line1: '182 Stirling Road',
+      line2: '#01-01',
+      postalCode: '140182',
+      country: 'Singapore',
+      description: 'Paul home',
+    };
+
+    let assignAddressToUser2 = await addAddress(user2.userId, address2);
+    if (assignAddressToUser2) {
+      console.log('Address successfully assigned to user: ' + user2.userId);
+    }
+    user2.save();
 
     // Retrieve user 3's wallet
     const user2Wallet = await retrieveWalletByUserId(user2.userId);
@@ -143,7 +157,7 @@ const onInitPopulateDatabase = async () => {
     //create past announcement1 to user1(john)
     const announcement1 = await createAnnouncement(
       user1.userId,
-      assignAddressToUser[0].addressId,
+      assignAddressToUser1[0].addressId,
       'description 1',
       '2020-10-10T10:10:10',
       'Yio Chu Kang'
@@ -163,7 +177,7 @@ const onInitPopulateDatabase = async () => {
     //user1 John creates active announcement3
     const announcement3 = await createAnnouncement(
       user1.userId,
-      assignAddressToUser[0].addressId,
+      assignAddressToUser1[0].addressId,
       'description 3',
       '2021-09-09T10:10:10',
       'Harbourfront'
@@ -189,58 +203,121 @@ const onInitPopulateDatabase = async () => {
       user3.isValidated = true;
       user3.mobileNumber = '91253838';
       user3.avatarPath = './files/tom.jpg';
-      // Add to user address
-      const address3 = {
-        line1: '21 Heng Mui Keng Terrace',
-        line2: 'Icube Building',
-        postalCode: '119613',
-        country: 'Singapore',
-        description: 'Best place in NUS',
-      };
-
-      let assignAddressToUser = await addAddress(user3.userId, address3);
-      if (assignAddressToUser) {
-        console.log('Address successfully assigned to user: ' + user3.userId);
-      }
-
-      user3.save();
-
-      //User 3 Tom creates announcement2
-      const announcement2 = await createAnnouncement(
-        user3.userId,
-        assignAddressToUser[0].addressId,
-        'description 2',
-        '2021-10-10T10:10:10',
-        'Kent Ridge'
-      );
-      console.log(announcement2);
-
-      // user1 john send request2 to announcement2
-      const request2 = await createRequest(
-        'Request2',
-        'Buy Mcdonalds please',
-        50.0,
-        announcement2.announcementId,
-        user1.userId
-      );
-      console.log(request2);
-
-      // Retrieve user 3's wallet
-      const user3Wallet = await retrieveWalletByUserId(user3.userId);
-      if (user3Wallet) {
-        // Adding $150 balance to user 1
-        const addingToUser3Wallet = await addWalletBalance(
-          user3Wallet.walletId,
-          150
-        );
-        // Check if top up was successful, alternatively can view on postman
-        if (addingToUser3Wallet.balance === 150) {
-          console.log('Successfully topped up user 3 wallet!');
-        }
-      }
-
-      console.log('User created with the name: ' + user3.name);
+      user3.isSingPassVerified = true;
     }
+
+    // Add to user address
+    const address3 = {
+      line1: '183 Stirling Road',
+      line2: '#03-03',
+      postalCode: '140183',
+      country: 'Singapore',
+      description: 'Tom home',
+    };
+
+    let assignAddressToUser3 = await addAddress(user3.userId, address3);
+    if (assignAddressToUser3) {
+      console.log('Address successfully assigned to user: ' + user3.userId);
+    }
+
+    user3.save();
+
+    //User 3 Tom creates announcement2
+    const announcement2 = await createAnnouncement(
+      user3.userId,
+      assignAddressToUser3[0].addressId,
+      'description 2',
+      '2021-10-10T10:10:10',
+      'Kent Ridge'
+    );
+    console.log(announcement2);
+
+    // user1 john send request2 to announcement2
+    const request2 = await createRequest(
+      'Request2',
+      'Buy Mcdonalds please',
+      50.0,
+      announcement2.announcementId,
+      user1.userId
+    );
+    console.log(request2);
+
+    // Retrieve user 3's wallet
+    const user3Wallet = await retrieveWalletByUserId(user3.userId);
+    if (user3Wallet) {
+      // Adding $150 balance to user 1
+      const addingToUser3Wallet = await addWalletBalance(
+        user3Wallet.walletId,
+        150
+      );
+      // Check if top up was successful, alternatively can view on postman
+      if (addingToUser3Wallet.balance === 150) {
+        console.log('Successfully topped up user 3 wallet!');
+      }
+    }
+
+    console.log('User created with the name: ' + user3.name);
+    
+
+    // Fourth user (Mary) without COVID-19 & not blacklisted
+    user4 = await createUser('mary@email.com', 'password', 'Mary');
+    if (user4) {
+      user4.hasCovid = false;
+      user4.isBlackListed = false;
+      user4.strikeCount = 0;
+      user4.isValidated = true;
+      user4.avatarPath = './files/mae.jpg';
+      user4.save();
+      console.log('User created with the name: ' + user4.name);
+    }
+    // Add to user address
+    const address4 = {
+      line1: '184 Stirling Road',
+      line2: '#04-04',
+      postalCode: '140184',
+      country: 'Singapore',
+      description: 'Mary home',
+    };
+
+    let assignAddressToUser4 = await addAddress(user4.userId, address4);
+    if (assignAddressToUser4) {
+      console.log('Address successfully assigned to user: ' + user4.userId);
+    }
+    user4.save();
+
+    //SR3 demo announcements and requests
+    //user1 John creates active announcement
+    await createAnnouncement(
+      user1.userId,
+      assignAddressToUser1[0].addressId,
+      'John announcement',
+      '2020-11-22T00:00:00.000Z',
+      'John location'
+    );
+
+    await createAnnouncement(
+      user4.userId,
+      assignAddressToUser4[0].addressId,
+      'Mary announcement',
+      '2020-11-25T00:00:00.000Z',
+      'Mary location'
+    );
+
+    await createAnnouncement(
+      user2.userId,
+      assignAddressToUser2[0].addressId,
+      'Tom announcement',
+      '2020-11-20T00:00:00.000Z',
+      'Tom location'
+    );
+
+    await createAnnouncement(
+      user3.userId,
+      assignAddressToUser3[0].addressId,
+      'Paul announcement',
+      '2020-11-23T00:00:00.000Z',
+      'Paul location'
+    );
 
     // Create 10 users with randomly generated badge counts for leaderboard
     await Promise.all(
