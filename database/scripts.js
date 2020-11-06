@@ -305,49 +305,49 @@ const onInitPopulateDatabase = async () => {
     await createAnnouncement(
       user1.userId,
       assignAddressToUser1[0].addressId,
-      'John announcement',
+      `Going to buy bubble tea`,
       '2020-11-22T00:00:00.000Z',
-      'John location'
+      `Harborfront`
     );
 
     await createAnnouncement(
       user4.userId,
       assignAddressToUser4[0].addressId,
-      `${user4.name} announcement`,
+      `Going to collect mail`,
       '2020-11-25T00:00:00.000Z',
-      `${user4.name} location`
+      `Admiralty`
     );
 
     await createAnnouncement(
       user2.userId,
       assignAddressToUser2[0].addressId,
-      `${user2.name} announcement`,
+      `Dapao food`,
       '2020-11-20T00:00:00.000Z',
-      `${user2.name} location`
+      `Biz Canteen`
     );
 
     await createAnnouncement(
       user3.userId,
       assignAddressToUser3[0].addressId,
-      `${user3.name} announcement`,
+      `Grocery shopping`,
       '2020-11-23T00:00:00.000Z',
-      `${user3.name} location`
+      `Seng Kang Mall`
     );
 
     await createAnnouncement(
       user4.userId,
       assignAddressToUser4[0].addressId,
-      `${user4.name} announcement`,
+      `Buying coffee`,
       '2020-11-26T00:00:00.000Z',
-      `${user4.name} location`
+      `Starbucks`
     );
 
     await createAnnouncement(
       user3.userId,
       assignAddressToUser3[0].addressId,
-      `${user3.name} announcement`,
+      `Going to chalet area`,
       '2020-11-27T00:00:00.000Z',
-      `${user3.name} location`
+      `Bedok`
     );
 
     await createAnnouncement(
