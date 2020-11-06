@@ -313,49 +313,49 @@ const onInitPopulateDatabase = async () => {
     await createAnnouncement(
       user4.userId,
       assignAddressToUser4[0].addressId,
-      'Mary announcement',
+      `${user4.name} announcement`,
       '2020-11-25T00:00:00.000Z',
-      'Mary location'
+      `${user4.name} location`
     );
 
     await createAnnouncement(
       user2.userId,
       assignAddressToUser2[0].addressId,
-      'Paul announcement',
+      `${user2.name} announcement`,
       '2020-11-20T00:00:00.000Z',
-      'Paul location'
+      `${user2.name} location`
     );
 
     await createAnnouncement(
       user3.userId,
       assignAddressToUser3[0].addressId,
-      'Tom announcement',
+      `${user3.name} announcement`,
       '2020-11-23T00:00:00.000Z',
-      'Tom location'
+      `${user3.name} location`
     );
 
     await createAnnouncement(
       user4.userId,
       assignAddressToUser4[0].addressId,
-      'Mary second announcement',
+      `${user4.name} announcement`,
       '2020-11-26T00:00:00.000Z',
-      'Mary second location'
+      `${user4.name} location`
     );
 
     await createAnnouncement(
       user3.userId,
       assignAddressToUser3[0].addressId,
-      'Tom announcement',
+      `${user3.name} announcement`,
       '2020-11-27T00:00:00.000Z',
-      'Tom second location'
+      `${user3.name} location`
     );
 
     await createAnnouncement(
       user2.userId,
       assignAddressToUser2[0].addressId,
-      'Paul announcement',
+      `${user2.name} announcement`,
       '2020-11-28T00:00:00.000Z',
-      'Pual second location'
+      `${user2.name} location`
     );
 
     // Create 10 users with randomly generated badge counts for leaderboard
