@@ -58,6 +58,22 @@ const onInitPopulateDatabase = async () => {
       console.log('Address successfully assigned to user: ' + user1.userId);
     }
 
+    user1.defaultAddressId = assignAddressToUser1[0].addressId;
+
+    // Add to user address
+    const user1Address2 = {
+      line1: '295 Ocean Drive',
+      line2: '',
+      postalCode: '098534',
+      country: 'Singapore',
+      description: 'My 2nd home',
+    };
+
+    let assignAddress2ToUser1 = await addAddress(user1.userId, user1Address2);
+    if (assignAddress2ToUser1) {
+      console.log('Address successfully assigned to user: ' + user1.userId);
+    }
+
     for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
       await giveBadge(user1.userId, badgeControl.types.LOCAL_LOBANG);
     }
@@ -257,7 +273,6 @@ const onInitPopulateDatabase = async () => {
     }
 
     console.log('User created with the name: ' + user3.name);
-    
 
     // Fourth user (Mary) without COVID-19 & not blacklisted
     user4 = await createUser('mary@email.com', 'password', 'Mary');
