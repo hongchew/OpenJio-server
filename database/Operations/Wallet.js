@@ -53,9 +53,9 @@ const retrieveWalletByUserId = async (userId) => {
       where: {
         userId: userId,
       },
-      include:{
+      include:[
         RecurrentAgreement
-      }
+      ]
     });
     return wallet;
   } catch (e) {
