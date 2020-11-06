@@ -44,6 +44,9 @@ const onInitPopulateDatabase = async () => {
     user1.mobileNumber = '97748080';
     user1.avatarPath = './files/john.jpg';
 
+    await giveBadge(user1.userId, badgeControl.types.LOCAL_LOBANG);
+
+
     // Add to user address
     const address1 = {
       line1: '181 Stirling Road',
@@ -123,6 +126,9 @@ const onInitPopulateDatabase = async () => {
       user2.isValidated = true;
       user2.avatarPath = './files/paul.jpg';
       user2.save();
+
+      await giveBadge(user2.userId, badgeControl.types.LOCAL_LOBANG);
+
       console.log('User created with the name: ' + user2.name);
     }
     // Add to user address
@@ -204,6 +210,7 @@ const onInitPopulateDatabase = async () => {
       user3.mobileNumber = '91253838';
       user3.avatarPath = './files/tom.jpg';
       user3.isSingPassVerified = true;
+      await giveBadge(user3.userId, badgeControl.types.LOCAL_LOBANG);
     }
 
     // Add to user address
@@ -268,6 +275,9 @@ const onInitPopulateDatabase = async () => {
       user4.isValidated = true;
       user4.avatarPath = './files/mae.jpg';
       user4.save();
+
+      await giveBadge(user4.userId, badgeControl.types.LOCAL_LOBANG);
+
       console.log('User created with the name: ' + user4.name);
     }
     // Add to user address
