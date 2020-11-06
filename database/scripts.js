@@ -150,7 +150,7 @@ const onInitPopulateDatabase = async () => {
     );
     console.log(announcement1);
 
-    // user2 send request1 to announcement1 created by user1
+    // // user2 send request1 to announcement1 created by user1
     const request1 = await createRequest(
       'Request1',
       'Buy Cai Fan please',

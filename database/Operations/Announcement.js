@@ -2,7 +2,6 @@ const ANNOUNCEMENT_STATUS = require('../../enum/AnnouncementStatus');
 const {Announcement} = require('../Models/Announcement');
 const axios = require('axios');
 const {retrieveAddressByAddressId} = require('./Address');
-const {retrieveAllRequestsByAnnouncementId} = require('./Request');
 const {Request} = require('../Models/Request');
 const {User} = require('../Models/User');
 
