@@ -82,7 +82,6 @@ const retrieveAddressByAddressId = async (addressId) => {
         addressId: addressId,
       },
     });
-    console.log(address);
     return address;
   } catch (e) {
     console.log(e);
@@ -93,5 +92,6 @@ const retrieveAddressByAddressId = async (addressId) => {
 module.exports = {
   addAddress,
   deleteAddressByAddresId,
-  retrieveAllAddressesByUserId
+  retrieveAllAddressesByUserId,
+  retrieveAddressByAddressId,
 };

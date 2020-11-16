@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const {Address} = require('../database/Models/Address');
-const {addAddress, deleteAddressByAddresId, retrieveAllAddressesByUserId} = require('../database/Operations/Address');
+const {
+  addAddress,
+  deleteAddressByAddresId,
+  retrieveAllAddressesByUserId,
+  retrieveAddressByAddressId,
+} = require('../database/Operations/Address');
 
 /*
   Endpoint: POST /addresses/add
@@ -50,6 +55,20 @@ router.get('/:userId', async (req, res) => {
   try {
     const addressList = await retrieveAllAddressesByUserId(req.params.userId);
     res.status(200).json(addressList);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: Get /addresses/retrieve-addressId/:addressId
+  Content type: 
+  Return: Model.Address
+*/
+router.get('/retrieve-addressId/:addressId', async (req, res) => {
+  try {
+    const address = await retrieveAddressByAddressId(req.params.addressId);
+    res.status(200).json(address);
   } catch (e) {
     res.status(500).json(e);
   }

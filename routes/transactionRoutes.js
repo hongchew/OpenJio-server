@@ -80,7 +80,7 @@ router.post('/donate', async (req, res) => {
 });
 
 /*
-  Endpoint: GET /transactions/:userId
+  Endpoint: GET /transactions/retrieve-all
   Content type: JSON { userId: UUID}
   Return: Array of all transaction objects under the user
 */

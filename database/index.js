@@ -14,7 +14,7 @@ const {initBadge, Badge} = require('./Models/Badge');
 const {initComplaint, Complaint} = require('./Models/Complaint');
 const {initNotification, Notification} = require('./Models/Notification');
 const {initOutbreakZone, OutbreakZone} = require('./Models/OutbreakZone');
-const {initRecurrentTopUp, RecurrentTopUp} = require('./Models/RecurrentTopUp');
+const {initRecurrentAgreement, RecurrentAgreement} = require('./Models/RecurrentAgreement');
 const {initRequest, Request} = require('./Models/Request');
 const {initSupportComment, SupportComment} = require('./Models/SupportComment');
 const {initSupportTicket, SupportTicket} = require('./Models/SupportTicket');
@@ -64,7 +64,7 @@ const getDb = async () => {
       initComplaint(db),
       initNotification(db),
       initOutbreakZone(db),
-      initRecurrentTopUp(db),
+      initRecurrentAgreement(db),
       initRequest(db),
       initSupportComment(db),
       initSupportTicket(db),
@@ -113,12 +113,12 @@ const getDb = async () => {
     Notification.belongsTo(User, {foreignKey: 'userId'}); //notification.userId
     User.hasMany(Notification, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.notifications
 
-    // RecurrentTopUp
-    RecurrentTopUp.belongsTo(Wallet, {foreignKey: 'walletId'}); //recurrentTopUp.walletId
-    Wallet.hasOne(RecurrentTopUp, {
+    // RecurrentAgreement
+    RecurrentAgreement.belongsTo(Wallet, {foreignKey: 'walletId'}); //recurrentAgreement.walletId
+    Wallet.hasMany(RecurrentAgreement, {
       foreignKey: 'walletId',
       onDelete: 'CASCADE',
-    }); //wallet.recurrentTopUp
+    }); //wallet.recurrentAgreement
 
     // Request
     Request.belongsTo(Announcement, {foreignKey: 'announcementId'}); //request.announcement

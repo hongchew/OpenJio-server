@@ -12,6 +12,8 @@ const {
   makeTopUp,
 } = require('./Operations/Transaction');
 const TransactionType = require('../enum/TransactionType');
+const {createAnnouncement} = require('./Operations/Announcement');
+const {createRequest} = require('./Operations/Request');
 
 const onInitPopulateDatabase = async () => {
   // Populate admin
@@ -40,7 +42,10 @@ const onInitPopulateDatabase = async () => {
     user1.strikeCount = 1;
     user1.isValidated = true;
     user1.mobileNumber = '97748080';
-    user1.avatarPath = "./files/john.jpg"
+    user1.avatarPath = './files/john.jpg';
+
+    await giveBadge(user1.userId, badgeControl.types.LOCAL_LOBANG);
+
 
     // Add to user address
     const address1 = {
@@ -51,8 +56,24 @@ const onInitPopulateDatabase = async () => {
       description: 'My home',
     };
 
-    let assignAddressToUser = await addAddress(user1.userId, address1);
-    if (assignAddressToUser) {
+    let assignAddressToUser1 = await addAddress(user1.userId, address1);
+    if (assignAddressToUser1) {
+      console.log('Address successfully assigned to user: ' + user1.userId);
+    }
+
+    user1.defaultAddressId = assignAddressToUser1[0].addressId;
+
+    // Add to user address
+    const user1Address2 = {
+      line1: '295 Ocean Drive',
+      line2: '',
+      postalCode: '098534',
+      country: 'Singapore',
+      description: 'My 2nd home',
+    };
+
+    let assignAddress2ToUser1 = await addAddress(user1.userId, user1Address2);
+    if (assignAddress2ToUser1) {
       console.log('Address successfully assigned to user: ' + user1.userId);
     }
 
@@ -63,16 +84,10 @@ const onInitPopulateDatabase = async () => {
       await giveBadge(user1.userId, badgeControl.types.LOCAL_LOBANG);
     }
     for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
-      await giveBadge(
-        user1.userId,
-        badgeControl.types.EXCELLENT_COMMUNICATOR
-      );
+      await giveBadge(user1.userId, badgeControl.types.EXCELLENT_COMMUNICATOR);
     }
     for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
-      await giveBadge(
-        user1.userId,
-        badgeControl.types.FAST_AND_FURIOUS
-      );
+      await giveBadge(user1.userId, badgeControl.types.FAST_AND_FURIOUS);
     }
 
     await giveBadge(user1.userId, badgeControl.types.SUPER_NEIGHBOUR);
@@ -103,7 +118,11 @@ const onInitPopulateDatabase = async () => {
       } else {
         console.log('Failed to donate');
       }
-      const topup1 = await makeTopUp(user1Wallet.walletId, 50, 'OPENJIOSCRIPT0001');
+      const topup1 = await makeTopUp(
+        user1Wallet.walletId,
+        50,
+        'OPENJIOSCRIPT0001'
+      );
       if (topup1) {
         console.log('User 1 Topped up $50');
       } else {
@@ -121,10 +140,81 @@ const onInitPopulateDatabase = async () => {
       user2.isBlackListed = false;
       user2.strikeCount = 2;
       user2.isValidated = true;
-      user2.avatarPath = "./files/paul.jpg"
+      user2.avatarPath = './files/paul.jpg';
       user2.save();
+
+      await giveBadge(user2.userId, badgeControl.types.LOCAL_LOBANG);
+
       console.log('User created with the name: ' + user2.name);
     }
+    // Add to user address
+    const address2 = {
+      line1: '182 Stirling Road',
+      line2: '#01-01',
+      postalCode: '140182',
+      country: 'Singapore',
+      description: 'Paul home',
+    };
+
+    let assignAddressToUser2 = await addAddress(user2.userId, address2);
+    if (assignAddressToUser2) {
+      console.log('Address successfully assigned to user: ' + user2.userId);
+    }
+    user2.save();
+
+    // Retrieve user 3's wallet
+    const user2Wallet = await retrieveWalletByUserId(user2.userId);
+    if (user2Wallet) {
+      // Adding $200 balance to user 1
+      const addingToUser2Wallet = await addWalletBalance(
+        user2Wallet.walletId,
+        200
+      );
+      // Check if top up was successful
+      if (addingToUser2Wallet.balance === 200) {
+        console.log('Successfully topped up user 2 wallet!');
+      }
+    }
+
+    //create past announcement1 to user1(john)
+    const announcement1 = await createAnnouncement(
+      user1.userId,
+      assignAddressToUser1[0].addressId,
+      'description 1',
+      '2020-10-10T10:10:10',
+      'Yio Chu Kang'
+    );
+    console.log(announcement1);
+
+    // user2(Paul) send request1 to announcement1 created by user1
+    const request1 = await createRequest(
+      'Request1',
+      'Buy Cai Fan please',
+      10.0,
+      announcement1.announcementId,
+      user2.userId
+    );
+    console.log(request1);
+
+    //user1 John creates active announcement3
+    const announcement3 = await createAnnouncement(
+      user1.userId,
+      assignAddressToUser1[0].addressId,
+      'description 3',
+      '2021-09-09T10:10:10',
+      'Harbourfront'
+    );
+    console.log(announcement3);
+
+    // user2(Paul) send request3 to announcement3 created by user1
+    const request3 = await createRequest(
+      'Request3',
+      'Buy KFC please',
+      5.0,
+      announcement3.announcementId,
+      user2.userId
+    );
+    console.log(request3);
 
     // Third user (tom) with COVID-19
     user3 = await createUser('tom@email.com', 'password', 'Tom');
@@ -134,24 +224,149 @@ const onInitPopulateDatabase = async () => {
       user3.strikeCount = 3;
       user3.isValidated = true;
       user3.mobileNumber = '91253838';
-      user3.avatarPath = "./files/tom.jpg"
-      // Add to user address
-      const address3 = {
-        line1: '21 Heng Mui Keng Terrace',
-        line2: 'Icube Building',
-        postalCode: '119613',
-        country: 'Singapore',
-        description: 'Best place in NUS',
-      };
-
-      let assignAddressToUser = await addAddress(user3.userId, address3);
-      if (assignAddressToUser) {
-        console.log('Address successfully assigned to user: ' + user3.userId);
-      }
-
-      user3.save();
-      console.log('User created with the name: ' + user3.name);
+      user3.avatarPath = './files/tom.jpg';
+      user3.isSingPassVerified = true;
+      await giveBadge(user3.userId, badgeControl.types.LOCAL_LOBANG);
     }
+
+    // Add to user address
+    const address3 = {
+      line1: '183 Stirling Road',
+      line2: '#03-03',
+      postalCode: '140183',
+      country: 'Singapore',
+      description: 'Tom home',
+    };
+
+    let assignAddressToUser3 = await addAddress(user3.userId, address3);
+    if (assignAddressToUser3) {
+      console.log('Address successfully assigned to user: ' + user3.userId);
+    }
+
+    user3.save();
+
+    //User 3 Tom creates announcement2
+    const announcement2 = await createAnnouncement(
+      user3.userId,
+      assignAddressToUser3[0].addressId,
+      'description 2',
+      '2021-10-10T10:10:10',
+      'Kent Ridge'
+    );
+    console.log(announcement2);
+
+    // user1 john send request2 to announcement2
+    const request2 = await createRequest(
+      'Request2',
+      'Buy Mcdonalds please',
+      50.0,
+      announcement2.announcementId,
+      user1.userId
+    );
+    console.log(request2);
+
+    // Retrieve user 3's wallet
+    const user3Wallet = await retrieveWalletByUserId(user3.userId);
+    if (user3Wallet) {
+      // Adding $150 balance to user 1
+      const addingToUser3Wallet = await addWalletBalance(
+        user3Wallet.walletId,
+        150
+      );
+      // Check if top up was successful, alternatively can view on postman
+      if (addingToUser3Wallet.balance === 150) {
+        console.log('Successfully topped up user 3 wallet!');
+      }
+    }
+
+    console.log('User created with the name: ' + user3.name);
+
+    // Fourth user (Mary) without COVID-19 & not blacklisted
+    user4 = await createUser('mary@email.com', 'password', 'Mary');
+    if (user4) {
+      user4.hasCovid = false;
+      user4.isBlackListed = false;
+      user4.strikeCount = 0;
+      user4.isValidated = true;
+      user4.avatarPath = './files/mae.jpg';
+      user4.save();
+
+      await giveBadge(user4.userId, badgeControl.types.LOCAL_LOBANG);
+
+      console.log('User created with the name: ' + user4.name);
+    }
+    // Add to user address
+    const address4 = {
+      line1: '184 Stirling Road',
+      line2: '#04-04',
+      postalCode: '140184',
+      country: 'Singapore',
+      description: 'Mary home',
+    };
+
+    let assignAddressToUser4 = await addAddress(user4.userId, address4);
+    if (assignAddressToUser4) {
+      console.log('Address successfully assigned to user: ' + user4.userId);
+    }
+    user4.save();
+
+    //SR3 demo announcements and requests
+    //user1 John creates active announcement
+    await createAnnouncement(
+      user1.userId,
+      assignAddressToUser1[0].addressId,
+      `Going to buy bubble tea`,
+      '2020-11-22T00:00:00.000Z',
+      `Harborfront`
+    );
+
+    await createAnnouncement(
+      user4.userId,
+      assignAddressToUser4[0].addressId,
+      `Going to collect mail`,
+      '2020-11-25T00:00:00.000Z',
+      `Admiralty`
+    );
+
+    await createAnnouncement(
+      user2.userId,
+      assignAddressToUser2[0].addressId,
+      `Dapao food`,
+      '2020-11-20T00:00:00.000Z',
+      `Biz Canteen`
+    );
+
+    await createAnnouncement(
+      user3.userId,
+      assignAddressToUser3[0].addressId,
+      `Grocery shopping`,
+      '2020-11-23T00:00:00.000Z',
+      `Seng Kang Mall`
+    );
+
+    await createAnnouncement(
+      user4.userId,
+      assignAddressToUser4[0].addressId,
+      `Buying coffee`,
+      '2020-11-26T00:00:00.000Z',
+      `Starbucks`
+    );
+
+    await createAnnouncement(
+      user3.userId,
+      assignAddressToUser3[0].addressId,
+      `Going to chalet area`,
+      '2020-11-27T00:00:00.000Z',
+      `Bedok`
+    );
+
+    await createAnnouncement(
+      user2.userId,
+      assignAddressToUser2[0].addressId,
+      `Grocery shopping`,
+      '2020-11-28T00:00:00.000Z',
+      `West Gate`
+    );
 
     // Create 10 users with randomly generated badge counts for leaderboard
     await Promise.all(
@@ -169,7 +384,7 @@ const onInitPopulateDatabase = async () => {
       ].map(async (user) => {
         var createdUser = await createUser(user.email, 'password', user.name);
         createdUser.isValidated = true;
-        createdUser.avatarPath = `./files/${user.email.split('@')[0]}.jpg`
+        createdUser.avatarPath = `./files/${user.email.split('@')[0]}.jpg`;
         await createdUser.save();
         for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
           await giveBadge(createdUser.userId, badgeControl.types.LOCAL_LOBANG);

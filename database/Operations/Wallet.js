@@ -1,5 +1,7 @@
 const {Wallet} = require('../Models/Wallet');
 const {Sequelize} = require('sequelize');
+const {RecurrentAgreement} = require('../Models/RecurrentAgreement');
+
 
 /*
   Create an insert wallet into database
@@ -29,6 +31,9 @@ const retrieveWalletByWalletId = async (walletId) => {
       where: {
         walletId: walletId,
       },
+      include:[
+        RecurrentAgreement
+      ]
     });
     return wallet;
   } catch (e) {
@@ -48,6 +53,9 @@ const retrieveWalletByUserId = async (userId) => {
       where: {
         userId: userId,
       },
+      include:[
+        RecurrentAgreement
+      ]
     });
     return wallet;
   } catch (e) {
