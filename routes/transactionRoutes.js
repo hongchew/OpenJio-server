@@ -12,6 +12,7 @@ const {
   makeUserPayment,
   makeWithdrawal,
   makeDonation,
+  makeTopUp
 } = require('../database/Operations/Transaction');
 const {
   retrieveWalletByUserId,
@@ -95,7 +96,7 @@ router.get('/retrieve-all', async (req, res) => {
 });
 
 /*
-  Endpoint: GET /transactions/:userId
+  Endpoint: GET /transactions/by/:userId
   Content type: JSON { userId: UUID}
   Return: Array of all transaction objects under the user
 */
@@ -156,6 +157,21 @@ router.get('/:transactionId', async (req, res) => {
     transactionDetails.recipientDetails = selectedRecipientDetails;
 
     res.status(200).json(transactionDetails);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: POST /transactions/:userId
+  Content type: JSON { amount: number}
+  Return: Array of all transaction objects under the user
+*/
+router.post('/test-top-up-bypass-paypal/:walletId', async (req, res) => {
+  try {
+    const transaction = await makeTopUp(req.params.walletId, req.body.amount);
+    res.status(200).json(transaction);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
