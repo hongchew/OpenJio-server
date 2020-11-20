@@ -15,6 +15,18 @@ const createSupportTicket = async (
   userId
 ) => {
   try {
+    //Validation if the supportType passed in belongs to any of the enum
+    if (
+      supportType !== SUPPORT_TYPE.PROFILE &&
+      supportType !== SUPPORT_TYPE.SYSTEM &&
+      supportType !== SUPPORT_TYPE.PAYMENT &&
+      supportType !== SUPPORT_TYPE.JIO &&
+      supportType !== SUPPORT_TYPE.REQUEST &&
+      supportType !== SUPPORT_TYPE.HEALTH
+    ){
+      throw `supportType is invalid`
+    }
+
     const newTicket = SupportTicket.build({
       title: title,
       description: description,
@@ -98,7 +110,7 @@ const retrieveAllActiveTicketsByUserId = async (userId) => {
   Parameters: -
   Return: Array of SupportTicket objects 
 ---------------------------------------- */
-const retrieveAllActiveTicket = async () => {
+const retrieveAllActiveTickets = async () => {
   try {
     const tickets = await SupportTicket.findAll({
       where: {
@@ -113,7 +125,7 @@ const retrieveAllActiveTicket = async () => {
 };
 
 /* ----------------------------------------
-  For users to update the details of support ticket if the ticket status is still pending
+  For users to update the details of support ticket if the ticket status is still pending, including supportType
   Parameters: Complaint object
   Return: Updated complaint object
   Note: Function to be used by users
@@ -140,7 +152,7 @@ const updateTicket = async (supportTicket) => {
       supportTicket.supportType !== SUPPORT_TYPE.REQUEST &&
       supportTicket.supportType !== SUPPORT_TYPE.HEALTH
     ){
-      throw  `Support type is invalid`
+      throw `supportType is invalid`
     }
 
     const updatedTicket = await ticketToUpdate.update(supportTicket);
@@ -223,7 +235,7 @@ module.exports = {
   retrieveTicketByTicketId,
   retrieveAllTicketsByUserId,
   retrieveAllActiveTicketsByUserId,
-  retrieveAllActiveTicket,
+  retrieveAllActiveTickets,
   updateTicket,
   resolveTicket,
   rejectTicket,
