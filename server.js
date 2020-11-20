@@ -42,6 +42,7 @@ const walletsRouter = require('./routes/walletRoutes');
 const transactionRouter = require('./routes/transactionRoutes');
 const paypalRouter = require('./routes/paypalRoutes');
 const temperatureRouter = require('./routes/temperatureRoutes');
+const complaintRouter = require('./routes/complaintRoutes');
 
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
@@ -52,6 +53,7 @@ app.use('/wallets', walletsRouter);
 app.use('/transactions', transactionRouter);
 app.use('/paypal', paypalRouter);
 app.use('/temperatures', temperatureRouter);
+app.use('/complaints', complaintRouter);
 app.use('/files', express.static('files'));
 
 //#endregion
