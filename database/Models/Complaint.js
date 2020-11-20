@@ -1,15 +1,15 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
-const supportComplaintStatus = require("../../enum/SupportComplaintStatus")
+const COMPLAINT_STATUS = require("../../enum/SupportComplaintStatus")
 
 class Complaint extends Model {
   setPending(){
-    this.complaintStatus = supportComplaintStatus.PENDING
+    this.complaintStatus = COMPLAINT_STATUS.PENDING
   }
   setResolved() {
-    this.complaintStatus = supportComplaintStatus.RESOLVED
+    this.complaintStatus = COMPLAINT_STATUS.RESOLVED
   }
   setRejected(){
-    this.complaintStatus = supportComplaintStatus.REJECTED
+    this.complaintStatus = COMPLAINT_STATUS.REJECTED
   }
 }
 
@@ -31,7 +31,7 @@ const initComplaint = async (sequelize) => {
       complaintStatus: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: supportComplaintStatus.PENDING
+        defaultValue: COMPLAINT_STATUS.PENDING
       },
     },
     {

@@ -4,7 +4,7 @@ const axios = require('axios');
 
 /* ----------------------------------------
   Create a complaint for a request
-  Parameters: (userId:'string' , addressId:'string' , description:'string', closeTime:'string of date in ISO8601 format' , destination:'string')
+  Parameters: (description: string, requestId: string)
   Return: Complaint object
 ---------------------------------------- */
 const createComplaint = async (
@@ -78,12 +78,12 @@ const retrieveComplaintByComplaintId = async (complaintId) => {
 const updateComplaint = async (complaint) => {
   try {
     const complaintToUpdate = await retrieveComplaintByComplaintId(complaint.complaintId)
-    //Backend announcement validation
+    //Backend complaint validation
     if (!complaintToUpdate) {
       throw `Complaint with ID ${complaint.complaintId} not found!`;
     }
 
-    // Check if the announcement is still pending to allow edit
+    // Check if the complaint is still pending to allow edit
     if ( complaintToUpdate.complaintStatus === COMPLAINT_STATUS.REJECTED || complaintToUpdate.complaintStatus === COMPLAINT_STATUS.RESOLVED){
       throw `Complaint with ID ${complaintToUpdate.complaintId} cannot be updated because it is already resolved or rejected.`
     }
@@ -105,7 +105,7 @@ const updateComplaint = async (complaint) => {
 const addResponse = async (adminResponse, complaintId) => {
   try {
     const complaintToUpdate = await retrieveComplaintByComplaintId(complaintId)
-    //Backend announcement validation
+    //Backend complaint validation
     if (!complaintToUpdate) {
       throw `Complaint with ID ${complaintId} not found!`;
     }
@@ -166,7 +166,7 @@ const deleteComplaintByComplaintId = async (complaintId) => {
       throw `Complaint with ID ${complaintId} not found`;
     }
 
-    // Check if the announcement is still pending to allow deletion
+    // Check if the complaint is still pending to allow deletion
     if ( complaint.complaintStatus === COMPLAINT_STATUS.REJECTED || complaint.complaintStatus === COMPLAINT_STATUS.RESOLVED){
       throw `Complaint with ID ${complaint.complaintId} cannot be deleted because it is already resolved or rejected.`
     }
