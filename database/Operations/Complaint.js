@@ -25,7 +25,7 @@ const createComplaint = async (
 
     await newComplaint.save();
 
-    return await retrieveComplaintByComplaintId(newComplaint.complainId);
+    return await retrieveComplaintByComplaintId(newComplaint.complaintId);
   } catch (e) {
     console.log(e);
     throw e;

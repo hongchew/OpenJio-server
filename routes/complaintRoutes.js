@@ -21,13 +21,13 @@ router.get('/', (req, res) => {
   Endpoint: POST /complaints/create-complaint
   Body: JSON 
   {
-    description: 'string', 
-    requestId: 'string', 
+    "description": "string", 
+    "requestId": "string", 
   }
   Return: Model.Complaint object
-  Status: 
+  Status: Passed postman test
 ---------------------------------------- */
-router.post('/create-complaints', async (req, res) => {
+router.post('/create-complaint', async (req, res) => {
   try {
     const newComplaint = await createComplaint(
       req.body.description,
@@ -44,7 +44,7 @@ router.post('/create-complaints', async (req, res) => {
   Endpoint: GET /complaints/all-complaints/:requestId
   Params: requestId 
   Return: JSON array of complaints
-  Status: 
+  Status: Passed postman test
 ---------------------------------------- */
 router.get('/all-complaints/:requestId', async (req, res) => {
   try {
@@ -63,7 +63,7 @@ router.get('/all-complaints/:requestId', async (req, res) => {
   Endpoint: GET /complaints/complaint-info/:complaintId
   Parameters: complaintId
   Return: JSON of complaint
-  Status: 
+  Status: Passed postman test
 ---------------------------------------- */
 router.get('/complaint-info/:complaintId', async (req, res) => {
   try {
@@ -82,7 +82,7 @@ router.get('/complaint-info/:complaintId', async (req, res) => {
   Endpoint: PUT /complaints/update-complaint
   Body: Complaint object to update the database
   Return: Complaint object with updated fields
-  Status: 
+  Status: Passed postman test
 ---------------------------------------- */
 router.put('/update-complaint', async (req, res) => {
   try {
@@ -99,11 +99,11 @@ router.put('/update-complaint', async (req, res) => {
   Endpoint: PUT /complaints/add-response
   Body: JSON 
   {
-    adminResponse: 'string', 
-    complaintId: 'string', 
+    "adminResponse": "string", 
+    "complaintId": "string", 
   }
   Return: Complaint object with updated fields
-  Status: 
+  Status: Passed postman test
 ---------------------------------------- */
 router.put('/add-response', async (req, res) => {
   try {
@@ -120,7 +120,7 @@ router.put('/add-response', async (req, res) => {
   Endpoint: PUT /complaints/resolve/:complaintId
   Parameters: complaintId
   Return: Resolved complaint object
-  Status:
+  Status: Passed postman test
 ---------------------------------------- */
 router.put('/resolve/:complaintId', async (req, res) => {
   try {
@@ -136,7 +136,7 @@ router.put('/resolve/:complaintId', async (req, res) => {
   Endpoint: PUT /complaints/reject/:complaintId
   Parameters: complaintId
   Return: Rejected complaint object
-  Status:
+  Status: Passed postman test
 ---------------------------------------- */
 router.put('/reject/:complaintId', async (req, res) => {
   try {
@@ -152,7 +152,7 @@ router.put('/reject/:complaintId', async (req, res) => {
   Endpoint: DELETE /complaints/delete/:complaintId
   Parameters: complaintId
   Return: Null
-  Status: 
+  Status: Passed postman test
 ---------------------------------------- */
 router.delete('/delete/:complaintId', async (req, res) => {
     try {
