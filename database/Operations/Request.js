@@ -103,6 +103,27 @@ const retrieveAllRequestsByUserId = async (userId) => {
 };
 
 /*  
+Retrieve all pending requests by requester based on userId that are PENDING
+Parameters: (userId: UUID)
+Return: Array of Request
+*/
+
+const retrieveAllPendingRequests = async (userId) => {
+  try {
+    const pendingRequests = await Request.findAll({
+      where: {
+        userId: userId,
+        requestStatus: requestStatus.PENDING,
+      },
+    });
+    return pendingRequests;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*  
 Retrieve all ongoing requests by requester based on userId that are not COMPLETED & VERIFIED
 Parameters: (userId: UUID)
 Return: Array of Request
@@ -349,6 +370,7 @@ module.exports = {
   retrieveAllRequests,
   retrieveAllRequestsByUserId,
   retrieveAllRequestsByAnnouncementId,
+  retrieveAllPendingRequests,
   retrieveAllOngoingRequests,
   retrieveAllPastRequests,
   retrieveRequestByRequestId,

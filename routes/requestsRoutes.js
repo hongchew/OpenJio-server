@@ -2,6 +2,7 @@ const express = require('express');
 const {
   createRequest,
   retrieveAllRequests,
+  retrieveAllPendingRequests,
   retrieveAllOngoingRequests,
   retrieveAllPastRequests,
   retrieveAllRequestsByUserId,
@@ -66,6 +67,23 @@ router.get('/by-userId/:userId', async (req, res) => {
   try {
     const requests = await retrieveAllRequestsByUserId(req.params.userId);
     res.status(200).json(requests);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/* ----------------------------------------
+  Retrieve details of all pending requests by userId
+  Endpoint: GET /requests/pending/:userId
+  Parameters: userId
+  Return: Array of request objects
+  Status: Passed postman test
+---------------------------------------- */
+router.get('/pending/:userId', async (req, res) => {
+  try {
+    const pendingRequests = await retrieveAllPendingRequests(req.params.userId);
+    res.status(200).json(pendingRequests);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
