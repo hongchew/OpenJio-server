@@ -7,6 +7,7 @@ const {
 } = require('../database/Operations/Transaction');
 const {
   createMonthlyTopUp,
+  createMonthlyDonation,
   retrieveRecurrentAgreementByRecurrentAgreementId,
   retrieveRecurrentAgreementByPaypalSubscriptionId,
   cancelRecurrentAgreement,
@@ -31,6 +32,8 @@ paypal.configure({
 router.get('/', (req, res) => {
   res.render('index');
 });
+
+//#region Webhooks
 
 /*
   Endpoint: POST /paypal/webhook-test
@@ -95,6 +98,9 @@ router.post('/payment-sale-completed-webhook', async (req, res) => {
   }
 });
 
+//#endregion
+
+//#region Top Up
 /*
   Endpoint: GET /paypal/top-up
   Content type: -
@@ -199,16 +205,9 @@ router.get('/topup-success', (req, res) => {
   });
 });
 
-/*
-  Internal Redirect
-  Endpoint: GET /paypal/cancel
-  Content type: -
-  Return: redirect to cancel.ejs
-*/
-router.get('/cancel', (req, res) => {
-  res.render('cancel');
-});
+//#endregion
 
+//#region Monthly Top Up
 /*
   Endpoint: GET /paypal/monthly-top-up
   Query params: walletId={string}, amount={amount in cents} 
@@ -222,7 +221,7 @@ router.get('/monthly-topup', async (req, res) => {
 
     //#region check if plan with same amount exist
     const plansApi = `https://api.sandbox.paypal.com/v1/billing/plans?product_id=${topUpProductId}`;
-    console.log('\nRetrieving all existing plans...');
+    console.log('\nRetrieving all existing topup plans...');
     const plansResponse = await axios.get(plansApi, {
       headers: {
         'content-type': 'application/json',
@@ -392,50 +391,6 @@ router.get('/monthly-top-up-success', async (req, res) => {
     res.status(500).json(e);
   }
 });
-
-/*
-  Endpoint: DELETE /paypal/recurrent-agreement/:recurrentAgreementId
-  Content type: -
-  Return: return updated user object
-*/
-router.delete(
-  '/recurrent-agreement/:recurrentAgreementId',
-  async (req, res) => {
-    try {
-      const {recurrentAgreementId} = req.params;
-      const agreement = await retrieveRecurrentAgreementByRecurrentAgreementId(
-        recurrentAgreementId
-      );
-      if (!agreement) {
-        throw {status: 404, message: 'agreement not found'};
-      }
-      // call paypal API to cancel subscription
-      const resp = await axios.post(
-        `https://api.sandbox.paypal.com/v1/billing/subscriptions/${agreement.paypalSubscriptionId}/cancel`,
-        {reason: 'Cancellation of Recurrent Payment'},
-        {
-          headers: {
-            'content-type': 'application/json',
-          },
-          auth: {
-            username: clientId,
-            password: clientSecret,
-          },
-        }
-      );
-
-      if (resp.status === 204) {
-        const user = await cancelRecurrentAgreement(agreement);
-        res.status(200).json(user);
-      } else {
-        res.status(resp.status).json(resp.data);
-      }
-    } catch (e) {
-      console.log(e);
-      res.status(e.status ? e.status : 500).json(e);
-    }
-  }
-);
 
 /*
   Endpoint: GET /paypal/edit-monthly-topup
@@ -631,6 +586,436 @@ router.get('/edit-monthly-top-up-success', async (req, res) => {
   }
 });
 
+//#endregion
+
+//#region Monthly Dondation
+
+/*
+  Endpoint: GET /paypal/monthly-donation
+  Query params: walletId={string}, amount={amount in cents} 
+  Content type: -
+  Return: redirect to /monthly-top-up-success
+*/
+router.get('/monthly-donation', async (req, res) => {
+  try {
+    var {amount, walletId} = req.query;
+    console.log({amount, walletId});
+
+    //#region check if plan with same amount exist
+    const plansApi = `https://api.sandbox.paypal.com/v1/billing/plans?product_id=${donateProductId}`;
+    console.log('\nRetrieving all existing donation plans...');
+    const plansResponse = await axios.get(plansApi, {
+      headers: {
+        'content-type': 'application/json',
+      },
+      auth: {
+        username: clientId,
+        password: clientSecret,
+      },
+    });
+
+    const plans = plansResponse.data.plans;
+    const amountNumber = (amount / 100).toFixed(2);
+    var billingPlan = plans.filter(
+      (plan) =>
+        plan.name === 'OpenJio Recurrent Donation' &&
+        plan.description === `SGD${amountNumber}`
+    )[0];
+    console.log('\nTopup billing plan found:');
+    console.log(billingPlan);
+    if (!billingPlan) {
+      // Create new plan
+      console.log('\nNo suitable topup plan found, creating new plan...');
+      var createPlanJSON = {
+        product_id: donateProductId,
+        name: 'OpenJio Recurrent Donation',
+        description: `SGD${amountNumber}`,
+        status: 'ACTIVE',
+        billing_cycles: [
+          {
+            frequency: {
+              interval_unit: 'MONTH',
+              interval_count: 1,
+            },
+            tenure_type: 'REGULAR',
+            sequence: 1,
+            total_cycles: 0,
+            pricing_scheme: {
+              fixed_price: {
+                value: amountNumber,
+                currency_code: 'SGD',
+              },
+            },
+          },
+        ],
+        payment_preferences: {
+          auto_bill_outstanding: true,
+          setup_fee: {
+            value: '0',
+            currency_code: 'SGD',
+          },
+          setup_fee_failure_action: 'CONTINUE',
+          payment_failure_threshold: 3,
+        },
+        taxes: {
+          percentage: '0',
+          inclusive: true,
+        },
+      };
+      const billingPlanResponse = await axios.post(
+        'https://api.sandbox.paypal.com/v1/billing/plans',
+        createPlanJSON,
+        {
+          headers: {
+            'content-type': 'application/json',
+          },
+          auth: {
+            username: clientId,
+            password: clientSecret,
+          },
+        }
+      );
+      billingPlan = billingPlanResponse.data;
+      console.log('\nNew billing plan created!');
+    }
+    console.log('\nBilling plan to be used for new topup subscription:');
+    console.log(billingPlan);
+    //#endregion
+
+    //#region create new subscription
+    const successUrl = `${serverUrl}:3000/paypal/monthly-donation-success?amount=${amount.toString()}&walletId=${walletId}`;
+    const cancelUrl = `${serverUrl}:3000/paypal/cancel`;
+    var createSubscriptionJSON = {
+      plan_id: billingPlan.id,
+      quantity: '1',
+      application_context: {
+        locale: 'en-US',
+        shipping_preference: 'NO_SHIPPING',
+        user_action: 'SUBSCRIBE_NOW',
+        payment_method: {
+          payer_selected: 'PAYPAL',
+          payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED',
+        },
+        return_url: successUrl,
+        cancel_url: cancelUrl,
+      },
+    };
+    console.log('\nPosting new topup subscription...');
+    axios
+      .post(
+        'https://api.sandbox.paypal.com/v1/billing/subscriptions',
+        createSubscriptionJSON,
+        {
+          headers: {
+            'content-type': 'application/json',
+          },
+          auth: {
+            username: clientId,
+            password: clientSecret,
+          },
+        }
+      )
+      .then((resp) => {
+        console.log('\nNew topup subscription created, now pending approval: ');
+        console.log(resp.data);
+        res.redirect(resp.data.links[0].href);
+      })
+      .catch((e) => {
+        throw e;
+      });
+    //#endregion
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Internal Redirect
+  Endpoint: GET /paypal/monthly-donation-success
+  Content type: -
+  Return: redirect to success.ejs
+*/
+router.get('/monthly-donation-success', async (req, res) => {
+  try {
+    console.log('\Donation subscription approved!');
+    console.log(req.query);
+    // Fill the database here
+    var {amount, walletId, subscription_id} = req.query;
+    const subscriptionResponse = await axios.get(
+      `https://api.sandbox.paypal.com/v1/billing/subscriptions/${subscription_id}`,
+      {
+        headers: {
+          'content-type': 'application/json',
+        },
+        auth: {
+          username: clientId,
+          password: clientSecret,
+        },
+      }
+    );
+    const subscription = subscriptionResponse.data;
+    console.log('subscription response:');
+    console.log(subscription);
+    amount = (amount / 100).toFixed(2);
+
+    await createMonthlyDonation(
+      walletId,
+      subscription.id,
+      subscription.plan_id,
+      amount,
+      subscription.billing_info.next_billing_time
+    );
+
+    res.render('success');
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/*
+  Endpoint: GET /paypal/edit-monthly-donation
+  Query params: recurrentAgreementId={string}, amount={amount in cents} 
+  Content type: -
+  Return: redirect to /monthly-top-up-success
+*/
+router.get('/edit-monthly-donation', async (req, res) => {
+  try {
+    var {amount, recurrentAgreementId} = req.query;
+    console.log({amount, recurrentAgreementId});
+
+    //#region retrieve RecurrentAgreement object
+    const agreement = await retrieveRecurrentAgreementByRecurrentAgreementId(
+      recurrentAgreementId
+    );
+    if (!agreement) {
+      res.status(404).json({message: 'agreement not found'});
+      return;
+    }
+    //#endregion
+
+    //#region check if plan with same amount exist
+    const plansApi = `https://api.sandbox.paypal.com/v1/billing/plans?product_id=${donateProductId}`;
+    console.log('\nRetrieving all existing plans...');
+    const plansResponse = await axios.get(plansApi, {
+      headers: {
+        'content-type': 'application/json',
+      },
+      auth: {
+        username: clientId,
+        password: clientSecret,
+      },
+    });
+
+    const plans = plansResponse.data.plans;
+    const amountNumber = (amount / 100).toFixed(2);
+    var billingPlan = plans.filter(
+      (plan) =>
+        plan.name === 'OpenJio Recurrent Donation' &&
+        plan.description === `SGD${amountNumber}`
+    )[0];
+    console.log('\nTopup billing plan found:');
+    console.log(billingPlan);
+    if (!billingPlan) {
+      // Create new plan
+      console.log('\nNo suitable topup plan found, creating new plan...');
+      var createPlanJSON = {
+        product_id: donateProductId,
+        name: 'OpenJio Recurrent Donation',
+        description: `SGD${amountNumber}`,
+        status: 'ACTIVE',
+        billing_cycles: [
+          {
+            frequency: {
+              interval_unit: 'MONTH',
+              interval_count: 1,
+            },
+            tenure_type: 'REGULAR',
+            sequence: 1,
+            total_cycles: 0,
+            pricing_scheme: {
+              fixed_price: {
+                value: amountNumber,
+                currency_code: 'SGD',
+              },
+            },
+          },
+        ],
+        payment_preferences: {
+          auto_bill_outstanding: true,
+          setup_fee: {
+            value: '0',
+            currency_code: 'SGD',
+          },
+          setup_fee_failure_action: 'CONTINUE',
+          payment_failure_threshold: 3,
+        },
+        taxes: {
+          percentage: '0',
+          inclusive: true,
+        },
+      };
+      const billingPlanResponse = await axios.post(
+        'https://api.sandbox.paypal.com/v1/billing/plans',
+        createPlanJSON,
+        {
+          headers: {
+            'content-type': 'application/json',
+          },
+          auth: {
+            username: clientId,
+            password: clientSecret,
+          },
+        }
+      );
+      billingPlan = billingPlanResponse.data;
+      console.log('\nNew billing plan created!');
+    }
+    console.log('\nBilling plan to be used for updated topup subscription:');
+    console.log(billingPlan);
+    //#endregion
+
+    //#region update subscription
+    const successUrl = `${serverUrl}:3000/paypal/edit-monthly-top-up-success?amount=${amount.toString()}&recurrentAgreementId=${recurrentAgreementId}`;
+    const cancelUrl = `${serverUrl}:3000/paypal/cancel`;
+    var createSubscriptionJSON = {
+      plan_id: billingPlan.id,
+      quantity: '1',
+      application_context: {
+        locale: 'en-US',
+        shipping_preference: 'NO_SHIPPING',
+        user_action: 'SUBSCRIBE_NOW',
+        payment_method: {
+          payer_selected: 'PAYPAL',
+          payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED',
+        },
+        return_url: successUrl,
+        cancel_url: cancelUrl,
+      },
+    };
+    console.log('\nPosting updated donation subscription...');
+    axios
+      .post(
+        `https://api.sandbox.paypal.com/v1/billing/subscriptions/${agreement.paypalSubscriptionId}/revise`,
+        createSubscriptionJSON,
+        {
+          headers: {
+            'content-type': 'application/json',
+          },
+          auth: {
+            username: clientId,
+            password: clientSecret,
+          },
+        }
+      )
+      .then((resp) => {
+        console.log('Subscription updated, now pending approval: ');
+        console.log(resp.data);
+        res.redirect(resp.data.links[0].href);
+      })
+      .catch((e) => {
+        throw e;
+      });
+    //#endregion
+  } catch (e) {
+    console.log(e);
+    res.status(e.status ? e.status : 500).json(e);
+  }
+});
+
+/*
+  Internal Redirect
+  Endpoint: GET /paypal/edit-monthly-donation-success
+  Content type: -
+  Return: redirect to success.ejs
+*/
+router.get('/edit-monthly-donation-success', async (req, res) => {
+  try {
+    console.log('\nDonation subscription update approved!');
+    console.log(req.query);
+    // Fill the database here
+    var {amount, recurrentAgreementId, subscription_id} = req.query;
+    const subscriptionResponse = await axios.get(
+      `https://api.sandbox.paypal.com/v1/billing/subscriptions/${subscription_id}`,
+      {
+        headers: {
+          'content-type': 'application/json',
+        },
+        auth: {
+          username: clientId,
+          password: clientSecret,
+        },
+      }
+    );
+    const subscription = subscriptionResponse.data;
+    console.log('subscription response:');
+    console.log(subscription);
+    amount = (amount / 100).toFixed(2);
+
+    // Update Subscription
+    await updateRecurrentAgreement(recurrentAgreementId, {
+      amount,
+      paypalPlanId: subscription.plan_id,
+      paypalSubscriptionId: subscription.id,
+      nextPaymentDate: subscription.billing_info.next_billing_time,
+    });
+
+    res.render('success');
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+//#endregion
+
+
+//#region Common Paypal
+/*
+  Endpoint: DELETE /paypal/recurrent-agreement/:recurrentAgreementId
+  Content type: -
+  Return: return updated user object
+*/
+router.delete(
+  '/recurrent-agreement/:recurrentAgreementId',
+  async (req, res) => {
+    try {
+      const {recurrentAgreementId} = req.params;
+      const agreement = await retrieveRecurrentAgreementByRecurrentAgreementId(
+        recurrentAgreementId
+      );
+      if (!agreement) {
+        throw {status: 404, message: 'agreement not found'};
+      }
+      // call paypal API to cancel subscription
+      const resp = await axios.post(
+        `https://api.sandbox.paypal.com/v1/billing/subscriptions/${agreement.paypalSubscriptionId}/cancel`,
+        {reason: 'Cancellation of Recurrent Payment'},
+        {
+          headers: {
+            'content-type': 'application/json',
+          },
+          auth: {
+            username: clientId,
+            password: clientSecret,
+          },
+        }
+      );
+
+      if (resp.status === 204) {
+        const user = await cancelRecurrentAgreement(agreement);
+        res.status(200).json(user);
+      } else {
+        res.status(resp.status).json(resp.data);
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(e.status ? e.status : 500).json(e);
+    }
+  }
+);
+
 /*
   Endpoint: GET /paypal/refresh-subscription/:userId/:subscriptionId
   Query params: recurrentAgreementId={string}, subscriptionId={amount in cents} 
@@ -676,4 +1061,17 @@ router.get('/refresh-subscription/:userId/:subscriptionId', async (req, res) => 
   }
 
 });
+
+/*
+  Internal Redirect
+  Endpoint: GET /paypal/cancel
+  Content type: -
+  Return: redirect to cancel.ejs
+*/
+router.get('/cancel', (req, res) => {
+  res.render('cancel');
+});
+
+//#endregion
+
 module.exports = router;
