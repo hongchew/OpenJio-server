@@ -1,6 +1,7 @@
 const SUPPORT_STATUS = require('../../enum/SupportComplaintStatus');
 const SUPPORT_TYPE = require('../../enum/SupportType');
 const {SupportTicket} = require('../Models/SupportTicket');
+const {SupportComment} = require('../Models/SupportComment');
 const axios = require('axios');
 
 /* ----------------------------------------
@@ -55,10 +56,18 @@ const createSupportTicket = async (
 ---------------------------------------- */
 const retrieveTicketByTicketId = async (supportTicketId) => {
   try {
-    const ticket = await SupportTicket.findByPk(supportTicketId);
+    const ticket = await SupportTicket.findOne({
+      where: {
+        supportTicketId: supportTicketId
+      },
+      include: 
+        {model: SupportComment, order: [['createdAt', 'DESC']]},
+    });
     if (!ticket) {
       throw `Support ticket with ID ${supportTicketId} not found`
     }
+
+    //should return the list of comments as well
     return ticket;
   } catch (e) {
     console.log(e);
@@ -126,8 +135,8 @@ const retrieveAllActiveTickets = async () => {
 
 /* ----------------------------------------
   For users to update the details of support ticket if the ticket status is still pending, including supportType
-  Parameters: Complaint object
-  Return: Updated complaint object
+  Parameters: SupportTicket object
+  Return: Updated SupportTicket object
   Note: Function to be used by users
 ---------------------------------------- */
 const updateTicket = async (supportTicket) => {
@@ -216,7 +225,7 @@ const deleteTicketByTicketId = async (supportTicketId) => {
     }
 
     // Check if the ticket is still pending to allow deletion
-    if ( ticket.supportStatus === SUPPORT_STATUS.REJECTED || ticket.complaintStatus === SUPPORT_STATUS.RESOLVED){
+    if ( ticket.supportStatus === SUPPORT_STATUS.REJECTED || ticket.supportStatus === SUPPORT_STATUS.RESOLVED){
       throw `Support ticket with ID ${ticket.supportTicketId} cannot be deleted because it is already resolved or rejected.`
     }
 
