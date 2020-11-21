@@ -32,6 +32,33 @@ const createMonthlyTopUp = async (
 };
 
 /*
+  Create and insert monthly top up into database
+  Parameters: (walletId: string, paypalSubscriptionId: string, paypalPlanId: string, amount: number)
+  Return: -
+*/
+const createMonthlyDonation = async (
+  walletId,
+  paypalSubscriptionId,
+  paypalPlanId,
+  amount,
+  nextPaymentDate
+) => {
+  try {
+    const newMonthly = RecurrentAgreement.build({
+      amount,
+      paypalPlanId,
+      paypalSubscriptionId,
+      walletId,
+      recurrentAgreementType: recurrentType.DONATE,
+      nextPaymentDate
+    });
+    await newMonthly.save();
+  } catch (e) {
+    throw e;
+  }
+};
+
+/*
   Retrieve recurrent agreement from database with recurrentAgreementId
   Parameters: (recurrentAgreementId: string)
   Return: RecurrentAgreement object (null if not found)
@@ -119,6 +146,7 @@ const updateRecurrentAgreement = async (
 
 module.exports = {
   createMonthlyTopUp,
+  createMonthlyDonation,
   retrieveRecurrentAgreementByRecurrentAgreementId,
   cancelRecurrentAgreement,
   updateRecurrentAgreement,
