@@ -88,6 +88,7 @@ router.post('/payment-sale-completed-webhook', async (req, res) => {
       console.log(subscription);
       await updateRecurrentAgreement(agreement.recurrentAgreementId, {
         nextPaymentDate: subscription.billing_info.next_billing_time,
+        lastPaymentDate: subscription.billing_info.last_payment.time
       });
     } else {
       console.log('one time payment, ignoring');
@@ -1047,6 +1048,7 @@ router.get('/refresh-subscription/:userId/:subscriptionId', async (req, res) => 
 
     const user = await updateRecurrentAgreement(agreement.recurrentAgreementId, {
       nextPaymentDate: subscription.billing_info.next_billing_time,
+      lastPaymentDate: subscription.billing_info.last_payment.time
     }).then(() => {
       return retrieveUserByUserId(userId);
     }).catch((e) => {
