@@ -44,7 +44,7 @@ const paypalRouter = require('./routes/paypalRoutes');
 const temperatureRouter = require('./routes/temperatureRoutes');
 const complaintRouter = require('./routes/complaintRoutes');
 const supportTicket = require('./routes/supportTicketRoutes');
-// const supportComment = require('./routes/supportCommentRoutes');
+const supportComment = require('./routes/supportCommentRoutes');
 
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
@@ -57,7 +57,7 @@ app.use('/paypal', paypalRouter);
 app.use('/temperatures', temperatureRouter);
 app.use('/complaints', complaintRouter);
 app.use('/supportTickets', supportTicket);
-// app.use('/supportComments', supportComment);
+app.use('/supportComments', supportComment);
 app.use('/files', express.static('files'));
 
 //#endregion
