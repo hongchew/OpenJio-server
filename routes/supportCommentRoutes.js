@@ -20,10 +20,11 @@ router.get('/', (req, res) => {
   {
     "description": "string",
     "isPostedByAdmin": "boolean", 
-    "adminId": "string"
+    "adminId": "string",
+    "supportTicketId": "string"
   }
   Return: Model.SupportComment object
-  Status:
+  Status: Passed postman test
 ---------------------------------------- */
 router.post('/create-comment', async (req, res) => {
   try {
@@ -31,6 +32,7 @@ router.post('/create-comment', async (req, res) => {
       req.body.description,
       req.body.isPostedByAdmin,
       req.body.adminId,
+      req.body.supportTicketId
     );
     res.json(newComment);
   } catch (e) {
@@ -43,7 +45,7 @@ router.post('/create-comment', async (req, res) => {
   Endpoint: GET /supportComments/comment-info/:supportCommentId
   Parameters: supportCommentId
   Return: SupportComment obhect
-  Status:
+  Status: Passed postman test
 ---------------------------------------- */
 router.get('/comment-info/:supportCommentId', async (req, res) => {
   try {
@@ -62,7 +64,7 @@ router.get('/comment-info/:supportCommentId', async (req, res) => {
   Endpoint: GET /supportComments/comments-by/:supportTicketId
   Params: supportTicketId
   Return: JSON array of SupportComment
-  Status:
+  Status: Passed postman test
 ---------------------------------------- */
 router.get('/comments-by/:supportTicketId', async (req, res) => {
   try {
@@ -77,47 +79,11 @@ router.get('/comments-by/:supportTicketId', async (req, res) => {
 });
 
 /* ----------------------------------------
-  Retrieve all ACTIVE(pending) support tickets from a user
-  Endpoint: GET /supportTickets/active-tickets-by/:userId
-  Params: userId 
-  Return: JSON array of SupportTicket
-  Status: Passed postman test
----------------------------------------- */
-router.get('/active-tickets-by/:userId', async (req, res) => {
-  try {
-    const activeTickets = await retrieveAllActiveTicketsByUserId(
-      req.params.userId
-    );
-    res.status(200).json(activeTickets);
-  } catch (e) {
-    console.log(e);
-    res.status(500).json(e);
-  }
-});
-
-/* ----------------------------------------
-  Retrieve all active(pending) support tickets - used for admin panel display
-  Endpoint: GET /supportTickets/active-tickets-by/:userId
-  Params: userId 
-  Return: JSON array of SupportTicket
-  Status: Pass postman test
----------------------------------------- */
-router.get('/active-tickets', async (req, res) => {
-  try {
-    const activeTickets = await retrieveAllActiveTickets();
-    res.status(200).json(activeTickets);
-  } catch (e) {
-    console.log(e);
-    res.status(500).json(e);
-  }
-});
-
-/* ----------------------------------------
   Update details of SupportComment by passing in an updated SupportComment object
   Endpoint: PUT /supportComments/update-comment
   Body: SupportComment object to update the database
   Return: SupportComment object with updated fields
-  Status:
+  Status: Passed postman test
 ---------------------------------------- */
 router.put('/update-comment', async (req, res) => {
   try {
@@ -134,7 +100,7 @@ router.put('/update-comment', async (req, res) => {
   Endpoint: DELETE /delete/:supportCommentId
   Parameters: supportCommentId
   Return: JSON array of the remainder SupportComments of a SupportTicket
-  Status:
+  Status: Passed postman test
 ---------------------------------------- */
 router.delete('/delete/:supportCommentId', async (req, res) => {
     try {

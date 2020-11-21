@@ -10,13 +10,15 @@ const SUPPORT_STATUS = require('../../enum/SupportComplaintStatus');
 const createComment = async (
   description,
   isPostedByAdmin,  //boolean value
-  adminId           //adminId field is null "" if the comment is made by user
+  adminId, //adminId field is null "" if the comment is made by user
+  supportTicketId
 ) => {
   try {
     const newComment = SupportComment.build({
       description: description,
       isPostedByAdmin: isPostedByAdmin,
-      adminId: isPostedByAdmin ? adminId : null
+      adminId: isPostedByAdmin ? adminId : null,
+      supportTicketId: supportTicketId
     });
 
     if (!newComment) {
@@ -82,7 +84,7 @@ const retrieveAllCommentsByTicketId = async (supportTicketId) => {
 ---------------------------------------- */
 const updateComment = async (supportComment) => {
   try {
-    const commentToUpdate = await retrieveCommentByCommentId(supportComment.CommentId)
+    const commentToUpdate = await retrieveCommentByCommentId(supportComment.supportCommentId)
     //Backend ticket validation
     if (!commentToUpdate) {
       throw `SupportComment with ID ${supportComment.supportCommentId} not found`;
