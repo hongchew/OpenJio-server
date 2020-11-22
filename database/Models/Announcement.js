@@ -12,6 +12,9 @@ class Announcement extends Model {
   ongoingAnnouncement(){
     this.announcementStatus = AnnouncementStatus.ONGOING;
   }
+  completeAnnouncement(){
+    this.announcementStatus = AnnouncementStatus.COMPLETED;
+  }
 }
 
 const initAnnouncement = async (sequelize) => {
