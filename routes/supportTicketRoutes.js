@@ -45,7 +45,7 @@ router.post('/create-ticket', async (req, res) => {
 });
 
 /* ----------------------------------------
-  Retrieve details of 1 support ticket by supportTicketId
+  Retrieve 1 SupportTicket object together with an array of SupportComments tagged to it
   Endpoint: GET /supportTickets/ticket-info/:supportTicketId
   Parameters: supportTicketId
   Return: JSON of support ticket
@@ -64,7 +64,7 @@ router.get('/ticket-info/:supportTicketId', async (req, res) => {
 });
 
 /* ----------------------------------------
-  Retrieve all support tickets from a user
+  Retrieve all support tickets from a user together with an array of SupportComments tagged to it
   Endpoint: GET /supportTickets/tickets-by/:userId
   Params: userId 
   Return: JSON array of SupportTicket
@@ -83,7 +83,7 @@ router.get('/tickets-by/:userId', async (req, res) => {
 });
 
 /* ----------------------------------------
-  Retrieve all ACTIVE(pending) support tickets from a user
+  Retrieve all ACTIVE(pending) support tickets from a user with an array of SupportComments tagged to it
   Endpoint: GET /supportTickets/active-tickets-by/:userId
   Params: userId 
   Return: JSON array of SupportTicket
