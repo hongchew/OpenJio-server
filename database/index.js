@@ -14,7 +14,10 @@ const {initBadge, Badge} = require('./Models/Badge');
 const {initComplaint, Complaint} = require('./Models/Complaint');
 const {initNotification, Notification} = require('./Models/Notification');
 const {initOutbreakZone, OutbreakZone} = require('./Models/OutbreakZone');
-const {initRecurrentAgreement, RecurrentAgreement} = require('./Models/RecurrentAgreement');
+const {
+  initRecurrentAgreement,
+  RecurrentAgreement,
+} = require('./Models/RecurrentAgreement');
 const {initRequest, Request} = require('./Models/Request');
 const {initSupportComment, SupportComment} = require('./Models/SupportComment');
 const {initSupportTicket, SupportTicket} = require('./Models/SupportTicket');
@@ -22,8 +25,8 @@ const {initTemperatureLog, TemperatureLog} = require('./Models/TemperatureLog');
 const {initTransaction, Transaction} = require('./Models/Transaction');
 const {initUser, User} = require('./Models/User');
 const {initWallet, Wallet} = require('./Models/Wallet');
-const SupportComplaintStatus = require('../enum/SupportComplaintStatus');
-const {onInitPopulateDatabase} = require('./scripts')
+const SupportComplaintStatus = require('../enum/ComplaintStatus');
+const {onInitPopulateDatabase} = require('./scripts');
 
 let db;
 
@@ -199,10 +202,13 @@ const getDb = async () => {
         )} and id = ${admin.getDataValue('adminId')} found`
       );
     } else {
-      onInitPopulateDatabase()
+      onInitPopulateDatabase();
     }
   } catch (error) {
-    console.error('***[Database] Unable to init database with default values:', error);
+    console.error(
+      '***[Database] Unable to init database with default values:',
+      error
+    );
   }
   //#endregion
 

@@ -1,6 +1,6 @@
 const {SupportComment} = require('../Models/SupportComment');
 const {SupportTicket} = require('../Models/SupportTicket');
-const SUPPORT_STATUS = require('../../enum/SupportComplaintStatus');
+const SUPPORT_STATUS = require('../../enum/ComplaintStatus');
 
 /* ----------------------------------------
   Create a SupportComment for a support ticket
@@ -9,7 +9,7 @@ const SUPPORT_STATUS = require('../../enum/SupportComplaintStatus');
 ---------------------------------------- */
 const createComment = async (
   description,
-  isPostedByAdmin,  //boolean value
+  isPostedByAdmin, //boolean value
   adminId, //adminId field is null "" if the comment is made by user
   supportTicketId
 ) => {
@@ -18,7 +18,7 @@ const createComment = async (
       description: description,
       isPostedByAdmin: isPostedByAdmin,
       adminId: isPostedByAdmin ? adminId : null,
-      supportTicketId: supportTicketId
+      supportTicketId: supportTicketId,
     });
 
     if (!newComment) {
@@ -43,7 +43,7 @@ const retrieveCommentByCommentId = async (supportCommentId) => {
   try {
     const comment = await SupportComment.findByPk(supportCommentId);
     if (!comment) {
-      throw `SupportComment with ID ${supportCommentId} not found`
+      throw `SupportComment with ID ${supportCommentId} not found`;
     }
     return comment;
   } catch (e) {
@@ -84,22 +84,28 @@ const retrieveAllCommentsByTicketId = async (supportTicketId) => {
 ---------------------------------------- */
 const updateComment = async (supportComment) => {
   try {
-    const commentToUpdate = await retrieveCommentByCommentId(supportComment.supportCommentId)
+    const commentToUpdate = await retrieveCommentByCommentId(
+      supportComment.supportCommentId
+    );
     //Backend ticket validation
     if (!commentToUpdate) {
       throw `SupportComment with ID ${supportComment.supportCommentId} not found`;
     }
 
-    const supportTicketId = commentToUpdate.supportTicketId
-    const ticket = await SupportTicket.findByPk(supportTicketId)
+    const supportTicketId = commentToUpdate.supportTicketId;
+    const ticket = await SupportTicket.findByPk(supportTicketId);
 
     //if the SupportTicket status is already resolved or rejected, only SupportComments that are created by admin can be edited by Admins
-    if ((ticket.supportStatus === SUPPORT_STATUS.REJECTED || ticket.supportStatus === SUPPORT_STATUS.RESOLVED) && !commentToUpdate.isPostedByAdmin){
-      throw `SupportComment with ID ${commentToUpdate.supportCommentId} cannot be edited by user because it is already resolved or rejected and it is not created by admin.`
+    if (
+      (ticket.supportStatus === SUPPORT_STATUS.REJECTED ||
+        ticket.supportStatus === SUPPORT_STATUS.RESOLVED) &&
+      !commentToUpdate.isPostedByAdmin
+    ) {
+      throw `SupportComment with ID ${commentToUpdate.supportCommentId} cannot be edited by user because it is already resolved or rejected and it is not created by admin.`;
     }
 
     const updatedComment = await commentToUpdate.update(supportComment);
-    return await retrieveCommentByCommentId(updatedComment.supportCommentId)
+    return await retrieveCommentByCommentId(updatedComment.supportCommentId);
   } catch (e) {
     console.log(e);
     throw e;
@@ -113,22 +119,26 @@ const updateComment = async (supportComment) => {
 ---------------------------------------- */
 const deleteCommentByCommentId = async (supportCommentId) => {
   try {
-    const comment = await retrieveCommentByCommentId(supportCommentId)
+    const comment = await retrieveCommentByCommentId(supportCommentId);
     if (!comment) {
       throw `SupportComment with ID ${supportCommentId} not found`;
     }
 
-    const supportTicketId = comment.supportTicketId
-    const ticket = await SupportTicket.findByPk(supportTicketId)
+    const supportTicketId = comment.supportTicketId;
+    const ticket = await SupportTicket.findByPk(supportTicketId);
 
     //if the SupportTicket status is already resolved or rejected, only SupportComments that are created by admin can be deleted by Admins
-    if ((ticket.supportStatus === SUPPORT_STATUS.REJECTED || ticket.supportStatus === SUPPORT_STATUS.RESOLVED) && !comment.isPostedByAdmin){
-      throw `SupportComment with ID ${comment.supportCommentId} cannot be deleted by user because it is already resolved or rejected and it is not created by admin.`
+    if (
+      (ticket.supportStatus === SUPPORT_STATUS.REJECTED ||
+        ticket.supportStatus === SUPPORT_STATUS.RESOLVED) &&
+      !comment.isPostedByAdmin
+    ) {
+      throw `SupportComment with ID ${comment.supportCommentId} cannot be deleted by user because it is already resolved or rejected and it is not created by admin.`;
     }
 
     await comment.destroy();
     //return an array of the rest of the SupportComments that are not yet deleted.
-    return await retrieveAllCommentsByTicketId(supportTicketId)
+    return await retrieveAllCommentsByTicketId(supportTicketId);
   } catch (e) {
     console.log(e);
     throw e;
@@ -140,5 +150,5 @@ module.exports = {
   retrieveCommentByCommentId,
   retrieveAllCommentsByTicketId,
   updateComment,
-  deleteCommentByCommentId
+  deleteCommentByCommentId,
 };

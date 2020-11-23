@@ -1,17 +1,16 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
-const SUPPORT_STATUS = require("../../enum/SupportComplaintStatus")
-const SUPPORT_TYPE = require("../../enum/SupportType")
-
+const {Sequelize, Model, DataTypes} = require('sequelize');
+const SUPPORT_STATUS = require('../../enum/ComplaintStatus');
+// const SUPPORT_TYPE = require('../../enum/SupportTicket');
 
 class SupportTicket extends Model {
-  setPending(){
-    this.supportStatus = SUPPORT_STATUS.PENDING
+  setPending() {
+    this.supportStatus = SUPPORT_STATUS.PENDING;
   }
   setResolved() {
-    this.supportStatus = SUPPORT_STATUS.RESOLVED
+    this.supportStatus = SUPPORT_STATUS.RESOLVED;
   }
-  setRejected(){
-    this.supportStatus = SUPPORT_STATUS.REJECTED
+  setRejected() {
+    this.supportStatus = SUPPORT_STATUS.REJECTED;
   }
 }
 
@@ -38,15 +37,15 @@ const initSupportTicket = async (sequelize) => {
       supportStatus: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: SUPPORT_STATUS.PENDING
+        defaultValue: SUPPORT_STATUS.PENDING,
       },
     },
     {
       sequelize,
-      modelName: "SupportTicket",
+      modelName: 'SupportTicket',
     }
   );
   console.log(`****[database] SupportTicket initialized`);
 };
 
-module.exports = { SupportTicket, initSupportTicket };
+module.exports = {SupportTicket, initSupportTicket};

@@ -1,4 +1,4 @@
-const SUPPORT_STATUS = require('../../enum/SupportComplaintStatus');
+const SUPPORT_STATUS = require('../../enum/ComplaintStatus');
 const SUPPORT_TYPE = require('../../enum/SupportType');
 const {SupportTicket} = require('../Models/SupportTicket');
 const {SupportComment} = require('../Models/SupportComment');
@@ -9,12 +9,7 @@ const axios = require('axios');
   Parameters: (title: string, description: string, supportType: string, supportStatus: string, userId: string)
   Return: SupportTicket object
 ---------------------------------------- */
-const createSupportTicket = async (
-  title,
-  description,
-  supportType,
-  userId
-) => {
+const createSupportTicket = async (title, description, supportType, userId) => {
   try {
     //Validation if the supportType passed in belongs to any of the enum
     if (
@@ -24,8 +19,8 @@ const createSupportTicket = async (
       supportType !== SUPPORT_TYPE.JIO &&
       supportType !== SUPPORT_TYPE.REQUEST &&
       supportType !== SUPPORT_TYPE.HEALTH
-    ){
-      throw `supportType is invalid`
+    ) {
+      throw `supportType is invalid`;
     }
 
     const newTicket = SupportTicket.build({
@@ -33,7 +28,7 @@ const createSupportTicket = async (
       description: description,
       supportType: supportType,
       supportStatus: SUPPORT_STATUS.PENDING,
-      userId: userId
+      userId: userId,
     });
 
     if (!newTicket) {
@@ -58,13 +53,12 @@ const retrieveTicketByTicketId = async (supportTicketId) => {
   try {
     const ticket = await SupportTicket.findOne({
       where: {
-        supportTicketId: supportTicketId
+        supportTicketId: supportTicketId,
       },
-      include: 
-        {model: SupportComment, order: [['createdAt', 'DESC']]},
+      include: {model: SupportComment, order: [['createdAt', 'DESC']]},
     });
     if (!ticket) {
-      throw `Support ticket with ID ${supportTicketId} not found`
+      throw `Support ticket with ID ${supportTicketId} not found`;
     }
 
     //should return the list of comments as well
@@ -86,8 +80,7 @@ const retrieveAllTicketsByUserId = async (userId) => {
       where: {
         userId: userId,
       },
-      include: 
-        {model: SupportComment, order: [['createdAt', 'DESC']]},
+      include: {model: SupportComment, order: [['createdAt', 'DESC']]},
     });
     return tickets;
   } catch (e) {
@@ -106,10 +99,9 @@ const retrieveAllActiveTicketsByUserId = async (userId) => {
     const tickets = await SupportTicket.findAll({
       where: {
         userId: userId,
-        supportStatus: SUPPORT_STATUS.PENDING
+        supportStatus: SUPPORT_STATUS.PENDING,
       },
-      include: 
-        {model: SupportComment, order: [['createdAt', 'DESC']]},
+      include: {model: SupportComment, order: [['createdAt', 'DESC']]},
     });
     return tickets;
   } catch (e) {
@@ -129,8 +121,7 @@ const retrieveAllActiveTickets = async () => {
       where: {
         supportStatus: SUPPORT_STATUS.PENDING,
       },
-      include: 
-        {model: SupportComment, order: [['createdAt', 'DESC']]},
+      include: {model: SupportComment, order: [['createdAt', 'DESC']]},
     });
     return tickets;
   } catch (e) {
@@ -147,15 +138,20 @@ const retrieveAllActiveTickets = async () => {
 ---------------------------------------- */
 const updateTicket = async (supportTicket) => {
   try {
-    const ticketToUpdate = await retrieveTicketByTicketId(supportTicket.supportTicketId)
+    const ticketToUpdate = await retrieveTicketByTicketId(
+      supportTicket.supportTicketId
+    );
     //Backend ticket validation
     if (!ticketToUpdate) {
       throw `Support ticket with ID ${supportTicket.supportTicketId} not found`;
     }
 
     // Check if the ticket is still pending to allow edit
-    if (ticketToUpdate.supportStatus === SUPPORT_STATUS.REJECTED || ticketToUpdate.supportStatus === SUPPORT_STATUS.RESOLVED){
-      throw `Support ticket with ID ${ticketToUpdate.supportTicketId} cannot be updated because it is already resolved or rejected.`
+    if (
+      ticketToUpdate.supportStatus === SUPPORT_STATUS.REJECTED ||
+      ticketToUpdate.supportStatus === SUPPORT_STATUS.RESOLVED
+    ) {
+      throw `Support ticket with ID ${ticketToUpdate.supportTicketId} cannot be updated because it is already resolved or rejected.`;
     }
 
     //Validation if the supportType passed in belongs to any of the enum
@@ -166,12 +162,12 @@ const updateTicket = async (supportTicket) => {
       supportTicket.supportType !== SUPPORT_TYPE.JIO &&
       supportTicket.supportType !== SUPPORT_TYPE.REQUEST &&
       supportTicket.supportType !== SUPPORT_TYPE.HEALTH
-    ){
-      throw `supportType is invalid`
+    ) {
+      throw `supportType is invalid`;
     }
 
     const updatedTicket = await ticketToUpdate.update(supportTicket);
-    return await retrieveTicketByTicketId(updatedTicket.supportTicketId)
+    return await retrieveTicketByTicketId(updatedTicket.supportTicketId);
   } catch (e) {
     console.log(e);
     throw e;
@@ -225,23 +221,28 @@ const rejectTicket = async (supportTicketId) => {
 ---------------------------------------- */
 const deleteTicketByTicketId = async (supportTicketId) => {
   try {
-    const ticket = await retrieveTicketByTicketId(supportTicketId)
+    const ticket = await retrieveTicketByTicketId(supportTicketId);
     if (!ticket) {
       throw `SupportTicket with ID ${supportTicketId} not found`;
     }
 
     // Check if the ticket is still pending to allow deletion
-    if ( ticket.supportStatus === SUPPORT_STATUS.REJECTED || ticket.supportStatus === SUPPORT_STATUS.RESOLVED){
-      throw `SupportTicket with ID ${ticket.supportTicketId} cannot be deleted because it is already resolved or rejected.`
+    if (
+      ticket.supportStatus === SUPPORT_STATUS.REJECTED ||
+      ticket.supportStatus === SUPPORT_STATUS.RESOLVED
+    ) {
+      throw `SupportTicket with ID ${ticket.supportTicketId} cannot be deleted because it is already resolved or rejected.`;
     }
 
     //Ticket cannot be deleted if there are support comments tagged to it.
-    if(ticket.SupportComments.length !== 0 ){
-      throw `SupportTicket with ID ${ticket.supportTicketId} cannot be deleted because there are SupportComments to it.`
+    if (ticket.SupportComments.length !== 0) {
+      throw `SupportTicket with ID ${ticket.supportTicketId} cannot be deleted because there are SupportComments to it.`;
     }
 
     await ticket.destroy();
-    console.log(`SupportTicket with ID ${supportTicketId} deleted successfully`)
+    console.log(
+      `SupportTicket with ID ${supportTicketId} deleted successfully`
+    );
   } catch (e) {
     console.log(e);
     throw e;
@@ -257,5 +258,5 @@ module.exports = {
   updateTicket,
   resolveTicket,
   rejectTicket,
-  deleteTicketByTicketId
+  deleteTicketByTicketId,
 };
