@@ -152,19 +152,21 @@ const makeWithdrawal = async (walletId, amount) => {
   Parameters: (walletId: UUID, amount: string)
   Return: Transaction object
 */
-const makeDonation = async (walletId, amount) => {
+const makeDonation = async (walletId, amount, recurr = false, desc = null) => {
   try {
     const userWalletId = walletId;
 
     // Deduct from wallet
-    await deductWalletBalance(userWalletId, amount);
+    if(!recurr){
+      await deductWalletBalance(userWalletId, amount);
+    }
 
     // Create new transaction
     const newTransaction = await createWithdrawDonateTransaction(
       userWalletId,
       amount,
       transactionTypeEnum.DONATE,
-      `Donation of SGD${parseFloat(amount).toFixed(2)}, Transaction ID: `
+      desc ? desc : `Donation of SGD${parseFloat(amount).toFixed(2)}, Transaction ID: `
     );
     return newTransaction;
   } catch (e) {
@@ -309,7 +311,17 @@ const makeRecurrentTransaction = async (subscriptionId, amount, paypalId) => {
         )},\nPaypal Transaction Id: ${paypalId}`
       );
     }
-
+    if(agreement.recurrentAgreementType === recurrTypeEnum.DONATE){
+      console.log('Recurring DONATE payment webhook received')
+      await makeDonation(
+        agreement.walletId,
+        amount,
+        true,
+        `Monthly Donation of SGD${parseFloat(amount).toFixed(
+          2
+        )} via Paypal directly,\nPaypal Transaction Id: ${paypalId}`
+      );
+    }
     return agreement;
   } catch (e) {
     console.log(e);
