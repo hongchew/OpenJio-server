@@ -60,8 +60,10 @@ const retrieveTicketByTicketId = async (supportTicketId) => {
     if (!ticket) {
       throw `Support ticket with ID ${supportTicketId} not found`;
     }
-
-    //should return the list of comments as well
+    await ticket.SupportComments.sort(
+      (a,b) => new Date(b.createdAt) - new Date(a.createdAt)
+    )
+    //return the ticket with a list of comments
     return ticket;
   } catch (e) {
     console.log(e);
@@ -82,6 +84,15 @@ const retrieveAllTicketsByUserId = async (userId) => {
       },
       include: {model: SupportComment, order: [['createdAt', 'DESC']]},
     });
+    if(tickets.length !==0){
+      tickets.map((ticket) => {
+        if (ticket.SupportComments.length >= 2) {
+          ticket.SupportComments.sort(
+            (a,b,) => new Date(b.createdAt) - (a.createdAt)
+          )
+        }
+      })
+    }
     return tickets;
   } catch (e) {
     console.log(e);
