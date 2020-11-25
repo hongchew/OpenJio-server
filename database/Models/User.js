@@ -61,6 +61,11 @@ const initUser = async (sequelize) => {
         defaultValue: false,
         allowNull: false,
       },
+      isHighRisk: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
+      },
       isSingPassVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

@@ -1,6 +1,6 @@
 const database_variables = {
   database: 'openjio',
-  username: 'root',
+  username: 'openjio',
   password: 'password',
 };
 

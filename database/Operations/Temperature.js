@@ -1,5 +1,6 @@
 const TEMPERATURE_RISK_LEVEL = require('../../enum/TemperatureRiskLevel');
 const {TemperatureLog} = require('../Models/TemperatureLog');
+const {updateUserDetails} = require('./User');
 
 /* ----------------------------------------
   Create a health log
@@ -9,20 +10,27 @@ const {TemperatureLog} = require('../Models/TemperatureLog');
 const createTemperatureLog = async (
   userId,
   temperature,
-  hasCovid
+  hasSymptoms, 
+  snhNotice
 ) => {
   try {
     //To check for high risk
-    const risk = (hasCovid || temperature > 37.5) ? TEMPERATURE_RISK_LEVEL.HIGH_RISK : TEMPERATURE_RISK_LEVEL.LOW_RISK;
+    const isHighRisk = (hasSymptoms || snhNotice || temperature > 37.5) ? true : false;
 
     const newTempLog = TemperatureLog.build({
       temperature: temperature,
       userId: userId,
-      riskLevel: risk,
     });
 
+    const updateUser = await updateUserDetails({
+      userId: userId,
+      isHighRisk: isHighRisk
+    })
+
     await newTempLog.save();
-    return newTempLog;
+    await updateUser.save();
+
+    return updateUser;
   } catch (e) {
     console.log(e);
     throw e;
