@@ -39,12 +39,13 @@ const announcementsRouter = require('./routes/announcementsRoutes');
 const requestsRouter = require('./routes/requestsRoutes');
 const addressesRouter = require('./routes/addressesRoutes');
 const walletsRouter = require('./routes/walletRoutes');
-const transactionRouter = require('./routes/transactionRoutes');
+const transactionsRouter = require('./routes/transactionRoutes');
 const paypalRouter = require('./routes/paypalRoutes');
 const temperatureRouter = require('./routes/temperatureRoutes');
 const complaintRouter = require('./routes/complaintRoutes');
 const supportTicket = require('./routes/supportTicketRoutes');
 const supportComment = require('./routes/supportCommentRoutes');
+const notificationsRouter = require('./routes/notificationsRoutes');
 
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
@@ -52,12 +53,13 @@ app.use('/announcements', announcementsRouter);
 app.use('/requests', requestsRouter);
 app.use('/addresses', addressesRouter);
 app.use('/wallets', walletsRouter);
-app.use('/transactions', transactionRouter);
+app.use('/transactions', transactionsRouter);
 app.use('/paypal', paypalRouter);
 app.use('/temperatures', temperatureRouter);
 app.use('/complaints', complaintRouter);
 app.use('/supportTickets', supportTicket);
 app.use('/supportComments', supportComment);
+app.use('/notifications', notificationsRouter);
 app.use('/files', express.static('files'));
 
 //#endregion
