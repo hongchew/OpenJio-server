@@ -10,6 +10,7 @@ const {
   rejectComplaint,
   deleteComplaintByComplaintId,
   retrieveAllPendingComplaints,
+  strikeUserComplaint,
 } = require('../database/Operations/Complaint');
 
 /* http://localhost:3000/complaints/ . */
@@ -35,6 +36,25 @@ router.post('/create-complaint', async (req, res) => {
       req.body.requestId
     );
     res.json(newComplaint);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
+/* ----------------------------------------
+  Strike user in a complaint
+  Endpoint: PUT /complaints/strike-user/
+  Body: JSON {
+    userId: string
+    requestId: string
+  }
+  Return: Model.Complaint object
+  
+---------------------------------------- */
+router.put('/strike-user', async (req, res) => {
+  try {
+    await strikeUserComplaint(req.body.userId, req.body.requestId);
+    res.json(true);
   } catch (e) {
     res.status(500).json(e);
   }
