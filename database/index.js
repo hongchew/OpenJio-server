@@ -172,11 +172,14 @@ const getDb = async () => {
     }); //user.defaultAddress
     User.hasMany(Announcement, {foreignKey: 'userId', onDelete: 'SET NULL'}); //user.announcements
     User.hasMany(Badge, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.badges
-    User.hasMany(Request, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.requests
+    User.hasMany(Request, {foreignKey: 'userId', onDelete: 'SET NULL'}); //user.requests
     User.hasMany(SupportTicket, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.supportTickets
     User.hasMany(TemperatureLog, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.temperatureLogs
     User.hasOne(Wallet, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.wallet
-    User.hasMany(Complaint, {foreignKey: 'complainerUserId', onDelete: 'CASCADE'}) //user.complaints
+    User.hasMany(Complaint, {
+      foreignKey: 'complainerUserId',
+      onDelete: 'CASCADE',
+    }); //user.complaints
 
     // Wallet
     Wallet.belongsTo(User, {foreignKey: 'userId'}); // wallet.userId

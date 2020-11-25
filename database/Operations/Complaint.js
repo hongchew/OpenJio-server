@@ -40,13 +40,14 @@ const strikeUserComplaint = async (userId, complaintId) => {
   Parameters: (description: string, requestId: string)
   Return: Complaint object
 ---------------------------------------- */
-const createComplaint = async (description, requestId) => {
+const createComplaint = async (description, requestId, complaintUserId) => {
   try {
     const newComplaint = Complaint.build({
       description: description,
       adminResponse: null,
       complaintStatus: COMPLAINT_STATUS.PENDING,
       requestId: requestId,
+      complaintUserId: complaintUserId,
     });
 
     if (!newComplaint) {
