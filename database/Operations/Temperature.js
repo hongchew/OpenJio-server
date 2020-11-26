@@ -15,16 +15,19 @@ const createTemperatureLog = async (
 ) => {
   try {
     //To check for high risk
-    const isHighRisk = (hasSymptoms || snhNotice || temperature > 37.5) ? true : false;
+    const symptoms = (hasSymptoms || temperature > 37.5) ? true : false;
 
     const newTempLog = TemperatureLog.build({
       temperature: temperature,
       userId: userId,
+      hasSymptoms: symptoms,
+      snhNotice: snhNotice
     });
 
     const updateUser = await updateUserDetails({
       userId: userId,
-      isHighRisk: isHighRisk
+      hasSymptoms: symptoms,
+      onSNH: snhNotice
     })
 
     await newTempLog.save();

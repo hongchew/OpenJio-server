@@ -61,7 +61,12 @@ const initUser = async (sequelize) => {
         defaultValue: false,
         allowNull: false,
       },
-      isHighRisk: {
+      hasSymptoms: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
+      },
+      onSNH: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false,
