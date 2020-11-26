@@ -4,6 +4,7 @@ const {retrieveRequestByRequestId} = require('./Request');
 const axios = require('axios');
 const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
 const {strikeUser} = require('./User');
+const {sendNotification} = require('./Notifications');
 
 /*
 Strike user associated with complaint
@@ -25,9 +26,19 @@ const strikeUserComplaint = async (userId, complaintId) => {
     if (userId === requesterId) {
       //strike announcer
       strikeUser(announcerId);
+      sendNotification(
+        announcerId,
+        'You have been striked',
+        'Please refrain from repeating your actions. OpenJio is platform promoting community spirit. Be kind to your neighbours. :-)'
+      );
     } else {
       //strike requester
       strikeUser(requesterId);
+      sendNotification(
+        announcerId,
+        'You have been striked',
+        'Please refrain from repeating your actions. OpenJio is platform promoting community spirit. Be kind to your neighbours. :-)'
+      );
     }
   } catch (e) {
     console.log(e);
@@ -94,6 +105,21 @@ const retrieveAllPendingComplaints = async () => {
         complaintStatus: COMPLAINT_STATUS.PENDING,
       },
     });
+    return complaints;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/* ----------------------------------------
+  Retrieve all complaints 
+  Parameters: 
+  Return: Array of complaint objects 
+---------------------------------------- */
+const retrieveAllComplaints = async () => {
+  try {
+    const complaints = await Complaint.findAll({});
     return complaints;
   } catch (e) {
     console.log(e);
@@ -247,4 +273,5 @@ module.exports = {
   deleteComplaintByComplaintId,
   retrieveAllPendingComplaints,
   strikeUserComplaint,
+  retrieveAllComplaints,
 };

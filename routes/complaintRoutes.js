@@ -11,7 +11,9 @@ const {
   deleteComplaintByComplaintId,
   retrieveAllPendingComplaints,
   strikeUserComplaint,
+  retrieveAllComplaints,
 } = require('../database/Operations/Complaint');
+const {sendNotification} = require('../database/Operations/Notifications');
 const {strikeUser} = require('../database/Operations/User');
 
 /* http://localhost:3000/complaints/ . */
@@ -110,6 +112,23 @@ router.get('/all-pending-complaints', async (req, res) => {
 });
 
 /* ----------------------------------------
+  Retrieve all  complaints
+  Endpoint: GET /complaints/all-complaints
+  Params:  
+  Return: JSON array of complaints
+  Status: Passed postman test
+---------------------------------------- */
+router.get('/all-complaints', async (req, res) => {
+  try {
+    const complaints = await retrieveAllComplaints();
+    res.status(200).json(complaints);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/* ----------------------------------------
   Retrieve details of 1 complaint by complaintId
   Endpoint: GET /complaints/complaint-info/:complaintId
   Parameters: complaintId
@@ -179,6 +198,11 @@ router.put('/add-response', async (req, res) => {
 router.put('/resolve/:complaintId', async (req, res) => {
   try {
     const complaint = await resolveComplaint(req.params.complaintId);
+    sendNotification(
+      complaint.complainerUserId,
+      'Your complaint with id ' + req.params.complaintId + ' has been resolved',
+      ''
+    );
     res.status(200).json(complaint);
   } catch (e) {
     res.status(500).json(e);
@@ -195,6 +219,11 @@ router.put('/resolve/:complaintId', async (req, res) => {
 router.put('/reject/:complaintId', async (req, res) => {
   try {
     const complaint = await rejectComplaint(req.params.complaintId);
+    sendNotification(
+      complaint.complainerUserId,
+      'Your complaint with id ' + req.params.complaintId + ' has been rejected',
+      ''
+    );
     res.status(200).json(complaint);
   } catch (e) {
     res.status(500).json(e);

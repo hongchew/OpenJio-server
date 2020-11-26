@@ -87,7 +87,6 @@ const deleteNotification = async (notificationid) => {
     });
 
     return resp ? true : false;
-    
   } catch (e) {
     throw e;
   }
@@ -98,5 +97,5 @@ module.exports = {
   markNotificationAsRead,
   getAllNotificationsByUserId,
   sendNotificationToMultipleUsers,
-  deleteNotification
+  deleteNotification,
 };

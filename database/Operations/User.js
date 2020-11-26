@@ -90,7 +90,10 @@ const retrieveUserByUserId = async (userId) => {
 const strikeUser = async (userId) => {
   try {
     const user = retrieveUserByUserId(userId);
-    user.strikeCount += 1;
+    user.incrementStrikeCount();
+    if (user.strikeCount >= 3) {
+      user.isBlacklisted = true;
+    }
     await user.save();
     return await retrieveUserByUserId(userId);
   } catch (e) {
