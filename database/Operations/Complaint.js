@@ -128,7 +128,7 @@ const retrieveAllComplaints = async () => {
   try {
     const complaints = await Complaint.findAll({
       include: {
-        model: User, {as : 'complainer'},
+        model: User,
         attributes: {
           exclude: ['salt', 'password'],
         },
