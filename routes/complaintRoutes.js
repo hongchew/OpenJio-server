@@ -12,6 +12,7 @@ const {
   retrieveAllPendingComplaints,
   strikeUserComplaint,
 } = require('../database/Operations/Complaint');
+const {strikeUser} = require('../database/Operations/User');
 
 /* http://localhost:3000/complaints/ . */
 router.get('/', (req, res) => {
@@ -47,16 +48,26 @@ router.post('/create-complaint', async (req, res) => {
   Strike user in a complaint
   Endpoint: PUT /complaints/strike-user/
   Body: JSON {
-    userId: string
-    requestId: string
+    complaintUserId: string
+    complaintId: string
   }
   Return: Model.Complaint object
   
 ---------------------------------------- */
 router.put('/strike-user', async (req, res) => {
   try {
-    await strikeUserComplaint(req.body.userId, req.body.requestId);
-    res.json(true);
+    await strikeUserComplaint(req.body.complaintUserId, req.body.complaintId);
+    res.json({status: true});
+  } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
+//test
+router.put('/strike/:userId', async (req, res) => {
+  try {
+    const user = await strikeUser(req.params.userId);
+    res.status(200).json(user);
   } catch (e) {
     res.status(500).json(e);
   }

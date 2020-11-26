@@ -25,6 +25,10 @@ class User extends Model {
     this.lastBadgeReceived = new Date();
   }
 
+  incrementStrikeCount() {
+    this.strikeCount += 1;
+  }
+
   static generatePassword() {
     const buf = Buffer.alloc(5);
     return crypto.randomFillSync(buf).toString('hex');
@@ -105,7 +109,7 @@ const initUser = async (sequelize) => {
       },
       lastBadgeReceived: {
         type: Sequelize.DATE,
-      }
+      },
     },
     {
       sequelize,

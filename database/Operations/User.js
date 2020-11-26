@@ -88,10 +88,14 @@ const retrieveUserByUserId = async (userId) => {
   Return: Updated User object 
 */
 const strikeUser = async (userId) => {
-  const user = retrieveUserByUserId(userId);
-  user.strikeCount += 1;
-  await user.save();
-  return await retrieveUserByUserId(userId);
+  try {
+    const user = retrieveUserByUserId(userId);
+    user.strikeCount += 1;
+    await user.save();
+    return await retrieveUserByUserId(userId);
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 /*

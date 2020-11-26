@@ -18,7 +18,7 @@ const strikeUserComplaint = async (userId, complaintId) => {
     }
     const request = retrieveRequestByRequestId(complaint.requestId);
     const requesterId = request.userId;
-    const announcement = annoretrieveAnnouncementByAnnouncementId(
+    const announcement = retrieveAnnouncementByAnnouncementId(
       request.announcementId
     );
     const announcerId = announcement.userId;
