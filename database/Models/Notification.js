@@ -10,16 +10,16 @@ const initNotification = async (sequelize) => {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      description: {
+      title: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      notificationType: {
-        type: DataTypes.STRING,
-        allowNull: false,
+      content: {
+        type: DataTypes.TEXT,
       },
-      notificationStatus: {
-        type: DataTypes.STRING,
+      isRead: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
         allowNull: false
       },
     },

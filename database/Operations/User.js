@@ -5,7 +5,6 @@ const {Wallet} = require('../Models/Wallet');
 const {Badge} = require('../Models/Badge');
 const {RecurrentAgreement} = require('../Models/RecurrentAgreement');
 
-
 const {sendEmail} = require('../../utils/mailer');
 const badgeControl = require('../../enum/BadgeControl');
 const {createWallet} = require('./Wallet');
@@ -72,7 +71,7 @@ const retrieveUserByUserId = async (userId) => {
       include: [
         Address,
         Wallet,
-        {model: Wallet, include:[RecurrentAgreement]},
+        {model: Wallet, include: [RecurrentAgreement]},
         {model: Badge, order: [['name', 'DESC']], separate: true},
       ],
     });
@@ -80,6 +79,25 @@ const retrieveUserByUserId = async (userId) => {
   } catch (e) {
     console.log(e);
     throw e;
+  }
+};
+
+/*
+  Increase user strike count
+  Parameters: (userId: string)
+  Return: Updated User object 
+*/
+const strikeUser = async (userId) => {
+  try {
+    const user = retrieveUserByUserId(userId);
+    user.incrementStrikeCount();
+    if (user.strikeCount >= 3) {
+      user.isBlacklisted = true;
+    }
+    await user.save();
+    return await retrieveUserByUserId(userId);
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -375,4 +393,5 @@ module.exports = {
   verifyUserAccountCreation,
   giveBadge,
   retrieveLeaderboard,
+  strikeUser,
 };

@@ -8,8 +8,10 @@ const {
 } = require('./Wallet');
 const {retrieveUserByEmail} = require('./User');
 const transactionTypeEnum = require('../../enum/TransactionType');
-const recurrTypeEnum = require('../../enum/RecurrentTopUpType')
+const recurrTypeEnum = require('../../enum/RecurrentTopUpType');
 const {RecurrentAgreement} = require('../Models/RecurrentAgreement');
+const {sendNotification} = require('../Operations/Notifications');
+const {Wallet} = require('../Models/Wallet');
 
 // For Managed Transaction (Archived for now)
 // const getDb = require('../../database/index');
@@ -37,6 +39,23 @@ const createUserTransaction = async (
     });
 
     await newTransaction.save();
+
+    const sender = await retrieveWalletByWalletId(senderWalletId).then(
+      async (wallet) => {
+        return await wallet.getUser();
+      }
+    );
+    const recipient = await retrieveWalletByWalletId(recipientWalletId).then(
+      async (wallet) => {
+        return await wallet.getUser();
+      }
+    );
+
+    await sendNotification(
+      recipient.userId,
+      `Received S$${amount} from ${sender.name}`,
+      `Transaction ID: ${newTransaction.transactionId}`
+    );
 
     return newTransaction;
   } catch (e) {
@@ -157,7 +176,7 @@ const makeDonation = async (walletId, amount, recurr = false, desc = null) => {
     const userWalletId = walletId;
 
     // Deduct from wallet
-    if(!recurr){
+    if (!recurr) {
       await deductWalletBalance(userWalletId, amount);
     }
 
@@ -166,7 +185,9 @@ const makeDonation = async (walletId, amount, recurr = false, desc = null) => {
       userWalletId,
       amount,
       transactionTypeEnum.DONATE,
-      desc ? desc : `Donation of SGD${parseFloat(amount).toFixed(2)}, Transaction ID: `
+      desc
+        ? desc
+        : `Donation of SGD${parseFloat(amount).toFixed(2)}, Transaction ID: `
     );
     return newTransaction;
   } catch (e) {
@@ -298,10 +319,11 @@ const makeRecurrentTransaction = async (subscriptionId, amount, paypalId) => {
       where: {
         paypalSubscriptionId: subscriptionId,
       },
+      include: [{model: Wallet}],
     });
 
-    if(agreement.recurrentAgreementType === recurrTypeEnum.TOP_UP){
-      console.log('Recurring TOP_UP payment webhook received')
+    if (agreement.recurrentAgreementType === recurrTypeEnum.TOP_UP) {
+      console.log('Recurring TOP_UP payment webhook received');
       await makeTopUp(
         agreement.walletId,
         amount,
@@ -310,9 +332,15 @@ const makeRecurrentTransaction = async (subscriptionId, amount, paypalId) => {
           2
         )},\nPaypal Transaction Id: ${paypalId}`
       );
+
+      await sendNotification(
+        agreement.Wallet.userId,
+        `Monthly Top Up Success`,
+        `S$${amount} was added to your OpenJio Wallet! Refresh your wallet to see the latest amount!`
+      );
     }
-    if(agreement.recurrentAgreementType === recurrTypeEnum.DONATE){
-      console.log('Recurring DONATE payment webhook received')
+    if (agreement.recurrentAgreementType === recurrTypeEnum.DONATE) {
+      console.log('Recurring DONATE payment webhook received');
       await makeDonation(
         agreement.walletId,
         amount,
@@ -320,6 +348,12 @@ const makeRecurrentTransaction = async (subscriptionId, amount, paypalId) => {
         `Monthly Donation of SGD${parseFloat(amount).toFixed(
           2
         )} via Paypal directly,\nPaypal Transaction Id: ${paypalId}`
+      );
+
+      await sendNotification(
+        agreement.Wallet.userId,
+        `Monthly Donation Success`,
+        `You had donated S$${amount} from Paypal to help with the operations of OpenJio. Thank you for your support!`
       );
     }
     return agreement;

@@ -14,9 +14,15 @@ const initTemperatureLog = async (sequelize) => {
         type: DataTypes.DOUBLE,
         allowNull: false
       },
-      riskLevel: {
-        type: DataTypes.STRING,
-        allowNull: false
+      hasSymptoms: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
+      },
+      stayHomeNotice: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
       },
     },
     {

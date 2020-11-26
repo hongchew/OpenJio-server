@@ -1,19 +1,64 @@
 const COMPLAINT_STATUS = require('../../enum/ComplaintStatus');
 const {Complaint} = require('../Models/Complaint');
+const {retrieveRequestByRequestId} = require('./Request');
 const axios = require('axios');
+const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
+const {strikeUser} = require('./User');
+const {sendNotification} = require('./Notifications');
+
+/*
+Strike user associated with complaint
+Parameters: userId, complaintId
+Return:
+*/
+const strikeUserComplaint = async (userId, complaintId) => {
+  try {
+    const complaint = await Complaint.findByPk(complaintId);
+    if (!complaint) {
+      throw `Complaint with ID ${complaintId} not found`;
+    }
+    const request = retrieveRequestByRequestId(complaint.requestId);
+    const requesterId = request.userId;
+    const announcement = retrieveAnnouncementByAnnouncementId(
+      request.announcementId
+    );
+    const announcerId = announcement.userId;
+    if (userId === requesterId) {
+      //strike announcer
+      strikeUser(announcerId);
+      sendNotification(
+        announcerId,
+        'You have been striked',
+        'Please refrain from repeating your actions. OpenJio is platform promoting community spirit. Be kind to your neighbours. :-)'
+      );
+    } else {
+      //strike requester
+      strikeUser(requesterId);
+      sendNotification(
+        announcerId,
+        'You have been striked',
+        'Please refrain from repeating your actions. OpenJio is platform promoting community spirit. Be kind to your neighbours. :-)'
+      );
+    }
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
 
 /* ----------------------------------------
   Create a complaint for a request
   Parameters: (description: string, requestId: string)
   Return: Complaint object
 ---------------------------------------- */
-const createComplaint = async (description, requestId) => {
+const createComplaint = async (description, requestId, complainerUserId) => {
   try {
     const newComplaint = Complaint.build({
       description: description,
       adminResponse: null,
       complaintStatus: COMPLAINT_STATUS.PENDING,
       requestId: requestId,
+      complainerUserId: complainerUserId,
     });
 
     if (!newComplaint) {
@@ -60,6 +105,21 @@ const retrieveAllPendingComplaints = async () => {
         complaintStatus: COMPLAINT_STATUS.PENDING,
       },
     });
+    return complaints;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/* ----------------------------------------
+  Retrieve all complaints 
+  Parameters: 
+  Return: Array of complaint objects 
+---------------------------------------- */
+const retrieveAllComplaints = async () => {
+  try {
+    const complaints = await Complaint.findAll({});
     return complaints;
   } catch (e) {
     console.log(e);
@@ -212,4 +272,6 @@ module.exports = {
   rejectComplaint,
   deleteComplaintByComplaintId,
   retrieveAllPendingComplaints,
+  strikeUserComplaint,
+  retrieveAllComplaints,
 };
