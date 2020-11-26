@@ -1,5 +1,6 @@
 const express = require('express');
 const {Sequelize} = require('sequelize');
+const { sendOutbreakNotification } = require('../database/Operations/Notifications');
 
 
 const {
@@ -29,8 +30,12 @@ router.post('/create-outbreakzone', async (req, res) => {
     if (!newOutbreakZone) {
       throw 'Outbreak zone creation failed!';
     }
+
+    await sendOutbreakNotification(newOutbreakZone);
+
     res.json(newOutbreakZone);
   } catch (e) {
+    console.log(e)
     res.status(500).json(e);
   }
 });
