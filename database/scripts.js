@@ -160,6 +160,8 @@ const onInitPopulateDatabase = async () => {
     if (assignAddressToUser2) {
       console.log('Address successfully assigned to user: ' + user2.userId);
     }
+    user2.defaultAddressId = assignAddressToUser2[0].addressId;
+
     user2.save();
 
     // Retrieve user 3's wallet
@@ -235,13 +237,22 @@ const onInitPopulateDatabase = async () => {
       line2: '#03-03',
       postalCode: '140183',
       country: 'Singapore',
-      description: 'Tom home',
+      description: 'Mother\'s Home',
     };
 
     let assignAddressToUser3 = await addAddress(user3.userId, address3);
     if (assignAddressToUser3) {
       console.log('Address successfully assigned to user: ' + user3.userId);
     }
+
+    let tomDefault = await addAddress(user3.userId, {
+      line1: '137 Tampines Street 11',
+      line2: '#03-03',
+      postalCode: '521137',
+      country: 'Singapore',
+      description: 'Home',
+    });
+    user3.defaultAddressId = tomDefault[0].addressId;
 
     user3.save();
 

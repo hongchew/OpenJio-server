@@ -12,7 +12,7 @@ const createOutbreakZone = async (postalCode) => {
     });
 
     await newOutbreakZone.save();
-
+    
     return newOutbreakZone;
   } catch (e) {
     console.log(e);
