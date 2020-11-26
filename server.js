@@ -46,6 +46,7 @@ const complaintRouter = require('./routes/complaintRoutes');
 const supportTicket = require('./routes/supportTicketRoutes');
 const supportComment = require('./routes/supportCommentRoutes');
 const notificationsRouter = require('./routes/notificationsRoutes');
+const outbreakZonesRouter = require('./routes/outbreakZonesRoutes');
 
 app.use('/users', usersRouter);
 app.use('/admins', adminsRouter);
@@ -60,6 +61,7 @@ app.use('/complaints', complaintRouter);
 app.use('/supportTickets', supportTicket);
 app.use('/supportComments', supportComment);
 app.use('/notifications', notificationsRouter);
+app.use('/outbreakzones', outbreakZonesRouter);
 app.use('/files', express.static('files'));
 
 //#endregion

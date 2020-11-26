@@ -26,7 +26,7 @@ router.get('/', (req, res) => {
   {
     "description": "string", 
     "requestId": "string", 
-    complaintUserId :string
+    complainerUserId :string
   }
   Return: Model.Complaint object
   Status: Passed postman test
@@ -36,7 +36,7 @@ router.post('/create-complaint', async (req, res) => {
     const newComplaint = await createComplaint(
       req.body.description,
       req.body.requestId,
-      req.body.complaintUserId
+      req.body.complainerUserId
     );
     res.json(newComplaint);
   } catch (e) {
