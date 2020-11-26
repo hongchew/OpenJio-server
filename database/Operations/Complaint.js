@@ -1,19 +1,53 @@
 const COMPLAINT_STATUS = require('../../enum/ComplaintStatus');
 const {Complaint} = require('../Models/Complaint');
+const {retrieveRequestByRequestId} = require('./Request');
 const axios = require('axios');
+const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
+const {strikeUser} = require('./User');
+
+/*
+Strike user associated with complaint
+Parameters: userId, complaintId
+Return:
+*/
+const strikeUserComplaint = async (userId, complaintId) => {
+  try {
+    const complaint = await Complaint.findByPk(complaintId);
+    if (!complaint) {
+      throw `Complaint with ID ${complaintId} not found`;
+    }
+    const request = retrieveRequestByRequestId(complaint.requestId);
+    const requesterId = request.userId;
+    const announcement = annoretrieveAnnouncementByAnnouncementId(
+      request.announcementId
+    );
+    const announcerId = announcement.userId;
+    if (userId === requesterId) {
+      //strike announcer
+      strikeUser(announcerId);
+    } else {
+      //strike requester
+      strikeUser(requesterId);
+    }
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
 
 /* ----------------------------------------
   Create a complaint for a request
   Parameters: (description: string, requestId: string)
   Return: Complaint object
 ---------------------------------------- */
-const createComplaint = async (description, requestId) => {
+const createComplaint = async (description, requestId, complainerUserId) => {
   try {
     const newComplaint = Complaint.build({
       description: description,
       adminResponse: null,
       complaintStatus: COMPLAINT_STATUS.PENDING,
       requestId: requestId,
+      complainerUserId: complainerUserId,
     });
 
     if (!newComplaint) {
@@ -212,4 +246,5 @@ module.exports = {
   rejectComplaint,
   deleteComplaintByComplaintId,
   retrieveAllPendingComplaints,
+  strikeUserComplaint,
 };

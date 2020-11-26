@@ -61,6 +61,16 @@ const initUser = async (sequelize) => {
         defaultValue: false,
         allowNull: false,
       },
+      hasSymptoms: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
+      },
+      onSNH: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
+      },
       isSingPassVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
