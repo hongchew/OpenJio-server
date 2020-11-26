@@ -66,7 +66,7 @@ const initUser = async (sequelize) => {
         defaultValue: false,
         allowNull: false,
       },
-      onSNH: {
+      onSHN: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false,

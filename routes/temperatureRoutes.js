@@ -28,7 +28,7 @@ router.post('/create-log', async (req, res) => {
       req.body.userId,
       req.body.temperature,
       req.body.hasSymptoms,
-      req.body.snhNotice, 
+      req.body.stayHomeNotice, 
     )
 
     if (!newTemperatureLog) {
