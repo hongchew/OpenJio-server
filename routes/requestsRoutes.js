@@ -249,6 +249,24 @@ router.put('/complete-request', async (req, res) => {
   }
 });
 
+/*
+  Endpoint: PUT /requests/verify-request
+  Content type: JSON {
+    requestId: string, 
+  }
+  Return: JSON Request Object with updated status
+  Tested and working
+*/
+router.put('/verify-request', async (req, res) => {
+  try {
+    const verifiedRequest = await verifyRequest(req.body.requestId);
+    res.status(200).json(verifiedRequest);
+  } catch (e) {
+    //generic server error
+    res.status(500).json(e);
+  }
+});
+
 /* ----------------------------------------
   Create a new request
   Endpoint: POST /requests/create-request

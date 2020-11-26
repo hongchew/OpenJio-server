@@ -11,7 +11,8 @@ const {
   deleteAnnouncementByAnnouncementId,
   ongoingAnnouncement,
   pastAnnouncement,
-  activeAnnouncement
+  activeAnnouncement,
+  completedAnnouncement
 } = require('../database/Operations/Announcement');
 
 /* http://localhost:3000/announcements/ . */
@@ -217,6 +218,24 @@ router.put('/activate-announcement/:announcementId', async (req, res) => {
   try {
     const announcementActivated = await activeAnnouncement(req.params.announcementId);
     res.status(200).json(announcementActivated);
+  } catch (e) {
+    //generic server error
+    res.status(500).json(e);
+  }
+});
+
+ /* ----------------------------------------
+  Set announcement as COMPLETED via announcementId
+  Endpoint: PUT /announcements/complete-announcement/:announcementId
+  Parameters: announcementId
+  Return: Announcement
+  Status: Passed postman test
+  Purpose: Mainly for postman testing
+---------------------------------------- */
+router.put('/complete-announcement/:announcementId', async (req, res) => {
+  try {
+    const announcementCompleted = await completedAnnouncement(req.params.announcementId);
+    res.status(200).json(announcementCompleted);
   } catch (e) {
     //generic server error
     res.status(500).json(e);

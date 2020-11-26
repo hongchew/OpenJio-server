@@ -1,20 +1,20 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
-const COMPLAINT_STATUS = require("../../enum/SupportComplaintStatus")
+const {Sequelize, Model, DataTypes} = require('sequelize');
+const COMPLAINT_STATUS = require('../../enum/ComplaintStatus');
 
 class Complaint extends Model {
-  setPending(){
-    this.complaintStatus = COMPLAINT_STATUS.PENDING
+  setPending() {
+    this.complaintStatus = COMPLAINT_STATUS.PENDING;
   }
   setResolved() {
-    this.complaintStatus = COMPLAINT_STATUS.RESOLVED
+    this.complaintStatus = COMPLAINT_STATUS.RESOLVED;
   }
-  setRejected(){
-    this.complaintStatus = COMPLAINT_STATUS.REJECTED
+  setRejected() {
+    this.complaintStatus = COMPLAINT_STATUS.REJECTED;
   }
 }
 
 const initComplaint = async (sequelize) => {
-    Complaint.init(
+  Complaint.init(
     {
       complaintId: {
         type: DataTypes.UUID,
@@ -31,15 +31,15 @@ const initComplaint = async (sequelize) => {
       complaintStatus: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: COMPLAINT_STATUS.PENDING
+        defaultValue: COMPLAINT_STATUS.PENDING,
       },
     },
     {
       sequelize,
-      modelName: "Complaint",
+      modelName: 'Complaint',
     }
   );
   console.log(`****[database] Complaint initialized`);
 };
 
-module.exports = { Complaint, initComplaint };
+module.exports = {Complaint, initComplaint};

@@ -16,7 +16,7 @@ const initOutbreakZone = async (sequelize) => {
       },
       currentStatus: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
     },
     {

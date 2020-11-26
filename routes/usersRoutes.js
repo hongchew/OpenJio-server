@@ -305,6 +305,24 @@ router.put('/give-badge/', async (req, res) => {
 });
 
 /*
+  Give Multiple Badges 
+  Endpoint: PUT /users/give-badges
+  Content type: JSON { userId:'string', badgeTypes: ['string']}
+  Return: true
+*/
+router.put('/give-badges/', async (req, res) => {
+  try {
+    const {userId, badgeTypes} = req.body;
+    Promise.all(badgeTypes.map((badgeType) => giveBadge(userId, badgeType)))
+      .then(resp => res.status(200).send(true))
+      .catch(e => {throw e})
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+/*
   Endpoint: GET /users/monthly-leaderboard
   Content type: -
   Return: Array of users with top 10 monthly badge count, including badges

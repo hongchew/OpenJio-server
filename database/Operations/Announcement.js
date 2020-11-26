@@ -442,6 +442,23 @@ const activeAnnouncement = async (announcementId) => {
   }
 };
 
+/*
+Set announcement as COMPLETED
+Parameters: announcementId
+Return: Announcement Object
+*/
+const completedAnnouncement = async (announcementId) => {
+  try {
+    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    announcement.completeAnnouncement();
+    await announcement.save();
+    return announcement;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 module.exports = {
   createAnnouncement,
   retrieveNearbyAnnouncements,
@@ -454,5 +471,6 @@ module.exports = {
   deleteAnnouncementByAnnouncementId,
   ongoingAnnouncement,
   pastAnnouncement,
-  activeAnnouncement
+  activeAnnouncement,
+  completedAnnouncement
 };

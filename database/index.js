@@ -14,7 +14,10 @@ const {initBadge, Badge} = require('./Models/Badge');
 const {initComplaint, Complaint} = require('./Models/Complaint');
 const {initNotification, Notification} = require('./Models/Notification');
 const {initOutbreakZone, OutbreakZone} = require('./Models/OutbreakZone');
-const {initRecurrentAgreement, RecurrentAgreement} = require('./Models/RecurrentAgreement');
+const {
+  initRecurrentAgreement,
+  RecurrentAgreement,
+} = require('./Models/RecurrentAgreement');
 const {initRequest, Request} = require('./Models/Request');
 const {initSupportComment, SupportComment} = require('./Models/SupportComment');
 const {initSupportTicket, SupportTicket} = require('./Models/SupportTicket');
@@ -22,8 +25,8 @@ const {initTemperatureLog, TemperatureLog} = require('./Models/TemperatureLog');
 const {initTransaction, Transaction} = require('./Models/Transaction');
 const {initUser, User} = require('./Models/User');
 const {initWallet, Wallet} = require('./Models/Wallet');
-const SupportComplaintStatus = require('../enum/SupportComplaintStatus');
-const {onInitPopulateDatabase} = require('./scripts')
+const SupportComplaintStatus = require('../enum/ComplaintStatus');
+const {onInitPopulateDatabase} = require('./scripts');
 
 let db;
 
@@ -108,6 +111,12 @@ const getDb = async () => {
 
     // Complaint
     Complaint.belongsTo(Request, {foreignKey: 'requestId'}); //complaint.requestId
+    Complaint.belongsTo(User, {
+      as: 'complainer',
+      foreignKey: 'complainerUserId',
+      sourceKey: 'userId',
+      constraints: false,
+    }); //complaint.complainer
 
     // Notification
     Notification.belongsTo(User, {foreignKey: 'userId'}); //notification.userId
@@ -163,10 +172,14 @@ const getDb = async () => {
     }); //user.defaultAddress
     User.hasMany(Announcement, {foreignKey: 'userId', onDelete: 'SET NULL'}); //user.announcements
     User.hasMany(Badge, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.badges
-    User.hasMany(Request, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.requests
+    User.hasMany(Request, {foreignKey: 'userId', onDelete: 'SET NULL'}); //user.requests
     User.hasMany(SupportTicket, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.supportTickets
     User.hasMany(TemperatureLog, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.temperatureLogs
     User.hasOne(Wallet, {foreignKey: 'userId', onDelete: 'CASCADE'}); //user.wallet
+    User.hasMany(Complaint, {
+      foreignKey: 'complainerUserId',
+      onDelete: 'CASCADE',
+    }); //user.complaints
 
     // Wallet
     Wallet.belongsTo(User, {foreignKey: 'userId'}); // wallet.userId
@@ -199,10 +212,13 @@ const getDb = async () => {
         )} and id = ${admin.getDataValue('adminId')} found`
       );
     } else {
-      onInitPopulateDatabase()
+      onInitPopulateDatabase();
     }
   } catch (error) {
-    console.error('***[Database] Unable to init database with default values:', error);
+    console.error(
+      '***[Database] Unable to init database with default values:',
+      error
+    );
   }
   //#endregion
 
