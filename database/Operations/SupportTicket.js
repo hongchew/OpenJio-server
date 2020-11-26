@@ -63,8 +63,8 @@ const retrieveTicketByTicketId = async (supportTicketId) => {
       throw `Support ticket with ID ${supportTicketId} not found`;
     }
     await ticket.SupportComments.sort(
-      (a,b) => new Date(b.createdAt) - new Date(a.createdAt)
-    )
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
     //return the ticket with a list of comments
     return ticket;
   } catch (e) {
@@ -85,17 +85,15 @@ const retrieveTicketWithAdminByTicketId = async (supportTicketId) => {
         supportTicketId: supportTicketId,
       },
       // Ordering the support comment from earliest to latest (top to bottom )
-      order: [
-        [[{model: SupportComment}, 'createdAt', 'ASC']],
-      ], // DESC or ASC
+      order: [[[{model: SupportComment}, 'createdAt', 'ASC']]], // DESC or ASC
       include: {
-        model: SupportComment, 
+        model: SupportComment,
         include: {
           model: Admin,
-          attributes: { 
-            exclude: ["salt", "password", "createdAt", "updatedAt"] 
+          attributes: {
+            exclude: ['salt', 'password', 'createdAt', 'updatedAt'],
           },
-        }
+        },
       },
     });
     if (!ticket) {
@@ -119,7 +117,6 @@ const retrieveAllTickets = async () => {
   try {
     const tickets = await SupportTicket.findAll({});
     return tickets;
-
   } catch (e) {
     console.log(e);
     throw console.error(e);
@@ -138,14 +135,13 @@ const retrieveAllTicketsWithUser = async () => {
       order: [['createdAt', 'DESC']],
       include: {
         model: User,
-        attributes: { 
-          exclude: ["salt", "password"] 
-        }
-      }
+        attributes: {
+          exclude: ['salt', 'password'],
+        },
+      },
     });
 
     return tickets;
-    
   } catch (e) {
     console.log(e);
     throw console.error(e);
@@ -165,14 +161,14 @@ const retrieveAllTicketsByUserId = async (userId) => {
       },
       include: {model: SupportComment, order: [['createdAt', 'DESC']]},
     });
-    if(tickets.length !==0){
+    if (tickets.length !== 0) {
       tickets.map((ticket) => {
         if (ticket.SupportComments.length >= 2) {
           ticket.SupportComments.sort(
-            (a,b,) => new Date(b.createdAt) - (a.createdAt)
-          )
+            (a, b) => new Date(b.createdAt) - a.createdAt
+          );
         }
-      })
+      });
     }
     return tickets;
   } catch (e) {
@@ -213,7 +209,15 @@ const retrieveAllActiveTickets = async () => {
       where: {
         supportStatus: SUPPORT_STATUS.PENDING,
       },
-      include: {model: SupportComment, order: [['createdAt', 'DESC']]},
+      include: [
+        {model: SupportComment, order: [['createdAt', 'DESC']]},
+        {
+          model: User,
+          attributes: {
+            exclude: ['salt', 'password'],
+          },
+        },
+      ],
     });
     return tickets;
   } catch (e) {
@@ -232,7 +236,7 @@ const retrieveAllActiveTicketsWithNoComments = async () => {
     const tickets = await SupportTicket.findAll({
       where: {
         supportStatus: SUPPORT_STATUS.PENDING,
-      }
+      },
     });
     return tickets;
   } catch (e) {
@@ -251,7 +255,7 @@ const retrieveAllResolvedTicketsWithNoComments = async () => {
     const tickets = await SupportTicket.findAll({
       where: {
         supportStatus: SUPPORT_STATUS.RESOLVED,
-      }
+      },
     });
     return tickets;
   } catch (e) {

@@ -62,11 +62,11 @@ const getAllNotificationsByUserId = async (userId) => {
   Parameters: (notificationId: string)
   Return: -
 */
-const markNotificationAsRead = async (notificationid) => {
+const markNotificationAsRead = async (notificationId) => {
   try {
     const notif = await Notification.findOne({
       where: {
-        userId,
+        notificationId,
       },
     });
 
