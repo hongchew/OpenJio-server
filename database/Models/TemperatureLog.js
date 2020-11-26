@@ -19,7 +19,7 @@ const initTemperatureLog = async (sequelize) => {
         defaultValue: false,
         allowNull: false,
       },
-      snhNotice: {
+      stayHomeNotice: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false,

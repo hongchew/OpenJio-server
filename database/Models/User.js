@@ -25,6 +25,10 @@ class User extends Model {
     this.lastBadgeReceived = new Date();
   }
 
+  incrementStrikeCount() {
+    this.strikeCount += 1;
+  }
+
   static generatePassword() {
     const buf = Buffer.alloc(5);
     return crypto.randomFillSync(buf).toString('hex');
@@ -61,7 +65,12 @@ const initUser = async (sequelize) => {
         defaultValue: false,
         allowNull: false,
       },
-      isHighRisk: {
+      hasSymptoms: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
+      },
+      onSHN: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false,
@@ -110,7 +119,7 @@ const initUser = async (sequelize) => {
       },
       lastBadgeReceived: {
         type: Sequelize.DATE,
-      }
+      },
     },
     {
       sequelize,

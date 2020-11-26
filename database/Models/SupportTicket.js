@@ -1,5 +1,5 @@
 const {Sequelize, Model, DataTypes} = require('sequelize');
-const SUPPORT_STATUS = require('../../enum/ComplaintStatus');
+const SUPPORT_STATUS = require('../../enum/SupportStatus');
 // const SUPPORT_TYPE = require('../../enum/SupportTicket');
 
 class SupportTicket extends Model {
@@ -8,9 +8,6 @@ class SupportTicket extends Model {
   }
   setResolved() {
     this.supportStatus = SUPPORT_STATUS.RESOLVED;
-  }
-  setRejected() {
-    this.supportStatus = SUPPORT_STATUS.REJECTED;
   }
 }
 

@@ -15,8 +15,7 @@ const initNotification = async (sequelize) => {
         allowNull: false,
       },
       content: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        type: DataTypes.TEXT,
       },
       isRead: {
         type: DataTypes.BOOLEAN,

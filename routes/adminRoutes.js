@@ -115,6 +115,22 @@ router.get('/retrieve', async (req, res) => {
   }
 });
 
+/* --------------------------------
+  Endpoint: GET /admins/retrieve/:adminId
+  Content type: JSON { adminId: 'UUID'}
+  Return: Models.Admin objects 
+-------------------------------- */
+router.get('/retrieve/:adminId', async (req, res) => {
+  try {
+    const admin = await retrieveAdminByAdminId(req.params.adminId);
+    res.json(admin);
+  } catch (e) {
+    res.status(500).json({
+      message: 'Error retrieving admin ' + req.body.adminId,
+    });
+  }
+});
+
 /*
   Endpoint: PUT /admins/update-admin
   Content type: JSON Model.Admin {

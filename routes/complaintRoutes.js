@@ -11,7 +11,10 @@ const {
   deleteComplaintByComplaintId,
   retrieveAllPendingComplaints,
   strikeUserComplaint,
+  retrieveAllComplaints,
 } = require('../database/Operations/Complaint');
+const {sendNotification} = require('../database/Operations/Notifications');
+const {strikeUser} = require('../database/Operations/User');
 
 /* http://localhost:3000/complaints/ . */
 router.get('/', (req, res) => {
@@ -25,7 +28,7 @@ router.get('/', (req, res) => {
   {
     "description": "string", 
     "requestId": "string", 
-    complaintUserId :string
+    complainerUserId :string
   }
   Return: Model.Complaint object
   Status: Passed postman test
@@ -35,7 +38,7 @@ router.post('/create-complaint', async (req, res) => {
     const newComplaint = await createComplaint(
       req.body.description,
       req.body.requestId,
-      req.body.complaintUserId
+      req.body.complainerUserId
     );
     res.json(newComplaint);
   } catch (e) {
@@ -47,16 +50,26 @@ router.post('/create-complaint', async (req, res) => {
   Strike user in a complaint
   Endpoint: PUT /complaints/strike-user/
   Body: JSON {
-    userId: string
-    requestId: string
+    complaintUserId: string
+    complaintId: string
   }
   Return: Model.Complaint object
   
 ---------------------------------------- */
 router.put('/strike-user', async (req, res) => {
   try {
-    await strikeUserComplaint(req.body.userId, req.body.requestId);
-    res.json(true);
+    await strikeUserComplaint(req.body.complaintUserId, req.body.complaintId);
+    res.json({status: true});
+  } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
+//test
+router.put('/strike/:userId', async (req, res) => {
+  try {
+    const user = await strikeUser(req.params.userId);
+    res.status(200).json(user);
   } catch (e) {
     res.status(500).json(e);
   }
@@ -91,6 +104,23 @@ router.get('/all-complaints/:requestId', async (req, res) => {
 router.get('/all-pending-complaints', async (req, res) => {
   try {
     const complaints = await retrieveAllPendingComplaints();
+    res.status(200).json(complaints);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/* ----------------------------------------
+  Retrieve all  complaints
+  Endpoint: GET /complaints/all-complaints
+  Params:  
+  Return: JSON array of complaints
+  Status: Passed postman test
+---------------------------------------- */
+router.get('/all-complaints', async (req, res) => {
+  try {
+    const complaints = await retrieveAllComplaints();
     res.status(200).json(complaints);
   } catch (e) {
     console.log(e);
@@ -168,6 +198,11 @@ router.put('/add-response', async (req, res) => {
 router.put('/resolve/:complaintId', async (req, res) => {
   try {
     const complaint = await resolveComplaint(req.params.complaintId);
+    sendNotification(
+      complaint.complainerUserId,
+      'Your complaint with id ' + req.params.complaintId + ' has been resolved',
+      ''
+    );
     res.status(200).json(complaint);
   } catch (e) {
     res.status(500).json(e);
@@ -184,6 +219,11 @@ router.put('/resolve/:complaintId', async (req, res) => {
 router.put('/reject/:complaintId', async (req, res) => {
   try {
     const complaint = await rejectComplaint(req.params.complaintId);
+    sendNotification(
+      complaint.complainerUserId,
+      'Your complaint with id ' + req.params.complaintId + ' has been rejected',
+      ''
+    );
     res.status(200).json(complaint);
   } catch (e) {
     res.status(500).json(e);
