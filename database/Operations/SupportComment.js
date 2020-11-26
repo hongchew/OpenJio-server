@@ -1,6 +1,7 @@
 const {SupportComment} = require('../Models/SupportComment');
 const {SupportTicket} = require('../Models/SupportTicket');
 const SUPPORT_STATUS = require('../../enum/ComplaintStatus');
+const { retrieveTicketByTicketId } = require('./SupportTicket');
 
 /* ----------------------------------------
   Create a SupportComment for a support ticket
@@ -24,6 +25,13 @@ const createComment = async (
     if (!newComment) {
       throw `New support comment creation failed.`;
     }
+
+    // If support ticket is closed, stop accepting comments
+    const supportTicket = await retrieveTicketByTicketId(supportTicketId);
+    if (supportTicket.supportStatus === SUPPORT_STATUS.RESOLVED){
+      throw `Support Ticket with ID ${supportTicketId} has already closed, and no further response can be made.`;
+    }
+
 
     await newComment.save();
 
@@ -95,13 +103,12 @@ const updateComment = async (supportComment) => {
     const supportTicketId = commentToUpdate.supportTicketId;
     const ticket = await SupportTicket.findByPk(supportTicketId);
 
-    //if the SupportTicket status is already resolved or rejected, only SupportComments that are created by admin can be edited by Admins
+    //if the SupportTicket status is already resolved, only SupportComments that are created by admin can be edited by Admins
     if (
-      (ticket.supportStatus === SUPPORT_STATUS.REJECTED ||
-        ticket.supportStatus === SUPPORT_STATUS.RESOLVED) &&
+      (ticket.supportStatus === SUPPORT_STATUS.RESOLVED) &&
       !commentToUpdate.isPostedByAdmin
     ) {
-      throw `SupportComment with ID ${commentToUpdate.supportCommentId} cannot be edited by user because it is already resolved or rejected and it is not created by admin.`;
+      throw `SupportComment with ID ${commentToUpdate.supportCommentId} cannot be edited by user because it is already resolved and it is not created by admin.`;
     }
 
     const updatedComment = await commentToUpdate.update(supportComment);
@@ -127,13 +134,12 @@ const deleteCommentByCommentId = async (supportCommentId) => {
     const supportTicketId = comment.supportTicketId;
     const ticket = await SupportTicket.findByPk(supportTicketId);
 
-    //if the SupportTicket status is already resolved or rejected, only SupportComments that are created by admin can be deleted by Admins
+    //if the SupportTicket status is already resolved, only SupportComments that are created by admin can be deleted by Admins
     if (
-      (ticket.supportStatus === SUPPORT_STATUS.REJECTED ||
-        ticket.supportStatus === SUPPORT_STATUS.RESOLVED) &&
+      (ticket.supportStatus === SUPPORT_STATUS.RESOLVED) &&
       !comment.isPostedByAdmin
     ) {
-      throw `SupportComment with ID ${comment.supportCommentId} cannot be deleted by user because it is already resolved or rejected and it is not created by admin.`;
+      throw `SupportComment with ID ${comment.supportCommentId} cannot be deleted by user because it is already resolved and it is not created by admin.`;
     }
 
     await comment.destroy();
