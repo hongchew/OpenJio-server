@@ -4,8 +4,8 @@ const {retrieveRequestByRequestId} = require('./Request');
 const axios = require('axios');
 const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
 const {strikeUser} = require('./User');
+const {User} = require('../Models/User');
 const {sendNotification} = require('./Notifications');
-const User = require('../Models/User');
 
 /*
 Strike user associated with complaint
@@ -126,7 +126,14 @@ const retrieveAllPendingComplaints = async () => {
 ---------------------------------------- */
 const retrieveAllComplaints = async () => {
   try {
-    const complaints = await Complaint.findAll({});
+    const complaints = await Complaint.findAll({
+      include: {
+        model: User, {as : 'complainer'},
+        attributes: {
+          exclude: ['salt', 'password'],
+        },
+      },
+    });
     return complaints;
   } catch (e) {
     console.log(e);
