@@ -86,6 +86,13 @@ const retrieveAllComplaintsByRequestId = async (requestId) => {
       where: {
         requestId: requestId,
       },
+      include: {
+        model: User,
+        as: 'complainer',
+        attributes: {
+          exclude: ['salt', 'password'],
+        },
+      },
     });
     return complaints;
   } catch (e) {
@@ -105,12 +112,13 @@ const retrieveAllPendingComplaints = async () => {
       where: {
         complaintStatus: COMPLAINT_STATUS.PENDING,
       },
-      // include: {
-      //   model: User,
-      //   attributes: {
-      //     exclude: ['salt', 'password'],
-      //   },
-      // },
+      include: {
+        model: User,
+        as: 'complainer',
+        attributes: {
+          exclude: ['salt', 'password'],
+        },
+      },
     });
     return complaints;
   } catch (e) {
@@ -128,7 +136,8 @@ const retrieveAllComplaints = async () => {
   try {
     const complaints = await Complaint.findAll({
       include: {
-        model: User, as: 'complainer',
+        model: User,
+        as: 'complainer',
         attributes: {
           exclude: ['salt', 'password'],
         },
