@@ -252,8 +252,11 @@ const retrieveUsersRequestsTwoWeeks = async (userId) => {
           [Op.gte]: moment().subtract(14, 'days').toDate(),
         },
       },
+      include:[{
+        model: Announcement,
+        attributes:['announcementId', 'startLocation', 'destination', 'createdAt']
+      }]
     });
-
     return requests
   } catch (e) {
     console.log(e);

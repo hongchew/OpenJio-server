@@ -5,6 +5,8 @@ const {SupportComment} = require('../Models/SupportComment');
 const axios = require('axios');
 const {User} = require('../Models/User');
 const {Admin} = require('../Models/Admin');
+const {sendNotification} = require('./Notifications');
+
 
 /* ----------------------------------------
   Create a support ticket for a user
@@ -321,6 +323,11 @@ const resolveTicket = async (supportTicketId) => {
     }
     ticket.setResolved();
     await ticket.save();
+
+    const notiTitle = `Your support ticket has been resolved!`;
+    const notiContent = `Your support ticket with the title: \"${ticket.title}\", has been resolved!`;
+    await sendNotification(ticket.userId, notiTitle, notiContent);
+
     return ticket;
   } catch (e) {
     console.log(e);
