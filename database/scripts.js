@@ -393,13 +393,13 @@ const onInitPopulateDatabase = async () => {
       user3.userId
     );
 
-    await createRequest(
-      'bbt',
-      'Pearl Milk Tea',
-      3.2,
-      johnAnnouncement.announcementId,
-      user2.userId
-    );
+    // await createRequest(
+    //   'bbt',
+    //   'Pearl Milk Tea',
+    //   3.2,
+    //   johnAnnouncement.announcementId,
+    //   user2.userId
+    // );
 
     await createRequest(
       'help buy TV',
