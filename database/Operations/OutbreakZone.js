@@ -1,4 +1,5 @@
 const {OutbreakZone} = require('../Models/OutbreakZone');
+const {sendOutbreakNotification} = require('./Notifications');
 
 /* ----------------------------------------
   Create an outbreak zone object

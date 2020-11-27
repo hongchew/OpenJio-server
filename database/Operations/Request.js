@@ -151,6 +151,26 @@ const retrieveAllPastRequests = async (userId) => {
 };
 
 /*
+  Retrieve all requests by requester based on userId that are REJECTED
+  Parameters: (userId: UUID)
+  Return: Array of Request
+*/
+const retrieveAllRejectedRequests = async (userId) => {
+  try {
+    const rejectedRequests = await Request.findAll({
+      where: {
+        userId: userId,
+        requestStatus: requestStatus.REJECTED,
+      },
+    });
+    return rejectedRequests;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
   Retrieve all requests for an announcement that are not made by the same person
   Parameters: (announcementId: string)
   Return: Array of Model.Request
@@ -221,7 +241,9 @@ const updateRequest = async (request) => {
     const updatedRequest = await requestToUpdate.update(request);
 
     // Retrieving announcement to get the announcer's userId to send notification to
-    const announcement = await retrieveAnnouncementByAnnouncementId(requestToUpdate.announcementId);
+    const announcement = await retrieveAnnouncementByAnnouncementId(
+      requestToUpdate.announcementId
+    );
 
     const notiTitle = `Updated Request: ${requestToUpdate.title}`;
     const notiContent = `${requestToUpdate.description}`;
@@ -244,6 +266,9 @@ const verifyRequest = async (requestId) => {
     const request = await retrieveRequestByRequestId(requestId);
     request.verifyRequest();
     await request.save();
+    await sendNotification(request.userId,
+      'Thank you for using Openjio!',
+    `Remember to verify the completion of your request to ${request.title} in My Activity!`)
     return request;
   } catch (e) {
     console.log(e);
@@ -261,6 +286,9 @@ const rejectRequest = async (requestId) => {
     const request = await retrieveRequestByRequestId(requestId);
     request.rejectRequest();
     await request.save();
+    await sendNotification(request.userId,
+      'Someone save this child!',
+    `Your requests submitted to ${request.title} has been rejected by the announcer. Please consider submitting requests for other announcements!`)
     return request;
   } catch (e) {
     console.log(e);
@@ -278,6 +306,9 @@ const scheduleRequest = async (requestId) => {
     const request = await retrieveRequestByRequestId(requestId);
     request.scheduleRequest();
     await request.save();
+    await sendNotification(request.userId,
+      'Hooray! Your request has been scheduled!',
+    `A request that you have made to ${request.title} has been accpeted by another user and is scheduled to happen.`)
     return request;
   } catch (e) {
     console.log(e);
@@ -295,6 +326,9 @@ const doingRequest = async (requestId) => {
     const request = await retrieveRequestByRequestId(requestId);
     request.doingRequest();
     await request.save();
+    await sendNotification(request.userId,
+      'Hooray! Doing your request now!',
+    `An OpenJio user will be doing your request to ${request.title} now!`)
     return request;
   } catch (e) {
     console.log(e);
@@ -312,6 +346,9 @@ const completeRequest = async (requestId) => {
     const request = await retrieveRequestByRequestId(requestId);
     request.completeRequest();
     await request.save();
+    await sendNotification(request.userId,
+      'Request completed!',
+    `The announcer has just completed your request to ${request.title}!`)
     return request;
   } catch (e) {
     console.log(e);
@@ -362,6 +399,7 @@ module.exports = {
   retrieveAllRequestsByAnnouncementId,
   retrieveAllOngoingRequests,
   retrieveAllPastRequests,
+  retrieveAllRejectedRequests,
   retrieveRequestByRequestId,
   deleteRequestByRequestId,
   updateRequest,

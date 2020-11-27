@@ -4,6 +4,7 @@ const {
   retrieveAllRequests,
   retrieveAllOngoingRequests,
   retrieveAllPastRequests,
+  retrieveAllRejectedRequests,
   retrieveAllRequestsByUserId,
   retrieveRequestByRequestId,
   updateRequest,
@@ -100,6 +101,28 @@ router.get('/past/:userId', async (req, res) => {
   try {
     const pastRequests = await retrieveAllPastRequests(req.params.userId);
     res.status(200).json(pastRequests);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      message:
+        'Error retrieving request from user with userid' + req.params.userId,
+    });
+  }
+});
+
+/* ----------------------------------------
+  Retrieve details of all rejected requests by userId
+  Endpoint: GET /requests/rejected/:userId
+  Parameters: userId
+  Return: Array of request objects
+  Status: Passed postman test
+---------------------------------------- */
+router.get('/rejected/:userId', async (req, res) => {
+  try {
+    const rejectedRequests = await retrieveAllRejectedRequests(
+      req.params.userId
+    );
+    res.status(200).json(rejectedRequests);
   } catch (e) {
     console.log(e);
     res.status(500).json({

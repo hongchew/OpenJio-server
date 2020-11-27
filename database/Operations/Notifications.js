@@ -3,6 +3,7 @@ const {User} = require('../Models/User');
 const {Address} = require('../Models/Address');
 
 const {Op, Sequelize} = require('sequelize');
+const axios = require('axios');
 
 /*
   create and insert notification into database
@@ -103,6 +104,17 @@ const deleteNotification = async (notificationid) => {
 */
 const sendOutbreakNotification = async (outbreakZone) => {
   try {
+    console.log(`Start outbreak notification`)
+    //Getting the longitude and latitude of the outbreakzone's postal code
+    const response = await axios.get(
+      `https://developers.onemap.sg/commonapi/search?searchVal=${outbreakZone.postalCode}&returnGeom=Y&getAddrDetails=Y`
+    );
+    if (response.data.found == 0) {
+      throw `No landmarks are found in the vicinity of the outbreak zone's postal code from OneMap API call`;
+    }
+    const zoneLat = response.data.results[0].LATITUDE;
+    const zoneLong = response.data.results[0].LONGITUDE;
+
     //retrieve users with only their default address
     const users = await User.findAll({
       where: {
@@ -120,24 +132,21 @@ const sendOutbreakNotification = async (outbreakZone) => {
       ],
     });
 
-    const affectedUsers = users.filter((user) => {
+    const affectedUsers = []
+    await Promise.all(users.map(async(user) => {
       const defaultAddressPostalCode = user.Addresses[0].postalCode;
-      // check defaultAddressPostalCode against OneMap
-      var isNearOutbreakZone = false; //stub
 
-      //#region compare postal code, delete region when one map API implemented
-      if (
-        defaultAddressPostalCode.substring(0, 2) ===
-        outbreakZone.postalCode.substring(0, 2)
-      ) {
-        isNearOutbreakZone = true;
+      //OneMap API version
+      const distance = await calculateOutbreakDistance(defaultAddressPostalCode, zoneLat, zoneLong)
+      console.log(`Distance is ${distance}`)
+      if (distance < 1000) {
+        // isNearOutbreakZone = true
+        affectedUsers.push(user)
       }
-      //#endregion
 
-      console.log(isNearOutbreakZone);
-      return isNearOutbreakZone; //need to return true if near, false if not near
-    });
+    }));
 
+    console.log(affectedUsers)
     sendNotificationToMultipleUsers(
       affectedUsers,
       'COVID-19 Reported in Your Area',
@@ -148,10 +157,41 @@ Please visit the nearest medical practitioner such as a Polyclinic or Hospital i
 \n
 The OpenJio Team`
     );
+    console.log(`Completed creating all notifications`)
   } catch (e) {
     throw e;
   }
 };
+
+const calculateOutbreakDistance = async (addrPostalCode, zoneLat, zoneLong) => {
+  try {
+    //Getting the longitude and latitude of the announcement address
+    const response = await axios.get(
+      `https://developers.onemap.sg/commonapi/search?searchVal=${addrPostalCode}&returnGeom=Y&getAddrDetails=N`
+    );
+    if (response.data.found == 0) {
+      throw `No landmarks in the vicinity of default address postal code`;
+    }
+    const addrLat = response.data.results[0].LATITUDE;
+    const addrLong = response.data.results[0].LONGITUDE;
+
+    //Converting the long and lat to radian
+    const pi = Math.PI;
+    const longStart = zoneLong * (pi/180)
+    const longAnn = addrLong * (pi/180)
+    const latStart = zoneLat * (pi/180) 
+    const latAnn = addrLat * (pi/180)
+    const distLong = longAnn - longStart;
+    const distLat = latAnn - latStart
+    const a = Math.pow(Math.sin(distLat / 2), 2) + Math.cos(latStart) * Math.cos(latAnn) * Math.pow(Math.sin(distLong / 2),2);
+    const c = 2 * Math.asin(Math.sqrt(a));
+    const radius = 6371; //radius of the earth in km
+    return(c * radius * 1000); // return radial distance between outbreak zone and default address in metres
+
+  } catch (e) {
+    console.log(e)
+  } 
+}
 
 module.exports = {
   sendNotification,
