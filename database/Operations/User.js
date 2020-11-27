@@ -4,6 +4,8 @@ const {Address} = require('../Models/Address');
 const {Wallet} = require('../Models/Wallet');
 const {Badge} = require('../Models/Badge');
 const {RecurrentAgreement} = require('../Models/RecurrentAgreement');
+const {sendNotification} = require('./Notifications');
+
 
 const {sendEmail} = require('../../utils/mailer');
 const badgeControl = require('../../enum/BadgeControl');
@@ -328,6 +330,13 @@ const giveBadge = async (userId, badgeType) => {
 
     user.incrementBadgeCount();
     badge.incrementBadgeCount();
+
+    //Send notification to announcer for badge awarded
+    await sendNotification(
+      userId,
+      `You have been awarded a badge`,
+      `You have been awarded a ${badge.name} badge. Keep up the good work!`
+    );
 
     return await Promise.all([user.save(), badge.save()]).then(() => true);
   } catch (e) {

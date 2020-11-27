@@ -25,11 +25,6 @@ const createBadge = async (userId, badge) => {
       userId: userId,
     });
 
-    //Send notification to announcer for badge awarded
-    await sendNotification(userId,
-      `You have been awarded a badge`,
-      `You have been awarded a ${badge.badgeType} badge. Keep up the good work!`);
-
     return await newBadge.save();
   } catch (e) {
     console.log(e);
