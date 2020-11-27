@@ -12,6 +12,7 @@ const {
   retrieveAllPendingComplaints,
   strikeUserComplaint,
   retrieveAllComplaints,
+  retrieve5ActiveSortedComplaints,
 } = require('../database/Operations/Complaint');
 const {sendNotification} = require('../database/Operations/Notifications');
 const {strikeUser} = require('../database/Operations/User');
@@ -104,6 +105,23 @@ router.get('/all-complaints/:requestId', async (req, res) => {
 router.get('/all-pending-complaints', async (req, res) => {
   try {
     const complaints = await retrieveAllPendingComplaints();
+    res.status(200).json(complaints);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/* ----------------------------------------
+  Retrieve 5 most recent active complaints sorted by date
+  Endpoint: GET /complaints/most-recent
+  Params:  
+  Return: JSON array of complaints
+  Status: Passed postman test
+---------------------------------------- */
+router.get('/most-recent', async (req, res) => {
+  try {
+    const complaints = await retrieve5ActiveSortedComplaints();
     res.status(200).json(complaints);
   } catch (e) {
     console.log(e);

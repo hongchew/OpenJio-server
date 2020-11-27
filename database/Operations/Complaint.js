@@ -6,6 +6,7 @@ const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
 const {strikeUser} = require('./User');
 const {User} = require('../Models/User');
 const {sendNotification} = require('./Notifications');
+const {Request} = require('../Models/Request');
 
 /*
 Strike user associated with complaint
@@ -135,6 +136,37 @@ const retrieveAllComplaints = async () => {
       },
     });
     return complaints;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/* ----------------------------------------
+  Retrieve 5 most recent active complaints including users sorted by date
+  Parameters: 
+  Return: Array of complaint objects 
+---------------------------------------- */
+const retrieve5ActiveSortedComplaints = async () => {
+  try {
+    const mostRecentComplaints = await Complaint.findAll({
+      order: [
+        ['createdAt', 'DESC'],
+      ],
+      where: {
+        complaintStatus: COMPLAINT_STATUS.PENDING,
+      },
+      limit: 5,
+      include: {
+        model: Request,
+        // attributes: ['name', 'email', 'mobileNumber']
+        include: {
+          model: User,
+          attributes: ['name', 'email', 'mobileNumber']
+        },
+      },
+    });
+    return mostRecentComplaints;
   } catch (e) {
     console.log(e);
     throw e;
@@ -288,4 +320,5 @@ module.exports = {
   retrieveAllPendingComplaints,
   strikeUserComplaint,
   retrieveAllComplaints,
+  retrieve5ActiveSortedComplaints,
 };
