@@ -254,7 +254,7 @@ const onInitPopulateDatabase = async () => {
     }
     const supportTicket3 = await createSupportTicket(
       'cannot change password',
-      'resetted password but password did not chnage',
+      'resetted password but password did not change',
       SUPPORT_TYPE.PROFILE,
       user3.userId
     );
