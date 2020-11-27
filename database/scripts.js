@@ -476,6 +476,9 @@ const onInitPopulateDatabase = async () => {
         var createdUser = await createUser(user.email, 'password', user.name);
         createdUser.isValidated = true;
         createdUser.avatarPath = `./files/${user.email.split('@')[0]}.jpg`;
+        if(user.name == 'Ashburn' || user.name == 'Mary'){
+          createdUser.isBlackListed = true;
+        }
         await createdUser.save();
         for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
           await giveBadge(createdUser.userId, badgeControl.types.LOCAL_LOBANG);
@@ -492,7 +495,6 @@ const onInitPopulateDatabase = async () => {
             badgeControl.types.FAST_AND_FURIOUS
           );
         }
-
         await giveBadge(createdUser.userId, badgeControl.types.SUPER_NEIGHBOUR);
       })
     ).then((res) =>
