@@ -6,6 +6,7 @@ const {
   retrieveAllPastRequests,
   retrieveAllRejectedRequests,
   retrieveAllRequestsByUserId,
+  retrieveAllRequestsWithAnnouncementByUserId,
   retrieveRequestByRequestId,
   updateRequest,
   deleteRequestByRequestId,
