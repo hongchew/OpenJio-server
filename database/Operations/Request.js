@@ -1,5 +1,6 @@
 const {Request} = require('../Models/Request');
 const {Announcement} = require('../Models/Announcement');
+const {sendNotification} = require('./Notifications');
 const {Op} = require('sequelize');
 const {retrieveWalletByWalletId, retrieveWalletByUserId} = require('./Wallet');
 const {retrieveUserByUserId} = require('./User');
@@ -45,8 +46,6 @@ const createRequest = async (
       throw 'Insufficient wallet balance to submit request, please top up your wallet balance and try again';
     }
 
-    // ** Add extra covid 19 check  & temperature in the future **
-
     const newRequest = Request.build({
       title: title,
       description: description,
@@ -60,6 +59,10 @@ const createRequest = async (
     newRequest.userId = userId;
 
     await newRequest.save();
+
+    const notiTitle = `New Request: ${title}`;
+    const notiContent = `${description}`;
+    await sendNotification(announcement.userId, notiTitle, notiContent);
 
     return newRequest;
   } catch (e) {
@@ -216,6 +219,14 @@ const updateRequest = async (request) => {
     // }
 
     const updatedRequest = await requestToUpdate.update(request);
+
+    // Retrieving announcement to get the announcer's userId to send notification to
+    const announcement = await retrieveAnnouncementByAnnouncementId(requestToUpdate.announcementId);
+
+    const notiTitle = `Updated Request: ${requestToUpdate.title}`;
+    const notiContent = `${requestToUpdate.description}`;
+    await sendNotification(announcement.userId, notiTitle, notiContent);
+
     return await retrieveRequestByRequestId(updatedRequest.requestId);
   } catch (e) {
     console.log(e);
