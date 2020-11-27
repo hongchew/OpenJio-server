@@ -39,9 +39,6 @@ const initWallet = async (sequelize) => {
         allowNull: false,
         defaultValue: 0.0,
       },
-      paypalLink: {
-        type: DataTypes.STRING,
-      },
       walletLimit: {
         type: DataTypes.DOUBLE,
       },
