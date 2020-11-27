@@ -114,8 +114,6 @@ const sendOutbreakNotification = async (outbreakZone) => {
     }
     const zoneLat = response.data.results[0].LATITUDE;
     const zoneLong = response.data.results[0].LONGITUDE;
-    console.log(`Outbreak zone lat is ${zoneLat}`)
-    console.log(`Outbreak zone long is ${zoneLong}`)
 
     //retrieve users with only their default address
     const users = await User.findAll({
@@ -133,37 +131,21 @@ const sendOutbreakNotification = async (outbreakZone) => {
         },
       ],
     });
-    console.log(`List of users with default addresses`)
-    console.log(users)
 
     const affectedUsers = []
     await Promise.all(users.map(async(user) => {
       const defaultAddressPostalCode = user.Addresses[0].postalCode;
-      // var isNearOutbreakZone = false; //stub
-
-      //#region compare postal code, delete region when one map API implemented
-      // if (
-      //   defaultAddressPostalCode.substring(0, 2) ===
-      //   outbreakZone.postalCode.substring(0, 2)
-      // ) {
-      //   isNearOutbreakZone = true;
-      // }
-      //#endregion
 
       //OneMap API version
       const distance = await calculateOutbreakDistance(defaultAddressPostalCode, zoneLat, zoneLong)
       console.log(`Distance is ${distance}`)
       if (distance < 1000) {
-        console.log(`isNearOutbreakZon is changed to true`)
         // isNearOutbreakZone = true
         affectedUsers.push(user)
       }
 
-      console.log(`User ${user.name} with default postal code ${defaultAddressPostalCode} near outbreak zone`);
-      // return isNearOutbreakZone; //need to return true if near, false if not near
     }));
 
-    console.log(`Moving to create notification function for all affected users`)
     console.log(affectedUsers)
     sendNotificationToMultipleUsers(
       affectedUsers,
