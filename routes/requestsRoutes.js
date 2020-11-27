@@ -14,6 +14,7 @@ const {
   scheduleRequest,
   doingRequest,
   completeRequest,
+  retrieveUsersRequestsTwoWeeks
 } = require('../database/Operations/Request');
 const router = express.Router();
 
@@ -66,6 +67,23 @@ router.get('/by-requestId/:requestId', async (req, res) => {
 router.get('/by-userId/:userId', async (req, res) => {
   try {
     const requests = await retrieveAllRequestsByUserId(req.params.userId);
+    res.status(200).json(requests);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/* ----------------------------------------
+  Retrieve details of all requests by userId in the last 2 weeks
+  Endpoint: GET /requests/two-weeks/:userId
+  Parameters: userId
+  Return: Array of request objects
+  Status: Passed postman test
+---------------------------------------- */
+router.get('/two-weeks/:userId', async (req, res) => {
+  try {
+    const requests = await retrieveUsersRequestsTwoWeeks(req.params.userId);
     res.status(200).json(requests);
   } catch (e) {
     console.log(e);
