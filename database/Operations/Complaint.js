@@ -29,16 +29,16 @@ const strikeUserComplaint = async (userId, complaintId) => {
       await strikeUser(announcerId);
       sendNotification(
         announcerId,
-        'You have been striked',
-        'Please refrain from repeating your actions. OpenJio is platform promoting community spirit. Be kind to your neighbours. :-)'
+        'You had been given a warning',
+        `We had received complaints about your actions regarding a request that you were a part of (id ${complaint.requestId}), and had deemed it inappropriate for our platform. Here at OpenJio, we believe in community spirit and hope that you will be kind to your neighbours. :-)`
       );
     } else {
       //strike requester
       await strikeUser(requesterId);
       sendNotification(
         announcerId,
-        'You have been striked',
-        'Please refrain from repeating your actions. OpenJio is platform promoting community spirit. Be kind to your neighbours. :-)'
+        'You had been given a warning',
+        `We had received complaints about your actions regarding a request that you were a part of (id ${complaint.requestId}), and had deemed it inappropriate for our platform. Here at OpenJio, we believe in community spirit and hope that you will be kind to your neighbours. :-)`
       );
     }
   } catch (e) {
