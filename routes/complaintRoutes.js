@@ -239,7 +239,8 @@ router.put('/reject/:complaintId', async (req, res) => {
     const complaint = await rejectComplaint(req.params.complaintId);
     sendNotification(
       complaint.complainerUserId,
-      'Complaint status' + 'Your complaint has been rejected'
+      'Complaint status',
+      'Your complaint has been rejected'
     );
     res.status(200).json(complaint);
   } catch (e) {
