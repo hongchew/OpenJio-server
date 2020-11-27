@@ -293,7 +293,7 @@ const onInitPopulateDatabase = async () => {
     console.log('User created with the name: ' + user3.name);
 
     // Fourth user (Mary) without COVID-19 & not blacklisted
-    user4 = await createUser('mary@email.com', 'password', 'Mary');
+    user4 = await createUser('mae@email.com', 'password', 'Mae');
     if (user4) {
       user4.hasCovid = false;
       user4.isBlackListed = false;
@@ -320,6 +320,20 @@ const onInitPopulateDatabase = async () => {
       console.log('Address successfully assigned to user: ' + user4.userId);
     }
     user4.save();
+
+    // Retrieve user 4's wallet
+    const user4Wallet = await retrieveWalletByUserId(user4.userId);
+    if (user4Wallet) {
+      // Adding $100 balance to user 4
+      const addingToUser4Wallet = await addWalletBalance(
+        user4Wallet.walletId,
+        100
+      );
+      // Check if top up was successful, alternatively can view on postman
+      if (addingToUser4Wallet.balance === 100) {
+        console.log('Successfully topped up user 4 wallet!');
+      }
+    }
 
     //SR3 demo announcements and requests
     //user1 John creates active announcement
@@ -389,7 +403,7 @@ const onInitPopulateDatabase = async () => {
         {email: 'sheryl@email.com', name: 'Sheryl'},
         {email: 'leeming@email.com', name: 'Lee Ming'},
         {email: 'kerry@email.com', name: 'Kerry'},
-        {email: 'mae@email.com', name: 'Mae'},
+        {email: 'mary@email.com', name: 'Mary'},
         {email: 'xinyi@email.com', name: 'Xin Yi'},
         {email: 'sharina@email.com', name: 'Sharina'},
       ].map(async (user) => {
