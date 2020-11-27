@@ -40,9 +40,9 @@ const onInitPopulateDatabase = async () => {
     // First user (John) with COVID-19 & not blacklisted
     const user1 = await createUser('john@email.com', 'password', 'John');
 
-    user1.hasCovid = true;
+    user1.hasCovid = false;
     user1.isBlackListed = false;
-    user1.strikeCount = 1;
+    user1.strikeCount = 2;
     user1.isValidated = true;
     user1.mobileNumber = '97748080';
     user1.avatarPath = './files/john.jpg';
@@ -166,7 +166,7 @@ const onInitPopulateDatabase = async () => {
 
     user2.save();
 
-    // Retrieve user 3's wallet
+    // Retrieve user 2's wallet
     const user2Wallet = await retrieveWalletByUserId(user2.userId);
     if (user2Wallet) {
       // Adding $200 balance to user 1
@@ -244,8 +244,8 @@ const onInitPopulateDatabase = async () => {
     user3 = await createUser('tom@email.com', 'password', 'Tom');
     if (user3) {
       user3.hasCovid = true;
-      user3.isBlackListed = true;
-      user3.strikeCount = 3;
+      user3.isBlackListed = false;
+      user3.strikeCount = 2;
       user3.isValidated = true;
       user3.mobileNumber = '91253838';
       user3.avatarPath = './files/tom.jpg';
@@ -329,7 +329,7 @@ const onInitPopulateDatabase = async () => {
     console.log('User created with the name: ' + user3.name);
 
     // Fourth user (Mary) without COVID-19 & not blacklisted
-    user4 = await createUser('mary@email.com', 'password', 'Mary');
+    user4 = await createUser('mae@email.com', 'password', 'Mae');
     if (user4) {
       user4.hasCovid = false;
       user4.isBlackListed = false;
@@ -356,6 +356,20 @@ const onInitPopulateDatabase = async () => {
       console.log('Address successfully assigned to user: ' + user4.userId);
     }
     user4.save();
+
+    // Retrieve user 4's wallet
+    const user4Wallet = await retrieveWalletByUserId(user4.userId);
+    if (user4Wallet) {
+      // Adding $100 balance to user 4
+      const addingToUser4Wallet = await addWalletBalance(
+        user4Wallet.walletId,
+        100
+      );
+      // Check if top up was successful, alternatively can view on postman
+      if (addingToUser4Wallet.balance === 100) {
+        console.log('Successfully topped up user 4 wallet!');
+      }
+    }
 
     //SR3 demo announcements and requests
     //user1 John creates active announcement
@@ -425,7 +439,7 @@ const onInitPopulateDatabase = async () => {
         {email: 'sheryl@email.com', name: 'Sheryl'},
         {email: 'leeming@email.com', name: 'Lee Ming'},
         {email: 'kerry@email.com', name: 'Kerry'},
-        {email: 'mae@email.com', name: 'Mae'},
+        {email: 'mary@email.com', name: 'Mary'},
         {email: 'xinyi@email.com', name: 'Xin Yi'},
         {email: 'sharina@email.com', name: 'Sharina'},
       ].map(async (user) => {
