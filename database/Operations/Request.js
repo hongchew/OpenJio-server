@@ -105,6 +105,29 @@ const retrieveAllRequestsByUserId = async (userId) => {
   }
 };
 
+/*
+  Retrieve all requests by requester based on userId
+  Parameters: (userId: UUID)
+  Return: Array of Request
+*/
+const retrieveAllRequestsWithAnnouncementByUserId = async (userId) => {
+  try {
+    const requestsWithAnnouncement = await Request.findAll({
+      where: {
+        userId: userId,
+      },
+      include:[{
+        model: Announcement,
+        attributes: ['announcementId', 'startLocation', 'destination', 'createdAt'],
+      }]
+    });
+    return requestsWithAnnouncement;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 /*  
 Retrieve all ongoing requests by requester based on userId that are not COMPLETED & VERIFIED
 Parameters: (userId: UUID)
@@ -396,6 +419,7 @@ module.exports = {
   createRequest,
   retrieveAllRequests,
   retrieveAllRequestsByUserId,
+  retrieveAllRequestsWithAnnouncementByUserId,
   retrieveAllRequestsByAnnouncementId,
   retrieveAllOngoingRequests,
   retrieveAllPastRequests,

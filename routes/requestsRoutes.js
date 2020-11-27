@@ -6,6 +6,7 @@ const {
   retrieveAllPastRequests,
   retrieveAllRejectedRequests,
   retrieveAllRequestsByUserId,
+  retrieveAllRequestsWithAnnouncementByUserId,
   retrieveRequestByRequestId,
   updateRequest,
   deleteRequestByRequestId,
@@ -72,6 +73,24 @@ router.get('/by-userId/:userId', async (req, res) => {
     res.status(500).json(e);
   }
 });
+
+/* ----------------------------------------
+  Retrieve details of all requests with announcement by userId
+  Endpoint: GET /requests/with-announcement/:userId
+  Parameters: userId
+  Return: Array of request objects
+  Status: Passed postman test
+---------------------------------------- */
+router.get('/with-announcement/:userId', async (req, res) => {
+  try {
+    const requests = await retrieveAllRequestsWithAnnouncementByUserId(req.params.userId);
+    res.status(200).json(requests);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
 
 /* ----------------------------------------
   Retrieve details of all ongoing requests by userId
