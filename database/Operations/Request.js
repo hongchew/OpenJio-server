@@ -151,6 +151,26 @@ const retrieveAllPastRequests = async (userId) => {
 };
 
 /*
+  Retrieve all requests by requester based on userId that are REJECTED
+  Parameters: (userId: UUID)
+  Return: Array of Request
+*/
+const retrieveAllRejectedRequests = async (userId) => {
+  try {
+    const rejectedRequests = await Request.findAll({
+      where: {
+        userId: userId,
+        requestStatus: requestStatus.REJECTED,
+      },
+    });
+    return rejectedRequests;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
   Retrieve all requests for an announcement that are not made by the same person
   Parameters: (announcementId: string)
   Return: Array of Model.Request
@@ -221,7 +241,9 @@ const updateRequest = async (request) => {
     const updatedRequest = await requestToUpdate.update(request);
 
     // Retrieving announcement to get the announcer's userId to send notification to
-    const announcement = await retrieveAnnouncementByAnnouncementId(requestToUpdate.announcementId);
+    const announcement = await retrieveAnnouncementByAnnouncementId(
+      requestToUpdate.announcementId
+    );
 
     const notiTitle = `Updated Request: ${requestToUpdate.title}`;
     const notiContent = `${requestToUpdate.description}`;
@@ -362,6 +384,7 @@ module.exports = {
   retrieveAllRequestsByAnnouncementId,
   retrieveAllOngoingRequests,
   retrieveAllPastRequests,
+  retrieveAllRejectedRequests,
   retrieveRequestByRequestId,
   deleteRequestByRequestId,
   updateRequest,
