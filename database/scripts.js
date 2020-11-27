@@ -478,6 +478,7 @@ const onInitPopulateDatabase = async () => {
         createdUser.avatarPath = `./files/${user.email.split('@')[0]}.jpg`;
         if(user.name == 'Ashburn' || user.name == 'Mary'){
           createdUser.isBlackListed = true;
+          createdUser.strikeCount = 3;
         }
         await createdUser.save();
         for (let i = 1; i < Math.floor(Math.random() * 15); i++) {
