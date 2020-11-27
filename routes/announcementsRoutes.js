@@ -12,7 +12,8 @@ const {
   ongoingAnnouncement,
   pastAnnouncement,
   activeAnnouncement,
-  completedAnnouncement
+  completedAnnouncement,
+  retrieveUserAnnouncementsTwoWeeks
 } = require('../database/Operations/Announcement');
 
 /* http://localhost:3000/announcements/ . */
@@ -90,6 +91,25 @@ router.get('/view-all-announcements', async (req, res) => {
 router.get('/all-announcements/:userId', async (req, res) => {
   try {
     const announcements = await retrieveAllAnnouncementsByUserId(
+      req.params.userId
+    );
+    res.status(200).json(announcements);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/* ----------------------------------------
+  Retrieve all announcements listed by a userId in the past 2 weeks
+  Endpoint: GET /two-weeks/:userId
+  Parameters: userId
+  Return: JSON array of announcements
+  Status: Passed postman test
+---------------------------------------- */
+router.get('/two-weeks/:userId', async (req, res) => {
+  try {
+    const announcements = await retrieveUserAnnouncementsTwoWeeks(
       req.params.userId
     );
     res.status(200).json(announcements);

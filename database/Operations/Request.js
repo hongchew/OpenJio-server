@@ -7,6 +7,7 @@ const {retrieveUserByUserId} = require('./User');
 const requestStatus = require('../../enum/RequestStatus');
 const announcementStatus = require('../../enum/AnnouncementStatus');
 const {retrieveAnnouncementByAnnouncementId} = require('./Announcement');
+const moment = require('moment');
 
 /*
   Create a Request between announcer and requester
@@ -237,6 +238,29 @@ const retrieveRequestByRequestId = async (requestId) => {
   }
 };
 
+/* 
+  Retrieve one request associated by userId in the past 2 weeks
+  Parameters: (userId: UUID)
+  Return: Request array
+*/
+const retrieveUsersRequestsTwoWeeks = async (userId) => {
+  try {
+    const requests = await Request.findAll({
+      where: {
+        userId,
+        createdAt: {
+          [Op.gte]: moment().subtract(14, 'days').toDate(),
+        },
+      },
+    });
+
+    return requests
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
 /*
   Update ongoing request details
   Parameters: (request)
@@ -289,9 +313,11 @@ const verifyRequest = async (requestId) => {
     const request = await retrieveRequestByRequestId(requestId);
     request.verifyRequest();
     await request.save();
-    await sendNotification(request.userId,
+    await sendNotification(
+      request.userId,
       'Request verified',
-    `Request '${request.title}' has been verified. Thank you for using OpenJio`)
+      `Request '${request.title}' has been verified. Thank you for using OpenJio`
+    );
     return request;
   } catch (e) {
     console.log(e);
@@ -309,9 +335,11 @@ const rejectRequest = async (requestId) => {
     const request = await retrieveRequestByRequestId(requestId);
     request.rejectRequest();
     await request.save();
-    await sendNotification(request.userId,
+    await sendNotification(
+      request.userId,
       'Request rejected',
-    `Your request '${request.title}' has been rejected. Please consider submitting requests for other announcements!`)
+      `Your request '${request.title}' has been rejected. Please consider submitting requests for other announcements!`
+    );
     return request;
   } catch (e) {
     console.log(e);
@@ -329,9 +357,11 @@ const scheduleRequest = async (requestId) => {
     const request = await retrieveRequestByRequestId(requestId);
     request.scheduleRequest();
     await request.save();
-    await sendNotification(request.userId,
+    await sendNotification(
+      request.userId,
       'Request scheduled',
-    `Your request '${request.title}' has been accpeted by another user and is scheduled to happen.`)
+      `Your request '${request.title}' has been accpeted by another user and is scheduled to happen.`
+    );
     return request;
   } catch (e) {
     console.log(e);
@@ -349,9 +379,11 @@ const doingRequest = async (requestId) => {
     const request = await retrieveRequestByRequestId(requestId);
     request.doingRequest();
     await request.save();
-    await sendNotification(request.userId,
+    await sendNotification(
+      request.userId,
       'Request doing',
-    `An OpenJio user is doing your request '${request.title}' now!`)
+      `An OpenJio user is doing your request '${request.title}' now!`
+    );
     return request;
   } catch (e) {
     console.log(e);
@@ -369,9 +401,11 @@ const completeRequest = async (requestId) => {
     const request = await retrieveRequestByRequestId(requestId);
     request.completeRequest();
     await request.save();
-    await sendNotification(request.userId,
+    await sendNotification(
+      request.userId,
       'Request completed',
-    `Your request '${request.title}' is completed!`)
+      `Your request '${request.title}' is completed!`
+    );
     return request;
   } catch (e) {
     console.log(e);
@@ -432,4 +466,5 @@ module.exports = {
   scheduleRequest,
   doingRequest,
   completeRequest,
+  retrieveUsersRequestsTwoWeeks
 };

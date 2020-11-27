@@ -15,6 +15,7 @@ const {
   scheduleRequest,
   doingRequest,
   completeRequest,
+  retrieveUsersRequestsTwoWeeks
 } = require('../database/Operations/Request');
 const router = express.Router();
 
@@ -75,22 +76,21 @@ router.get('/by-userId/:userId', async (req, res) => {
 });
 
 /* ----------------------------------------
-  Retrieve details of all requests with announcement by userId
-  Endpoint: GET /requests/with-announcement/:userId
+  Retrieve details of all requests by userId in the last 2 weeks
+  Endpoint: GET /requests/two-weeks/:userId
   Parameters: userId
   Return: Array of request objects
   Status: Passed postman test
 ---------------------------------------- */
-router.get('/with-announcement/:userId', async (req, res) => {
+router.get('/two-weeks/:userId', async (req, res) => {
   try {
-    const requests = await retrieveAllRequestsWithAnnouncementByUserId(req.params.userId);
+    const requests = await retrieveUsersRequestsTwoWeeks(req.params.userId);
     res.status(200).json(requests);
   } catch (e) {
     console.log(e);
     res.status(500).json(e);
   }
 });
-
 
 /* ----------------------------------------
   Retrieve details of all ongoing requests by userId

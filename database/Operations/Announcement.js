@@ -4,6 +4,8 @@ const axios = require('axios');
 const {retrieveAddressByAddressId} = require('./Address');
 const {Request} = require('../Models/Request');
 const {User} = require('../Models/User');
+const { Op } = require('sequelize');
+const moment = require('moment');
 
 /* ----------------------------------------
   Create an announcement tagged to a user
@@ -68,27 +70,31 @@ const closeAnnouncement = async (announcementId) => {
     }
 
     //check if there are any requests associated with this announcement before closing it
-    const requests = await retrieveAllRequestsForAnnouncement(announcement.announcementId)
-    const acceptedRequests = requests.filter((request) => 
-      request.requestStatus === 'SCHEDULED'
-    )
-    if (acceptedRequests.length !== 0){
-      announcement.ongoingAnnouncement()
+    const requests = await retrieveAllRequestsForAnnouncement(
+      announcement.announcementId
+    );
+    const acceptedRequests = requests.filter(
+      (request) => request.requestStatus === 'SCHEDULED'
+    );
+    if (acceptedRequests.length !== 0) {
+      announcement.ongoingAnnouncement();
       await announcement.save();
     } else {
-      announcement.disableAnnouncement()
-      await announcement.save()
+      announcement.disableAnnouncement();
+      await announcement.save();
     }
     //update all these accepted requests to doing, and pending requests to rejected
-    await Promise.all(requests.map(async(request) => {
-      if (request.requestStatus === 'SCHEDULED') {
-        request.doingRequest()
-        await request.save()
-      } else {
-        request.rejectRequest()
-        await request.save()
-      }
-    }))
+    await Promise.all(
+      requests.map(async (request) => {
+        if (request.requestStatus === 'SCHEDULED') {
+          request.doingRequest();
+          await request.save();
+        } else {
+          request.rejectRequest();
+          await request.save();
+        }
+      })
+    );
   } catch (e) {
     console.log(e);
     throw e;
@@ -129,8 +135,14 @@ const retrieveNearbyAnnouncements = async (addressId) => {
       (announcement) => announcement.userId !== myAddress.userId
     );
     //To get the announcements within a 1000m distance
-    const finalAnnouncements = await filterAnnouncements(excludedAnnouncements, lat, long)
-    finalAnnouncements.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+    const finalAnnouncements = await filterAnnouncements(
+      excludedAnnouncements,
+      lat,
+      long
+    );
+    finalAnnouncements.sort(
+      (a, b) => parseFloat(a.distance) - parseFloat(b.distance)
+    );
 
     return finalAnnouncements;
   } catch (e) {
@@ -146,19 +158,21 @@ const retrieveNearbyAnnouncements = async (addressId) => {
 ---------------------------------------- */
 const filterAnnouncements = async (activeAnnouncements, lat, long) => {
   try {
-    const result = []
-    await Promise.all(activeAnnouncements.map(async(announcement) => {
-      const distance = await calculateDistance(announcement, lat, long)
-      if (distance < 1000){
-        result.push({"announcement":announcement,"distance":distance})
-      }
-    }));
-    return result
+    const result = [];
+    await Promise.all(
+      activeAnnouncements.map(async (announcement) => {
+        const distance = await calculateDistance(announcement, lat, long);
+        if (distance < 1000) {
+          result.push({announcement: announcement, distance: distance});
+        }
+      })
+    );
+    return result;
   } catch (e) {
-    console.log(e)
-    throw e
+    console.log(e);
+    throw e;
   }
-}
+};
 
 /* ----------------------------------------
   Nested function from parent filterAnnouncements to calculate the distance between each announcement and the starting point
@@ -184,19 +198,24 @@ const calculateDistance = async (announcement, lat, long) => {
       throw `No landmarks are found in the vicinity of the announcement's postal code from OneMap API call`;
     }
     const latAnnouncement = announcementAddressDetails.data.results[0].LATITUDE;
-    const longAnnouncement = announcementAddressDetails.data.results[0].LONGITUDE;
+    const longAnnouncement =
+      announcementAddressDetails.data.results[0].LONGITUDE;
     //Converting the long and lat to radian
     const pi = Math.PI;
-    const longStart = long * (pi/180)
-    const longAnn = longAnnouncement * (pi/180)
-    const latStart = lat * (pi/180) 
-    const latAnn = latAnnouncement * (pi/180)
+    const longStart = long * (pi / 180);
+    const longAnn = longAnnouncement * (pi / 180);
+    const latStart = lat * (pi / 180);
+    const latAnn = latAnnouncement * (pi / 180);
     const distLong = longAnn - longStart;
-    const distLat = latAnn - latStart
-    const a = Math.pow(Math.sin(distLat / 2), 2) + Math.cos(latStart) * Math.cos(latAnn) * Math.pow(Math.sin(distLong / 2),2);
+    const distLat = latAnn - latStart;
+    const a =
+      Math.pow(Math.sin(distLat / 2), 2) +
+      Math.cos(latStart) *
+        Math.cos(latAnn) *
+        Math.pow(Math.sin(distLong / 2), 2);
     const c = 2 * Math.asin(Math.sqrt(a));
     const radius = 6371; //radius of the earth in km
-    return(c * radius * 1000);
+    return c * radius * 1000;
   } catch (e) {
     console.log(e);
     throw e;
@@ -211,12 +230,12 @@ const calculateDistance = async (announcement, lat, long) => {
 const retrieveAllAnnouncements = async () => {
   try {
     const announcements = await Announcement.findAll({
-      include: { 
-        model: User, 
-        attributes: { 
-          exclude: ["salt", "password"] 
-        }
-      }
+      include: {
+        model: User,
+        attributes: {
+          exclude: ['salt', 'password'],
+        },
+      },
     });
     return announcements;
   } catch (e) {
@@ -251,10 +270,9 @@ const retrieveAllAnnouncementsByUserId = async (userId) => {
 ---------------------------------------- */
 const retrieveAllRequestsForAnnouncement = async (announcementId) => {
   try {
-
     const requests = await Request.findAll({
       where: {
-        announcementId: announcementId
+        announcementId: announcementId,
       },
     });
 
@@ -326,11 +344,13 @@ const updateAnnouncement = async (announcement) => {
     }
 
     //Announcement cannot be edited if it has already accepted requests
-    const requests = await retrieveAllRequestsForAnnouncement(announcement.announcementId)
-    const acceptedRequests = requests.filter((request) => 
-      request.requestStatus === 'SCHEDULED'
-    )
-    if (acceptedRequests.length !== 0){
+    const requests = await retrieveAllRequestsForAnnouncement(
+      announcement.announcementId
+    );
+    const acceptedRequests = requests.filter(
+      (request) => request.requestStatus === 'SCHEDULED'
+    );
+    if (acceptedRequests.length !== 0) {
       throw `Announcement with ID: ${announcement.announcementId} already accepted requests and cannot be updated!`;
     }
 
@@ -366,11 +386,13 @@ const deleteAnnouncementByAnnouncementId = async (announcementId) => {
       throw `Announcement with ID: ${announcement.announcementId} is already ongoing or closed and cannot be deleted!`;
     }
     //Announcement cannot be deleted if it has already accepted requests
-    const requests = await retrieveAllRequestsForAnnouncement(announcement.announcementId)
-    const acceptedRequests = requests.filter((request) => 
-      request.requestStatus === 'SCHEDULED'
-    )
-    if (acceptedRequests.length !== 0){
+    const requests = await retrieveAllRequestsForAnnouncement(
+      announcement.announcementId
+    );
+    const acceptedRequests = requests.filter(
+      (request) => request.requestStatus === 'SCHEDULED'
+    );
+    if (acceptedRequests.length !== 0) {
       throw `Announcement with ID: ${announcement.announcementId} already accepted requests and cannot be deleted!`;
     }
 
@@ -378,13 +400,14 @@ const deleteAnnouncementByAnnouncementId = async (announcementId) => {
     const announcementDeleted = await announcement.destroy();
 
     if (announcementDeleted) {
-      console.log('Announcement with ID: ' + announcementId + ' successfully deleted!');
+      console.log(
+        'Announcement with ID: ' + announcementId + ' successfully deleted!'
+      );
       return await retrieveAnnouncementByUserId(userId);
       // return `Announcement ${announcementId} successfully deleted`;
     } else {
       throw 'Failed to delete announcement with ID: ' + announcementId;
     }
-
   } catch (e) {
     console.log(e);
     throw e;
@@ -398,7 +421,9 @@ Return: Announcement Object
 */
 const ongoingAnnouncement = async (announcementId) => {
   try {
-    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    const announcement = await retrieveAnnouncementByAnnouncementId(
+      announcementId
+    );
     announcement.ongoingAnnouncement();
     await announcement.save();
     return announcement;
@@ -415,7 +440,9 @@ Return: Announcement Object
 */
 const pastAnnouncement = async (announcementId) => {
   try {
-    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    const announcement = await retrieveAnnouncementByAnnouncementId(
+      announcementId
+    );
     announcement.disableAnnouncement();
     await announcement.save();
     return announcement;
@@ -432,7 +459,9 @@ Return: Announcement Object
 */
 const activeAnnouncement = async (announcementId) => {
   try {
-    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    const announcement = await retrieveAnnouncementByAnnouncementId(
+      announcementId
+    );
     announcement.activateAnnouncement();
     await announcement.save();
     return announcement;
@@ -449,10 +478,35 @@ Return: Announcement Object
 */
 const completedAnnouncement = async (announcementId) => {
   try {
-    const announcement = await retrieveAnnouncementByAnnouncementId(announcementId);
+    const announcement = await retrieveAnnouncementByAnnouncementId(
+      announcementId
+    );
     announcement.completeAnnouncement();
     await announcement.save();
     return announcement;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/*
+Retrieve users announcements from past 2 weeks
+Parameters: userId
+Return: Announcement array
+*/
+const retrieveUserAnnouncementsTwoWeeks = async (userId) => {
+  try {
+    const announcements = await Announcement.findAll({
+      where: {
+        userId,
+        createdAt: {
+          [Op.gte] : moment().subtract(14, 'days').toDate()
+        }
+      },
+    });
+
+    return announcements
   } catch (e) {
     console.log(e);
     throw e;
@@ -472,5 +526,6 @@ module.exports = {
   ongoingAnnouncement,
   pastAnnouncement,
   activeAnnouncement,
-  completedAnnouncement
+  completedAnnouncement,
+  retrieveUserAnnouncementsTwoWeeks
 };
