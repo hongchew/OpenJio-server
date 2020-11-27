@@ -1,6 +1,7 @@
 const {SupportComment} = require('../Models/SupportComment');
 const {SupportTicket} = require('../Models/SupportTicket');
-const SUPPORT_STATUS = require('../../enum/ComplaintStatus');
+const {User} = require('../Models/User');
+const SUPPORT_STATUS = require('../../enum/SupportStatus');
 const { retrieveTicketByTicketId } = require('./SupportTicket');
 const { sendNotification } = require('./Notifications');
 
@@ -93,6 +94,54 @@ const retrieveAllCommentsByTicketId = async (supportTicketId) => {
 };
 
 /* ----------------------------------------
+  Retrieve 5 most active SupportComments sorted by date
+  Parameters: (null)
+  Return: Array of SupportComment objects
+---------------------------------------- */
+const retrieve5MostRecentCommentsFromUsers = async () => {
+  try {
+    const recentComments = await SupportComment.findAll({
+      // Order from latest to oldest
+      order: [
+        ['createdAt', 'DESC'],
+      ],
+      // Comments by users
+      where:{
+        isPostedByAdmin: false
+      },
+      // Limit to 5 most recent
+      limit: 5,
+      // Include support ticket for displaying related fields 
+      // and retrieve only comments for tickets that are still "PENDING"
+      include: [{
+        model: SupportTicket,
+        where: {
+          supportStatus: "PENDING"
+        },
+        // Include User to get the username etc.
+        include:[{
+          model: User,
+          attributes: ['name', 'email', 'mobileNumber'],
+          // attributes: {
+          //   exclude: ['salt', 'password'],
+          // },
+        }]
+      }]
+    });
+
+    //sort the comments from latest to oldest
+    // const sortedComments = comments.sort(
+    //   (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    // );
+
+    return recentComments;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+/* ----------------------------------------
   For users or admins to update the details of SupportComment
   Parameters: SupportComment object
   Return: Updated SupportComment object
@@ -161,6 +210,7 @@ const deleteCommentByCommentId = async (supportCommentId) => {
 module.exports = {
   createComment,
   retrieveCommentByCommentId,
+  retrieve5MostRecentCommentsFromUsers,
   retrieveAllCommentsByTicketId,
   updateComment,
   deleteCommentByCommentId,

@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   createComment,
   retrieveCommentByCommentId,
+  retrieve5MostRecentCommentsFromUsers,
   retrieveAllCommentsByTicketId,
   updateComment,
   deleteCommentByCommentId
@@ -71,6 +72,23 @@ router.get('/comments-by/:supportTicketId', async (req, res) => {
     const comments = await retrieveAllCommentsByTicketId(
       req.params.supportTicketId
     );
+    res.status(200).json(comments);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
+
+/* ----------------------------------------
+  Retrieve all support comments from *User* sorted by date (For admin notification)
+  Endpoint: GET /supportComments/most-recent
+  Params: (null)
+  Return: JSON array of SupportComment
+  Status: Passed postman test
+---------------------------------------- */
+router.get('/most-recent', async (req, res) => {
+  try {
+    const comments = await retrieve5MostRecentCommentsFromUsers();
     res.status(200).json(comments);
   } catch (e) {
     console.log(e);
