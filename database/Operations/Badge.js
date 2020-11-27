@@ -3,6 +3,7 @@ const {User} = require('../Models/User');
 
 const badgeControl = require('../../enum/BadgeControl');
 const {retrieveUserByUserId} = require('./User');
+const {sendNotification} = require('./Notifications');
 /*
   Create an insert a badge into database
   Parameters: (
@@ -23,6 +24,11 @@ const createBadge = async (userId, badge) => {
       badgeType: badge.badgeType,
       userId: userId,
     });
+
+    //Send notification to announcer for badge awarded
+    await sendNotification(userId,
+      `You have been awarded a badge`,
+      `You have been awarded a ${badge.badgeType} badge. Keep up the good work!`);
 
     return await newBadge.save();
   } catch (e) {
