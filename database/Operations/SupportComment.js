@@ -38,8 +38,10 @@ const createComment = async (
 
     // Send notification to user whenever admin respond to the support ticket
     if(isPostedByAdmin){
-      const title = "New Reply for Support Ticket";
-      const content = `${description}`;
+      const title = "New reply for your support ticket!";
+      const content = `New reply for your support ticket with title: ${supportTicket.title}
+                      \n
+                      Reply: ${description}`;
       await sendNotification(supportTicket.userId, title, content);
     }
 
