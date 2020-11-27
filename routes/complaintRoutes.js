@@ -218,8 +218,8 @@ router.put('/resolve/:complaintId', async (req, res) => {
     const complaint = await resolveComplaint(req.params.complaintId);
     sendNotification(
       complaint.complainerUserId,
-      'Your complaint with id ' + req.params.complaintId + ' has been resolved',
-      ''
+      'Complaint status',
+      ' Your complaint has been resolved!'
     );
     res.status(200).json(complaint);
   } catch (e) {
@@ -239,8 +239,7 @@ router.put('/reject/:complaintId', async (req, res) => {
     const complaint = await rejectComplaint(req.params.complaintId);
     sendNotification(
       complaint.complainerUserId,
-      'Your complaint with id ' + req.params.complaintId + ' has been rejected',
-      ''
+      'Complaint status' + 'Your complaint has been rejected'
     );
     res.status(200).json(complaint);
   } catch (e) {
