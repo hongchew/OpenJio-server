@@ -14,6 +14,9 @@ const {
 const TransactionType = require('../enum/TransactionType');
 const {createAnnouncement} = require('./Operations/Announcement');
 const {createRequest} = require('./Operations/Request');
+const {createComplaint} = require('./Operations/Complaint');
+const {createSupportTicket} = require('./Operations/SupportTicket');
+const SUPPORT_TYPE = require('../enum/SupportType');
 
 const onInitPopulateDatabase = async () => {
   // Populate admin
@@ -45,7 +48,6 @@ const onInitPopulateDatabase = async () => {
     user1.avatarPath = './files/john.jpg';
 
     await giveBadge(user1.userId, badgeControl.types.LOCAL_LOBANG);
-
 
     // Add to user address
     const address1 = {
@@ -198,6 +200,26 @@ const onInitPopulateDatabase = async () => {
     );
     console.log(request1);
 
+    const complaint2 = await createComplaint(
+      'Paul wanted me to buy cigarettes for him when he is underaged',
+      request1.requestId,
+      user1.userId
+    );
+
+    const supportTicket1 = await createSupportTicket(
+      'button not working',
+      'cannot create request',
+      SUPPORT_TYPE.JIO,
+      user1.userId
+    );
+
+    const supportTicket2 = await createSupportTicket(
+      'cannot commend user',
+      'the guy was very nice but i cannot commend him',
+      SUPPORT_TYPE.JIO,
+      user2.userId
+    );
+
     //user1 John creates active announcement3
     const announcement3 = await createAnnouncement(
       user1.userId,
@@ -230,6 +252,12 @@ const onInitPopulateDatabase = async () => {
       user3.isSingPassVerified = true;
       await giveBadge(user3.userId, badgeControl.types.LOCAL_LOBANG);
     }
+    const supportTicket3 = await createSupportTicket(
+      'cannot change password',
+      'resetted password but password did not chnage',
+      SUPPORT_TYPE.PROFILE,
+      user3.userId
+    );
 
     // Add to user address
     const address3 = {
@@ -237,7 +265,7 @@ const onInitPopulateDatabase = async () => {
       line2: '#03-03',
       postalCode: '140183',
       country: 'Singapore',
-      description: 'Mother\'s Home',
+      description: "Mother's Home",
     };
 
     let assignAddressToUser3 = await addAddress(user3.userId, address3);
@@ -275,6 +303,14 @@ const onInitPopulateDatabase = async () => {
       user1.userId
     );
     console.log(request2);
+
+    const complaint1 = await createComplaint(
+      'Tom ate half of my food and sent the remaining to me',
+      request2.requestId,
+      user1.userId
+    );
+
+    console.log(complaint1);
 
     // Retrieve user 3's wallet
     const user3Wallet = await retrieveWalletByUserId(user3.userId);

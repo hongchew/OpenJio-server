@@ -290,8 +290,8 @@ const verifyRequest = async (requestId) => {
     request.verifyRequest();
     await request.save();
     await sendNotification(request.userId,
-      'Thank you for using Openjio!',
-    `Remember to verify the completion of your request to ${request.title} in My Activity!`)
+      'Request verified',
+    `Request '${request.title}' has been verified. Thank you for using OpenJio`)
     return request;
   } catch (e) {
     console.log(e);
@@ -310,8 +310,8 @@ const rejectRequest = async (requestId) => {
     request.rejectRequest();
     await request.save();
     await sendNotification(request.userId,
-      'Someone save this child!',
-    `Your requests submitted to ${request.title} has been rejected by the announcer. Please consider submitting requests for other announcements!`)
+      'Request rejected',
+    `Your request '${request.title}' has been rejected. Please consider submitting requests for other announcements!`)
     return request;
   } catch (e) {
     console.log(e);
@@ -330,8 +330,8 @@ const scheduleRequest = async (requestId) => {
     request.scheduleRequest();
     await request.save();
     await sendNotification(request.userId,
-      'Hooray! Your request has been scheduled!',
-    `A request that you have made to ${request.title} has been accpeted by another user and is scheduled to happen.`)
+      'Request scheduled',
+    `Your request '${request.title}' has been accpeted by another user and is scheduled to happen.`)
     return request;
   } catch (e) {
     console.log(e);
@@ -350,8 +350,8 @@ const doingRequest = async (requestId) => {
     request.doingRequest();
     await request.save();
     await sendNotification(request.userId,
-      'Hooray! Doing your request now!',
-    `An OpenJio user will be doing your request to ${request.title} now!`)
+      'Request doing',
+    `An OpenJio user is doing your request '${request.title}' now!`)
     return request;
   } catch (e) {
     console.log(e);
@@ -370,8 +370,8 @@ const completeRequest = async (requestId) => {
     request.completeRequest();
     await request.save();
     await sendNotification(request.userId,
-      'Request completed!',
-    `The announcer has just completed your request to ${request.title}!`)
+      'Request completed',
+    `Your request '${request.title}' is completed!`)
     return request;
   } catch (e) {
     console.log(e);
