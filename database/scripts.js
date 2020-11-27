@@ -37,9 +37,9 @@ const onInitPopulateDatabase = async () => {
     // First user (John) with COVID-19 & not blacklisted
     const user1 = await createUser('john@email.com', 'password', 'John');
 
-    user1.hasCovid = true;
+    user1.hasCovid = false;
     user1.isBlackListed = false;
-    user1.strikeCount = 1;
+    user1.strikeCount = 2;
     user1.isValidated = true;
     user1.mobileNumber = '97748080';
     user1.avatarPath = './files/john.jpg';
@@ -164,7 +164,7 @@ const onInitPopulateDatabase = async () => {
 
     user2.save();
 
-    // Retrieve user 3's wallet
+    // Retrieve user 2's wallet
     const user2Wallet = await retrieveWalletByUserId(user2.userId);
     if (user2Wallet) {
       // Adding $200 balance to user 1
@@ -222,8 +222,8 @@ const onInitPopulateDatabase = async () => {
     user3 = await createUser('tom@email.com', 'password', 'Tom');
     if (user3) {
       user3.hasCovid = true;
-      user3.isBlackListed = true;
-      user3.strikeCount = 3;
+      user3.isBlackListed = false;
+      user3.strikeCount = 2;
       user3.isValidated = true;
       user3.mobileNumber = '91253838';
       user3.avatarPath = './files/tom.jpg';
