@@ -348,13 +348,16 @@ const onInitPopulateDatabase = async () => {
       line2: '#04-04',
       postalCode: '140184',
       country: 'Singapore',
-      description: 'Mary home',
+      description: 'Mae home',
     };
 
     let assignAddressToUser4 = await addAddress(user4.userId, address4);
     if (assignAddressToUser4) {
       console.log('Address successfully assigned to user: ' + user4.userId);
     }
+
+    user4.defaultAddressId = assignAddressToUser4[0].addressId;
+
     user4.save();
 
     // Retrieve user 4's wallet
@@ -373,19 +376,46 @@ const onInitPopulateDatabase = async () => {
 
     //SR3 demo announcements and requests
     //user1 John creates active announcement
-    await createAnnouncement(
+    const johnAnnouncement = await createAnnouncement(
       user1.userId,
       assignAddressToUser1[0].addressId,
       `Going to buy bubble tea`,
-      '2020-11-22T00:00:00.000Z',
+      '2020-11-30T00:00:00.000Z',
       `Harborfront`
     );
+
+    // #region Test requests
+    await createRequest(
+      'Macs',
+      'Buy McSpicy please',
+      10.0,
+      johnAnnouncement.announcementId,
+      user3.userId
+    );
+
+    await createRequest(
+      'bbt',
+      'Pearl Milk Tea',
+      3.2,
+      johnAnnouncement.announcementId,
+      user2.userId
+    );
+
+    await createRequest(
+      'help buy TV',
+      '50"',
+      10.0,
+      johnAnnouncement.announcementId,
+      user4.userId
+    );
+
+    //#endregion
 
     await createAnnouncement(
       user4.userId,
       assignAddressToUser4[0].addressId,
       `Going to collect mail`,
-      '2020-11-25T00:00:00.000Z',
+      '2020-11-29T00:00:00.000Z',
       `Admiralty`
     );
 
@@ -393,7 +423,7 @@ const onInitPopulateDatabase = async () => {
       user2.userId,
       assignAddressToUser2[0].addressId,
       `Dapao food`,
-      '2020-11-20T00:00:00.000Z',
+      '2020-11-30T00:00:00.000Z',
       `Biz Canteen`
     );
 
@@ -401,7 +431,7 @@ const onInitPopulateDatabase = async () => {
       user3.userId,
       assignAddressToUser3[0].addressId,
       `Grocery shopping`,
-      '2020-11-23T00:00:00.000Z',
+      '2020-11-30T00:00:00.000Z',
       `Seng Kang Mall`
     );
 
@@ -409,7 +439,7 @@ const onInitPopulateDatabase = async () => {
       user4.userId,
       assignAddressToUser4[0].addressId,
       `Buying coffee`,
-      '2020-11-26T00:00:00.000Z',
+      '2020-11-30T00:00:00.000Z',
       `Starbucks`
     );
 
@@ -417,7 +447,7 @@ const onInitPopulateDatabase = async () => {
       user3.userId,
       assignAddressToUser3[0].addressId,
       `Going to chalet area`,
-      '2020-11-27T00:00:00.000Z',
+      '2020-11-29T00:00:00.000Z',
       `Bedok`
     );
 
